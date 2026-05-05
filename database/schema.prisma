@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Propiedad {
+  id          String   @id @default(cuid())
+  titulo      String
+  descripcion String   @db.Text
+  precio      Float
+  moneda      String   @default("USD")
+  tipo        String   // Ej: "Casa", "Departamento", "Campo", "Lote"
+  operacion   String   // Ej: "Venta", "Alquiler"
+  
+  // --- UBICACIÓN ---
+  latitud     Float
+  longitud    Float
+
+  // --- MEDIDAS Y SUPERFICIES ---
+  m2Total          Float
+  m2Cubierto       Float
+  m2Semicubierto   Float?   @default(0) // El '?' significa que es opcional 
+  frenteTerreno    Float?
+  largoTerreno     Float?
+
+  // --- DISTRIBUCIÓN PRINCIPAL ---
+  ambientes        Int
+  dormitorios      Int
+  banos            Int
+  toilettes        Int?     @default(0)
+  cocheras         Int?     @default(0)
+  tipoCochera      String?  // Ej: "Descubierta", "Cubierta", "Subterránea"
+  plantas          Int      @default(1)
+  antiguedadAnos   Int      // Ponemos 0 si es "A Estrenar"
+
+  // --- LISTAS DE CARACTERÍSTICAS 
+  // Aquí guardaremos cosas como: ["Comedor diario", "Dependencia servicio", "Escritorio", "Lavadero", "Patio", "Terraza"]
+  ambientesExtra   String[] 
+  
+  // Aquí: ["Agua Corriente", "Gas Natural", "Fibra Óptica", "Cloacas"]
+  servicios        String[] 
+  
+  // Aquí: ["Parrilla", "Aire Acondicionado", "Calefacción Radiadores", "Piscina", "Losa Radiante"]
+  comodidades      String[] 
+
+  // --- MULTIMEDIA E INNOVACIÓN (El toque Premium) ---
+  imagenes         String[] // Lista de URLs de fotos
+  tourVirtualUrl   String?  // Link a un recorrido 360° o video de Drone
+  
+  // INNOVACIÓN TANDILURBAN:
+  esSustentable     Boolean  @default(false) // Destaca propiedades eco-friendly
+
+  // --- FECHAS INTERNAS ---
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

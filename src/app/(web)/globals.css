@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/* Ignora la línea amarilla debajo de @theme, es normal */
+@theme {
+  --color-verde: #006039;
+  --color-naranja: #A3863C;
+}
+
+/* El resto de tu código base puede quedar abajo */
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

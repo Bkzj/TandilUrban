@@ -58,25 +58,25 @@ export default function DetallePropiedad() {
       });
   }, [id]);
 
-  if (loading) return <div className="h-screen bg-white flex items-center justify-center font-sans uppercase tracking-widest text-gray-400">Cargando detalles...</div>;
-  if (!prop || prop.error) return <div className="h-screen bg-white flex flex-col items-center justify-center font-sans"><span className="text-red-500 text-xl font-bold mb-2">Propiedad no encontrada.</span><span className="text-gray-500">Revisa la consola para más detalles.</span></div>;
+  if (loading) return <div className="flex h-screen items-center justify-center bg-background font-sans uppercase tracking-widest text-text-secondary">Cargando detalles...</div>;
+  if (!prop || prop.error) return <div className="flex h-screen flex-col items-center justify-center bg-background font-sans"><span className="mb-2 text-xl font-bold text-naranja-dark">Propiedad no encontrada.</span><span className="text-text-secondary">Revisa la consola para más detalles.</span></div>;
 
   return (
-    <main className="min-h-screen bg-white font-sans pb-20">
+    <main className="min-h-screen bg-background pb-20 font-sans">
       <Navbar />
 
       {/* Hero Image / Gallery */}
-      <section className="relative h-[60vh] w-full bg-gray-900 overflow-hidden">
+      <section className="relative h-[60vh] w-full overflow-hidden bg-verde-dark">
         <img 
           src={prop.imagenes?.[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop"} 
           alt={prop.titulo} 
           className="w-full h-full object-cover opacity-80" 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-        <div className="absolute bottom-10 left-10 text-white">
+        <div className="absolute inset-0 bg-gradient-to-t from-text-primary/70 to-transparent"></div>
+        <div className="absolute bottom-10 left-10 text-surface">
           <div className="flex gap-2 mb-4">
-             <span className="bg-verde px-4 py-1 rounded-full text-xs font-bold uppercase">{prop.operacion}</span>
-             {prop.esSustentable && <span className="bg-green-500 px-4 py-1 rounded-full text-xs font-bold uppercase">🌱 Sustentable</span>}
+             <span className="rounded-full bg-verde px-4 py-1 text-xs font-bold uppercase">{prop.operacion}</span>
+             {prop.esSustentable && <span className="rounded-full bg-verde-hover px-4 py-1 text-xs font-bold uppercase">🌱 Sustentable</span>}
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-2">{prop.titulo}</h1>
           <p className="text-2xl font-light text-naranja">
@@ -90,20 +90,20 @@ export default function DetallePropiedad() {
         {/* Columna Izquierda: Información */}
         <div className="lg:col-span-2">
           {/* AQUÍ SE CORRIGIÓ EL TAMAÑO Y COLOR DE LOS TEXTOS */}
-          <div className="flex flex-wrap gap-8 mb-10 bg-gray-50 p-8 rounded-3xl border border-gray-100">
-            <div className="flex flex-col"><span className="text-gray-400 text-xs uppercase font-bold mb-1">Dormitorios</span><span className="text-2xl font-bold text-gray-900">🛏️ {prop.dormitorios}</span></div>
-            <div className="flex flex-col"><span className="text-gray-400 text-xs uppercase font-bold mb-1">Baños</span><span className="text-2xl font-bold text-gray-900">🚿 {prop.banos}</span></div>
-            <div className="flex flex-col"><span className="text-gray-400 text-xs uppercase font-bold mb-1">Superficie</span><span className="text-2xl font-bold text-gray-900">📐 {prop.m2Total} m²</span></div>
-            <div className="flex flex-col"><span className="text-gray-400 text-xs uppercase font-bold mb-1">Antigüedad</span><span className="text-2xl font-bold text-gray-900">⏳ {prop.antiguedadAnos} años</span></div>
+          <div className="mb-10 flex flex-wrap gap-8 rounded-3xl border border-border-light bg-surface p-8">
+            <div className="flex flex-col"><span className="mb-1 text-xs font-bold uppercase text-text-secondary">Dormitorios</span><span className="text-2xl font-bold text-text-primary">🛏️ {prop.dormitorios}</span></div>
+            <div className="flex flex-col"><span className="mb-1 text-xs font-bold uppercase text-text-secondary">Baños</span><span className="text-2xl font-bold text-text-primary">🚿 {prop.banos}</span></div>
+            <div className="flex flex-col"><span className="mb-1 text-xs font-bold uppercase text-text-secondary">Superficie</span><span className="text-2xl font-bold text-text-primary">📐 {prop.m2Total} m²</span></div>
+            <div className="flex flex-col"><span className="mb-1 text-xs font-bold uppercase text-text-secondary">Antigüedad</span><span className="text-2xl font-bold text-text-primary">⏳ {prop.antiguedadAnos} años</span></div>
           </div>
 
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">Descripción</h3>
-          <p className="text-gray-600 leading-relaxed text-lg mb-10">{prop.descripcion}</p>
+          <h3 className="mb-6 text-2xl font-bold text-text-primary">Descripción</h3>
+          <p className="mb-10 text-lg leading-relaxed text-text-secondary">{prop.descripcion}</p>
 
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">Comodidades e Instalaciones</h3>
+          <h3 className="mb-6 text-2xl font-bold text-text-primary">Comodidades e Instalaciones</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {prop.comodidades?.map((item: string, i: number) => (
-              <div key={i} className="flex items-center gap-2 text-gray-700 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
+              <div key={i} className="flex items-center gap-2 rounded-xl border border-border-light bg-surface px-4 py-2 text-text-secondary">
                 <span className="text-verde">✓</span> {item}
               </div>
             ))}
@@ -112,25 +112,25 @@ export default function DetallePropiedad() {
 
         {/* Columna Derecha: Formulario de Contacto (Sticky) */}
         <div className="lg:col-span-1">
-          <div className="sticky top-24 bg-white p-8 rounded-3xl shadow-2xl border border-gray-100">
-            <h3 className="text-xl font-bold text-gray-800 mb-6">¿Te interesa esta propiedad?</h3>
+          <div className="sticky top-24 rounded-3xl border border-border-light bg-surface p-8 shadow-2xl">
+            <h3 className="mb-6 text-xl font-bold text-text-primary">¿Te interesa esta propiedad?</h3>
             <form className="flex flex-col gap-4">
               <input 
                 type="text" 
                 placeholder="Tu nombre" 
-                className="w-full p-4 rounded-xl bg-gray-100 text-gray-900 placeholder-gray-500 border-none outline-none focus:ring-2 focus:ring-verde transition-all" 
+                className="w-full rounded-xl border border-border-light bg-background p-4 text-text-primary outline-none transition-all placeholder:text-text-secondary focus:ring-2 focus:ring-verde" 
               />
               <input 
                 type="email" 
                 placeholder="Tu email" 
-                className="w-full p-4 rounded-xl bg-gray-100 text-gray-900 placeholder-gray-500 border-none outline-none focus:ring-2 focus:ring-verde transition-all" 
+                className="w-full rounded-xl border border-border-light bg-background p-4 text-text-primary outline-none transition-all placeholder:text-text-secondary focus:ring-2 focus:ring-verde" 
               />
               <textarea 
                 placeholder="Hola, me gustaría recibir más información..." 
                 rows={4} 
-                className="w-full p-4 rounded-xl bg-gray-100 text-gray-900 placeholder-gray-500 border-none outline-none focus:ring-2 focus:ring-verde transition-all"
+                className="w-full rounded-xl border border-border-light bg-background p-4 text-text-primary outline-none transition-all placeholder:text-text-secondary focus:ring-2 focus:ring-verde"
               ></textarea>
-              <button className="w-full bg-verde text-white font-bold py-4 rounded-xl hover:bg-black transition-all shadow-lg">
+              <button className="w-full rounded-xl bg-verde py-4 font-bold text-surface shadow-lg transition-all hover:bg-verde-hover">
                 Enviar Consulta
               </button>
             </form>
@@ -140,7 +140,7 @@ export default function DetallePropiedad() {
       </section>
       
       {/* SECCIÓN: MAPA DE ENTORNO */}
-      <section className="w-full h-[60vh] mt-12 border-t border-gray-200 relative z-0">
+      <section className="relative z-0 mt-12 h-[60vh] w-full border-t border-border-light">
         <MapComponent 
           centro={[prop.latitud, prop.longitud]} 
           zoom={14}

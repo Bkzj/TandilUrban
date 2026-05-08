@@ -67,7 +67,7 @@ export default function UniversalMap({
     );
   };
 
-  if (!isMounted) return <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Cargando mapa...</div>;
+  if (!isMounted) return <div className="flex h-full w-full animate-pulse items-center justify-center bg-background text-text-secondary">Cargando mapa...</div>;
 
   return (
     <div className="w-full h-full relative font-sans group">
@@ -75,15 +75,15 @@ export default function UniversalMap({
       {/* BARRA DE FILTROS GENÉRICA */}
       {filtros.length > 0 && (
         <div className="absolute top-4 left-0 right-0 z-[400] flex justify-center pointer-events-none">
-          <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-gray-200 flex flex-wrap gap-2 justify-center max-w-4xl pointer-events-auto">
+          <div className="pointer-events-auto flex max-w-4xl flex-wrap justify-center gap-2 rounded-2xl border border-border-light bg-surface/90 p-3 shadow-xl backdrop-blur-md">
             {filtros.map(filtro => {
               const activo = filtrosActivos.includes(filtro.id);
               return (
                 <button
                   key={filtro.id}
                   onClick={() => toggleFiltro(filtro.id)}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
-                    activo ? 'bg-verde text-white shadow-md scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
+                    activo ? 'scale-105 bg-verde text-surface shadow-md' : 'bg-background text-text-secondary hover:bg-verde-light'
                   }`}
                 >
                   <span>{filtro.icono}</span>
@@ -106,8 +106,8 @@ export default function UniversalMap({
         {marcadorFijo && (
           <Marker position={[marcadorFijo.lat, marcadorFijo.lng]} icon={crearIcono(marcadorFijo.icono, true)} zIndexOffset={1000}>
             <Popup className="font-sans text-center">
-              <strong className="text-verde block text-lg">{marcadorFijo.titulo}</strong>
-              {marcadorFijo.subtitulo && <span className="text-gray-500 text-xs uppercase block">{marcadorFijo.subtitulo}</span>}
+              <strong className="block text-lg text-verde">{marcadorFijo.titulo}</strong>
+              {marcadorFijo.subtitulo && <span className="block text-xs uppercase text-text-secondary">{marcadorFijo.subtitulo}</span>}
             </Popup>
           </Marker>
         )}
@@ -119,9 +119,9 @@ export default function UniversalMap({
             <Marker key={punto.id} position={[punto.lat, punto.lng]} icon={crearIcono(punto.icono)}>
               <Popup>
                 <div className="text-center font-sans">
-                  <span className="block text-gray-400 text-[10px] uppercase tracking-widest mb-1">{punto.categoriaId}</span>
-                  <strong className="text-gray-800 leading-tight block">{punto.titulo}</strong>
-                  {punto.subtitulo && <span className="bg-verde text-white px-2 py-1 rounded-md font-bold text-sm mt-2 inline-block">{punto.subtitulo}</span>}
+                  <span className="mb-1 block text-[10px] uppercase tracking-widest text-text-secondary">{punto.categoriaId}</span>
+                  <strong className="block leading-tight text-text-primary">{punto.titulo}</strong>
+                  {punto.subtitulo && <span className="mt-2 inline-block rounded-md bg-verde px-2 py-1 text-sm font-bold text-surface">{punto.subtitulo}</span>}
                 </div>
               </Popup>
             </Marker>

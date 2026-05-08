@@ -6,55 +6,124 @@ datasource db {
   provider = "postgresql"
 }
 
+enum RolUsuario {
+  ADMIN
+  INMOBILIARIA
+  USUARIO_NORMAL
+}
+
+enum EstadoPropiedad {
+  DISPONIBLE
+  RESERVADA
+  VENDIDA
+  PAUSADA
+}
+
+enum CategoriaPuntoInteres {
+  HOSPITAL
+  UNIVERSIDAD
+  PARADA_BUS
+  PARQUE
+}
+
+model User {
+  id               String       @id @default(cuid())
+  rol              RolUsuario   @default(USUARIO_NORMAL)
+  nombre           String
+  email            String       @unique
+  passwordHash     String
+  telefono         String?
+  avatarUrl        String?
+  twoFactorEnabled Boolean      @default(false)
+  twoFactorSecret  String?
+  emailVerifiedAt  DateTime?
+
+  inmobiliariaPerfil Inmobiliaria?
+  verificationTokens VerificationToken[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+model Inmobiliaria {
+  id            String      @id @default(cuid())
+  userId        String      @unique
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nombreAgencia String
+  logoAgencia   String?
+  cuit          String      @unique
+  direccion     String
+
+  propiedades   Propiedad[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
 model Propiedad {
-  id          String   @id @default(cuid())
-  titulo      String
-  descripcion String   @db.Text
-  precio      Float
-  moneda      String   @default("USD")
-  tipo        String   // Ej: "Casa", "Departamento", "Campo", "Lote"
-  operacion   String   // Ej: "Venta", "Alquiler"
-  
-  // --- UBICACIÓN ---
-  latitud     Float
-  longitud    Float
+  id             String           @id @default(cuid())
+  inmobiliariaId String
+  inmobiliaria  Inmobiliaria     @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
 
-  // --- MEDIDAS Y SUPERFICIES ---
-  m2Total          Float
-  m2Cubierto       Float
-  m2Semicubierto   Float?   @default(0) // El '?' significa que es opcional 
-  frenteTerreno    Float?
-  largoTerreno     Float?
+  titulo        String
+  descripcion   String           @db.Text
+  estado        EstadoPropiedad  @default(DISPONIBLE)
+  tipo          String
+  operacion     String
+  precio        Float
+  moneda        String           @default("USD")
+  expensas      Float?
+  direccion     String
+  barrio        String?
+  latitud       Float
+  longitud      Float
+  m2Total       Float
+  m2Cubiertos   Float
+  ambientes     Int
+  caracteristicas String[]
+  imagenes      String[]
 
-  // --- DISTRIBUCIÓN PRINCIPAL ---
-  ambientes        Int
-  dormitorios      Int
-  banos            Int
-  toilettes        Int?     @default(0)
-  cocheras         Int?     @default(0)
-  tipoCochera      String?  // Ej: "Descubierta", "Cubierta", "Subterránea"
-  plantas          Int      @default(1)
-  antiguedadAnos   Int      // Ponemos 0 si es "A Estrenar"
+  contactos     Contacto[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
-  // --- LISTAS DE CARACTERÍSTICAS 
-  // Aquí guardaremos cosas como: ["Comedor diario", "Dependencia servicio", "Escritorio", "Lavadero", "Patio", "Terraza"]
-  ambientesExtra   String[] 
-  
-  // Aquí: ["Agua Corriente", "Gas Natural", "Fibra Óptica", "Cloacas"]
-  servicios        String[] 
-  
-  // Aquí: ["Parrilla", "Aire Acondicionado", "Calefacción Radiadores", "Piscina", "Losa Radiante"]
-  comodidades      String[] 
+  @@index([inmobiliariaId])
+  @@index([estado])
+  @@index([tipo])
+  @@index([operacion])
+  @@index([barrio])
+}
 
-  // --- MULTIMEDIA E INNOVACIÓN (El toque Premium) ---
-  imagenes         String[] // Lista de URLs de fotos
-  tourVirtualUrl   String?  // Link a un recorrido 360° o video de Drone
-  
-  // INNOVACIÓN TANDILURBAN:
-  esSustentable     Boolean  @default(false) // Destaca propiedades eco-friendly
+model Contacto {
+  id          String     @id @default(cuid())
+  nombre      String
+  email       String
+  mensaje     String     @db.Text
+  propiedadId String
+  propiedad   Propiedad  @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
 
-  // --- FECHAS INTERNAS ---
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@index([propiedadId])
+}
+
+model PuntoInteres {
+  id        String                 @id @default(cuid())
+  nombre    String
+  categoria CategoriaPuntoInteres
+  latitud   Float
+  longitud  Float
+
+  @@index([categoria])
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([userId])
 }
 

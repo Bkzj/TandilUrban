@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, type ReactNode } from 'react';
 import PropertyCard from '@/components/PropertyCard';
 import Navbar from '@/components/Navbar';
 import SearchBox from '@/components/SearchBox';
@@ -8,6 +8,7 @@ import HeroColumn from '@/components/HeroColumn';
 import { IMAGENES_HOME } from '@/constants/home';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 const MapComponent = dynamic(() => import('@/components/Map'), { ssr: false });
 
@@ -19,7 +20,7 @@ const FILTROS_HOME = [
 
 // 1. Componente de Íconos Modernos (SVGs minimalistas)
 const IconoModerno = ({ nombre }: { nombre: string }) => {
-  const baseClasses = "w-8 h-8 text-white mb-4 opacity-90";
+  const baseClasses = "mb-4 h-8 w-8 text-surface opacity-90";
   switch (nombre) {
     case 'propiedades':
       return <svg className={baseClasses} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>;
@@ -39,6 +40,73 @@ const DATOS_COLUMNAS = [
   { id: 'tasaciones', icono: <IconoModerno nombre="tasaciones" />, titulo: ['TASACIONES'], fondo: IMAGENES_HOME.tasaciones },
   { id: 'nosotros', icono: <IconoModerno nombre="nosotros" />, titulo: ['NOSOTROS'], fondo: IMAGENES_HOME.nosotros, sinBorde: true },
 ];
+
+const easingReveal = [0.22, 1, 0.36, 1] as const;
+
+const staggerParent = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.088,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const fadeSlideUpItem = {
+  hidden: { opacity: 0, y: 44 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.62, ease: easingReveal },
+  },
+};
+
+/** Barra revelada por scroll sin tocar datos */
+function ScrollRevealHeading({ children }: { children: ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 42 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-8% 0px', amount: 0.3 }}
+      transition={{ duration: 0.62, ease: easingReveal }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Grilla + tarjetas con stagger */
+function PropsGridReveal({ propiedades }: { propiedades: any[] }) {
+  return (
+    <motion.div
+      variants={staggerParent}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-6% 0px', amount: 0.12 }}
+      className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+    >
+      {propiedades?.map((prop) => (
+        <motion.div key={prop.id} variants={fadeSlideUpItem} layout>
+          <PropertyCard
+            id={prop.id}
+            titulo={prop.titulo}
+            precio={prop.precio}
+            moneda={prop.moneda}
+            operacion={prop.operacion}
+            ambientes={prop.ambientes}
+            m2Total={prop.m2Total}
+            esSustentable={prop.esSustentable}
+            imagenUrl={
+              prop.imagenes?.[0] ||
+              'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop'
+            }
+          />
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+}
 
 // 2. Componente interno que maneja la lógica (Modularización)
 function ContenidoHome() {
@@ -75,12 +143,16 @@ function ContenidoHome() {
     <>
       <Navbar />
 
-      <section className="relative h-[80vh] w-full flex">
-        <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url('${IMAGENES_HOME.default}')` }}></div>
+      <section className="relative flex h-[80vh] w-full overflow-hidden">
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ backgroundImage: `url('${IMAGENES_HOME.default}')` }}
+        />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-br from-verde-dark/90 via-verde-dark/62 to-verde-hover/42" />
 
-        <div 
-          className="relative z-10 w-full h-full flex flex-col md:flex-row pb-20"
-          onMouseLeave={() => setColumnaActiva(null)} 
+        <div
+          className="relative z-10 flex h-full w-full flex-col pb-20 md:flex-row"
+          onMouseLeave={() => setColumnaActiva(null)}
         >
           {DATOS_COLUMNAS.map((columna) => (
             <HeroColumn
@@ -103,36 +175,27 @@ function ContenidoHome() {
         <SearchBox />
       </div>
 
-      <section className="w-full max-w-7xl mx-auto px-4 py-20">
-        <div className="flex justify-between items-end mb-10">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-800 uppercase tracking-widest mb-2">Oportunidades</h2>
-            <p className="text-gray-500 font-light">Descubre las propiedades más exclusivas ingresadas esta semana.</p>
+      <section id="oportunidades" className="mx-auto w-full max-w-7xl px-4 py-20">
+        <ScrollRevealHeading>
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <h2 className="mb-2 text-3xl font-bold uppercase tracking-widest text-text-primary">
+                Oportunidades
+              </h2>
+              <p className="font-light text-text-secondary">
+                Descubre las propiedades más exclusivas ingresadas esta semana.
+              </p>
+            </div>
+            <button className="text-sm font-semibold uppercase tracking-wider text-verde transition-colors hover:text-naranja">
+              Ver todas →
+            </button>
           </div>
-          <button className="text-verde font-semibold uppercase tracking-wider text-sm hover:text-naranja transition-colors">
-            Ver todas →
-          </button>
-        </div>
+        </ScrollRevealHeading>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {propiedades?.map((prop) => (
-            <PropertyCard
-              key={prop.id}
-              id={prop.id}
-              titulo={prop.titulo}
-              precio={prop.precio}
-              moneda={prop.moneda}
-              operacion={prop.operacion}
-              ambientes={prop.ambientes}
-              m2Total={prop.m2Total}
-              esSustentable={prop.esSustentable}
-              imagenUrl={prop.imagenes?.[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop"} 
-            />
-          ))}
-        </div>
+        <PropsGridReveal propiedades={propiedades} />
       </section>
 
-      <section className="h-[50vh] w-full mt-12 relative z-0 border-t border-gray-300">
+      <section className="relative z-0 mt-12 h-[50vh] w-full border-t border-border-light">
         <MapComponent 
           centro={[-37.32167, -59.13316]} 
           zoom={13}
@@ -156,8 +219,8 @@ function ContenidoHome() {
 // 3. Exportación principal limpia, manejando la barrera de Suspense
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col bg-gray-100">
-      <Suspense fallback={<div className="h-screen flex items-center justify-center font-sans tracking-widest uppercase text-gray-500">Cargando plataforma...</div>}>
+    <main className="flex min-h-screen flex-col bg-background">
+      <Suspense fallback={<div className="flex h-screen items-center justify-center font-sans uppercase tracking-widest text-text-secondary">Cargando plataforma...</div>}>
         <ContenidoHome />
       </Suspense>
     </main>

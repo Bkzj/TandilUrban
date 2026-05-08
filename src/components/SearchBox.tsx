@@ -22,15 +22,15 @@ export default function SearchBox() {
   };
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-3xl shadow-2xl w-full max-w-5xl mx-auto border border-gray-100">
+    <div className="mx-auto w-full max-w-5xl rounded-3xl border border-border-light bg-surface p-4 shadow-2xl md:p-6">
       <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         
         <div className="w-full">
-          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Operación</label>
+          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-secondary">Operación</label>
           <select 
             value={operacion}
             onChange={(e) => setOperacion(e.target.value)}
-            className="w-full p-3 rounded-xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-verde text-gray-800 font-medium"
+            className="w-full rounded-xl border border-border-light bg-background p-3 font-medium text-text-primary outline-none focus:ring-2 focus:ring-verde"
           >
             <option value="Todos">Cualquiera</option>
             <option value="Venta">Venta</option>
@@ -39,11 +39,11 @@ export default function SearchBox() {
         </div>
 
         <div className="w-full">
-          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Tipo</label>
+          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-secondary">Tipo</label>
           <select 
             value={tipo}
             onChange={(e) => setTipo(e.target.value)}
-            className="w-full p-3 rounded-xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-verde text-gray-800 font-medium"
+            className="w-full rounded-xl border border-border-light bg-background p-3 font-medium text-text-primary outline-none focus:ring-2 focus:ring-verde"
           >
             <option value="Todos">Cualquiera</option>
             <option value="Casa">Casa</option>
@@ -54,19 +54,19 @@ export default function SearchBox() {
 
         {/* Nuevo Input de Texto para Barrio */}
         <div className="w-full">
-          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Barrio / Zona</label>
+          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-secondary">Barrio / Zona</label>
           <input 
             type="text"
             value={barrio}
             onChange={(e) => setBarrio(e.target.value)}
             placeholder="Ej: Centro, Dique..."
-            className="w-full p-3 rounded-xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-verde text-gray-800 font-medium placeholder-gray-400"
+            className="w-full rounded-xl border border-border-light bg-background p-3 font-medium text-text-primary outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-verde"
           />
         </div>
 
         <button 
           type="submit"
-          className="w-full bg-verde text-white font-bold py-3 rounded-xl hover:bg-black transition-all shadow-lg h-[50px]"
+          className="h-[50px] w-full rounded-xl bg-verde py-3 font-bold text-surface shadow-lg transition-all hover:bg-verde-hover"
         >
           Buscar
         </button>

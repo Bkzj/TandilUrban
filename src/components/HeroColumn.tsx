@@ -1,4 +1,3 @@
-// src/components/HeroColumn.tsx
 import React from 'react';
 
 interface HeroColumnProps {
@@ -28,21 +27,21 @@ export default function HeroColumn({
   // Si hay alguna activa, y es ESTA, la mostramos brillante.
   // Si hay alguna activa, pero NO es esta, la oscurecemos.
   let opacidadFondoLocal = "opacity-0";
-  let colorOverlay = "bg-black/30 hover:bg-black/10"; // Estado por defecto
+  let colorOverlay = "bg-text-primary/30 hover:bg-text-primary/10"; // Estado por defecto
 
   if (hayAlgunaActiva) {
     if (estaActiva) {
       opacidadFondoLocal = "opacity-100"; // Mostramos la imagen de la columna
-      colorOverlay = "bg-black/10"; // Menos oscuro para que resalte la imagen
+      colorOverlay = "bg-text-primary/10"; // Menos oscuro para que resalte la imagen
     } else {
       opacidadFondoLocal = "opacity-0"; // Mantenemos oculta la imagen local
-      colorOverlay = "bg-black/70 backdrop-blur-[2px]"; // Oscurecemos mucho las demás
+      colorOverlay = "bg-text-primary/70 backdrop-blur-[2px]"; // Oscurecemos mucho las demás
     }
   }
 
   return (
     <div 
-      className={`relative flex-1 flex flex-col items-center justify-center text-white transition-all duration-500 cursor-pointer group ${tieneBordeRight ? 'border-r border-white/20' : ''}`}
+      className={`group relative flex flex-1 cursor-pointer flex-col items-center justify-center text-surface transition-all duration-500 ${tieneBordeRight ? 'border-r border-surface/20' : ''}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -62,7 +61,7 @@ export default function HeroColumn({
         </span>
         
         <div className="flex items-center w-full justify-center gap-4 text-center">
-          <div className="w-12 h-[1px] bg-white/70"></div>
+          <div className="h-[1px] w-12 bg-surface/70"></div>
           
           <h2 className="text-xl md:text-2xl font-light tracking-[0.25em] drop-shadow-md flex flex-col">
             {lineasTitulo.map((linea, index) => (
@@ -70,7 +69,7 @@ export default function HeroColumn({
             ))}
           </h2>
           
-          <div className="w-12 h-[1px] bg-white/70"></div>
+          <div className="h-[1px] w-12 bg-surface/70"></div>
         </div>
       </div>
     </div>

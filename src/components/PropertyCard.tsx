@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 interface PropertyCardProps {
   id: string; // Agregamos el ID
@@ -23,11 +23,11 @@ export default function PropertyCard({
   const rotateYRaw = useMotionValue(0);
   const rotateX = useSpring(rotateXRaw, { stiffness: 160, damping: 18, mass: 0.45 });
   const rotateY = useSpring(rotateYRaw, { stiffness: 160, damping: 18, mass: 0.45 });
-  const glare = useTransform([rotateX, rotateY], ([x, y]) => {
-    const posX = 50 + y * 2;
-    const posY = 50 - x * 2;
-    return `radial-gradient(circle at ${posX}% ${posY}%, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%)`;
-  });
+
+  // Posiciones del glare derivadas de cada spring por separado
+  const glarePosX = useTransform(rotateY, (v: number) => `${50 + v * 2}%`);
+  const glarePosY = useTransform(rotateX, (v: number) => `${50 - v * 2}%`);
+  const glare = useMotionTemplate`radial-gradient(circle at ${glarePosX} ${glarePosY}, rgba(255,255,255,0.18), rgba(255,255,255,0) 45%)`;
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();

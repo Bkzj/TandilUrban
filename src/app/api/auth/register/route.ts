@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { randomBytes } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
+import { sendVerificationEmail } from '@/lib/mail';
 
 type RegisterPayload = {
   nombre: string;
@@ -82,17 +83,16 @@ export async function POST(request: Request) {
       },
     });
 
-    const verifyUrl = `${new URL(request.url).origin}/verify?token=${verificationToken}`;
-
-    // TODO: reemplazar por integración real (Resend o Nodemailer).
-    // Ejemplo:
-    // await resend.emails.send({
-    //   from: 'no-reply@tandilurban.com',
-    //   to: payload.data.email,
-    //   subject: 'Verificá tu cuenta',
-    //   html: `<p>Activá tu cuenta desde <a href="${verifyUrl}">este link</a>.</p>`,
-    // });
-    console.log(`[register] Email de verificacion pendiente para ${payload.data.email}: ${verifyUrl}`);
+    try {
+      await sendVerificationEmail(payload.data.email, verificationToken);
+    } catch (mailError) {
+      console.error('[register] Fallo envio de correo:', mailError);
+      await prisma.user.delete({ where: { id: user.id } });
+      return NextResponse.json(
+        { error: 'No se pudo enviar el correo de verificación. Intentá de nuevo más tarde.' },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json(
       {

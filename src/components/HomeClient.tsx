@@ -10,7 +10,6 @@ import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 
 const MapComponent = dynamic(() => import('@/components/Map'), { ssr: false });
-const Hero3D = dynamic(() => import('@/components/Hero3D'), { ssr: false });
 
 const FILTROS_HOME = [
   { id: 'Casa', nombre: 'Casas', icono: '🏡' },
@@ -156,10 +155,6 @@ export default function HomeClient({ propiedades }: HomeClientProps) {
         />
         {/* Gradiente tonal */}
         <div className="absolute inset-0 z-[1] bg-gradient-to-br from-verde-dark/90 via-verde-dark/62 to-verde-hover/42" />
-        {/* Escena 3D — pointer-events-none para que el hover de columnas siga funcionando */}
-        <div className="pointer-events-none absolute inset-0 z-[2]">
-          <Hero3D className="h-full w-full" />
-        </div>
 
         <div
           className="relative z-10 flex h-full w-full flex-col pb-20 md:flex-row"

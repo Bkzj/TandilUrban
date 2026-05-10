@@ -9,6 +9,7 @@ datasource db {
 enum RolUsuario {
   ADMIN
   INMOBILIARIA
+  AGENTE
   USUARIO_NORMAL
 }
 
@@ -27,63 +28,72 @@ enum CategoriaPuntoInteres {
 }
 
 model User {
-  id               String       @id @default(cuid())
-  rol              RolUsuario   @default(USUARIO_NORMAL)
+  id               String     @id @default(cuid())
+  rol              RolUsuario @default(USUARIO_NORMAL)
   nombre           String
-  email            String       @unique
+  email            String     @unique
   passwordHash     String
   telefono         String?
   avatarUrl        String?
-  twoFactorEnabled Boolean      @default(false)
+  twoFactorEnabled Boolean    @default(false)
   twoFactorSecret  String?
   emailVerifiedAt  DateTime?
 
-  inmobiliariaPerfil Inmobiliaria?
+  // 1-1: el MAIN de la inmobiliaria (único dueño)
+  inmobiliariaPerfil Inmobiliaria? @relation("PerfilInmobiliaria")
+
+  // N-1: agentes de una inmobiliaria
+  agenciaId String?
+  agencia   Inmobiliaria? @relation("AgentesDeInmobiliaria", fields: [agenciaId], references: [id], onDelete: SetNull)
+
   verificationTokens VerificationToken[]
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([agenciaId])
 }
 
 model Inmobiliaria {
-  id            String      @id @default(cuid())
-  userId        String      @unique
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String  @id @default(cuid())
+  userId        String  @unique
+  user          User    @relation("PerfilInmobiliaria", fields: [userId], references: [id], onDelete: Cascade)
   nombreAgencia String
   logoAgencia   String?
-  cuit          String      @unique
+  cuit          String  @unique
   direccion     String
 
-  propiedades   Propiedad[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  agentes     User[]      @relation("AgentesDeInmobiliaria")
+  propiedades Propiedad[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Propiedad {
-  id             String           @id @default(cuid())
+  id             String       @id @default(cuid())
   inmobiliariaId String
-  inmobiliaria  Inmobiliaria     @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
+  inmobiliaria   Inmobiliaria @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
 
-  titulo        String
-  descripcion   String           @db.Text
-  estado        EstadoPropiedad  @default(DISPONIBLE)
-  tipo          String
-  operacion     String
-  precio        Float
-  moneda        String           @default("USD")
-  expensas      Float?
-  direccion     String
-  barrio        String?
-  latitud       Float
-  longitud      Float
-  m2Total       Float
-  m2Cubiertos   Float
-  ambientes     Int
+  titulo          String
+  descripcion     String          @db.Text
+  estado          EstadoPropiedad @default(DISPONIBLE)
+  tipo            String
+  operacion       String
+  precio          Float
+  moneda          String          @default("USD")
+  expensas        Float?
+  direccion       String
+  barrio          String?
+  latitud         Float
+  longitud        Float
+  m2Total         Float
+  m2Cubiertos     Float
+  ambientes       Int
   caracteristicas String[]
-  imagenes      String[]
+  imagenes        String[]
 
-  contactos     Contacto[]
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  contactos Contacto[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   @@index([inmobiliariaId])
   @@index([estado])
@@ -93,19 +103,19 @@ model Propiedad {
 }
 
 model Contacto {
-  id          String     @id @default(cuid())
+  id          String    @id @default(cuid())
   nombre      String
   email       String
-  mensaje     String     @db.Text
+  mensaje     String    @db.Text
   propiedadId String
-  propiedad   Propiedad  @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
-  createdAt   DateTime   @default(now())
+  propiedad   Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
 
   @@index([propiedadId])
 }
 
 model PuntoInteres {
-  id        String                 @id @default(cuid())
+  id        String                @id @default(cuid())
   nombre    String
   categoria CategoriaPuntoInteres
   latitud   Float
@@ -126,4 +136,3 @@ model VerificationToken {
   @@index([email])
   @@index([userId])
 }
-

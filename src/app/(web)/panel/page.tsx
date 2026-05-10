@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
-import { getCurrentUser, isInmobiliariaMain, type CurrentUser } from '@/lib/auth';
+import { getCurrentUser, isInmobiliariaMain } from '@/lib/auth';
+import type { CurrentUser } from '@/types/auth';
 import PanelTabs from '@/components/panel/PanelTabs';
 import MetricCard from '@/components/panel/MetricCard';
 

@@ -1,23 +1,14 @@
 import type { NextAuthOptions } from 'next-auth';
-import type { Prisma } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { compare } from 'bcryptjs';
 
 import { prisma } from '@/lib/prisma';
+import { currentUserInclude, type CurrentUser, type SessionUserAugmented } from '@/types/auth';
 
-/**
- * Include estándar para sesiones server-side:
- * - `inmobiliariaPerfil` (1-1) si el user es MAIN.
- * - `agencia` (N-1) si el user es AGENTE.
- */
-export const currentUserInclude = {
-  inmobiliariaPerfil: true,
-  agencia: true,
-} satisfies Prisma.UserInclude;
-
-export type CurrentUser = Prisma.UserGetPayload<{ include: typeof currentUserInclude }>;
+export type { CurrentUser } from '@/types/auth';
+export { currentUserInclude } from '@/types/auth';
 
 // =============================================================================
 // NextAuth options (re-exportable para route handlers / server)
@@ -66,8 +57,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as { id?: string; role?: string }).id = token.sub;
-        (session.user as { id?: string; role?: string }).role = token.role as string | undefined;
+        const u = session.user as SessionUserAugmented;
+        u.id = token.sub;
+        u.role = token.role as string | undefined;
       }
       return session;
     },
@@ -81,7 +73,7 @@ export const authOptions: NextAuthOptions = {
 /** Devuelve el `User` con relaciones de panel si hay sesión, o `null`. */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const session = await getServerSession(authOptions);
-  const userId = (session?.user as { id?: string } | undefined)?.id;
+  const userId = (session?.user as SessionUserAugmented | undefined)?.id;
   if (!userId) return null;
 
   return prisma.user.findUnique({

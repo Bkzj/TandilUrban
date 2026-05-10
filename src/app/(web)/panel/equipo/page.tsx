@@ -2,8 +2,10 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { prisma } from '@/lib/prisma';
-import { getCurrentUser, isInmobiliariaMain, type CurrentUser } from '@/lib/auth';
-import EquipoManager, { type Agente } from '@/components/panel/EquipoManager';
+import EquipoManager from '@/components/panel/EquipoManager';
+import { getCurrentUser, isInmobiliariaMain } from '@/lib/auth';
+import type { Agente } from '@/types/panel';
+import type { CurrentUser } from '@/types/auth';
 import PanelTabs from '@/components/panel/PanelTabs';
 
 export const metadata = {

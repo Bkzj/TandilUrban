@@ -4,6 +4,7 @@ import { Prisma, RolUsuario } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 import { AuthError, requireInmobiliariaMain } from '@/lib/auth';
+import type { CreateAgentePayload } from '@/types/api';
 
 // =============================================================================
 // Helpers
@@ -17,8 +18,6 @@ function handleAuthError(error: unknown): NextResponse | null {
   }
   return null;
 }
-
-type CreateAgentePayload = { nombre: string; email: string; password: string };
 
 function validarCreate(body: unknown):
   | { ok: true; data: CreateAgentePayload }

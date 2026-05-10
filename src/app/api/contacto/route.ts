@@ -1,12 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-
-type ContactoPayload = {
-  nombre: string;
-  email: string;
-  mensaje: string;
-  propiedadId: string;
-};
+import type { ContactoPayload } from '@/types/api';
 
 function validarPayload(body: unknown): { ok: true; data: ContactoPayload } | { ok: false; error: string } {
   if (!body || typeof body !== 'object') {

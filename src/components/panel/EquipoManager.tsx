@@ -3,13 +3,7 @@
 import { FormEvent, useCallback, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export type Agente = {
-  id: string;
-  nombre: string;
-  email: string;
-  rol: string;
-  createdAt: string;
-};
+import type { Agente } from '@/types/panel';
 
 type Props = {
   /** Hidratación inicial (server-side render). */

@@ -3,12 +3,7 @@ import { hash } from 'bcryptjs';
 import { randomBytes } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { sendVerificationEmail } from '@/lib/mail';
-
-type RegisterPayload = {
-  nombre: string;
-  email: string;
-  password: string;
-};
+import type { RegisterPayload } from '@/types/api';
 
 function validarPayload(body: unknown): { ok: true; data: RegisterPayload } | { ok: false; error: string } {
   if (!body || typeof body !== 'object') {

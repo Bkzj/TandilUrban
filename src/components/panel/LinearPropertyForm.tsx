@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 import type { PropertyFormData } from '@/types/panel';
 
-import { INITIAL_DATA, STEPS, TOTAL_STEPS } from './property-steps/constants';
-import { publish } from './property-steps/publish';
+import { blobUrlToDataUrl } from '@/lib/blob-upload';
+
+import { BlobImageFilesProvider, useBlobImageFilesContext } from './property-steps/BlobImageFilesContext';
+import { DEFAULT_CENTER, INITIAL_DATA, STEPS, TOTAL_STEPS } from './property-steps/constants';
 import { StepCaracteristicas } from './property-steps/StepCaracteristicas';
 import { StepDimensiones } from './property-steps/StepDimensiones';
 import { StepImagenes } from './property-steps/StepImagenes';
@@ -18,6 +21,10 @@ import { StepTipo } from './property-steps/StepTipo';
 import { StepUbicacion } from './property-steps/StepUbicacion';
 import { isStepValid } from './property-steps/validation';
 
+export type LinearPropertyFormProps = {
+  initialData?: Partial<PropertyFormData> & { id?: string };
+};
+
 /**
  * Linear-style onboarding para crear propiedades.
  * - Paleta invertida: NARANJA primario (acción/selección), VERDE secundario.
@@ -25,9 +32,28 @@ import { isStepValid } from './property-steps/validation';
  * - Inputs sin caja: `border-b-[3px]` sobre el gradiente dark del backoffice.
  */
 
-export default function LinearPropertyForm() {
+export default function LinearPropertyForm(props: LinearPropertyFormProps = {}) {
+  return (
+    <BlobImageFilesProvider>
+      <LinearPropertyFormInner {...props} />
+    </BlobImageFilesProvider>
+  );
+}
+
+function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) {
+  const router = useRouter();
+  const blobFiles = useBlobImageFilesContext();
+  const isEditMode = !!initialData?.id;
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<PropertyFormData>(INITIAL_DATA);
+  const [formData, setFormData] = useState<PropertyFormData>(() => {
+    if (!initialData) return INITIAL_DATA;
+    const merged = { ...initialData };
+    delete merged.id;
+    return { ...INITIAL_DATA, ...merged };
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [syncingFiles, setSyncingFiles] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const update = useCallback(
     <K extends keyof PropertyFormData>(key: K, value: PropertyFormData[K]) => {
@@ -64,45 +90,198 @@ export default function LinearPropertyForm() {
     return () => window.removeEventListener('keydown', onKey);
   }, [currentStep, goPrev]);
 
-  return (
-    <div className="relative mx-auto flex min-h-[calc(100vh-72px)] w-full max-w-7xl flex-col px-6 py-10 text-surface md:px-8">
-      <Header
-        currentStep={currentStep}
-        totalSteps={TOTAL_STEPS}
-        onBack={goPrev}
-        canGoBack={currentStep > 0}
-      />
+  const handleSubmit = useCallback(async () => {
+    if (submitting) return;
+    setSubmitError(null);
+    setSubmitting(true);
 
-      <div className="relative flex w-full flex-1 items-center overflow-x-hidden">
-        <div className="w-full">
-          <AnimatePresence mode="wait">
-            <StepShell key={STEPS[currentStep]} stepIndex={currentStep}>
-              {STEPS[currentStep] === 'operacion' && (
-                <StepOperacion data={formData} update={update} onNext={goNext} />
-              )}
-              {STEPS[currentStep] === 'tipo' && (
-                <StepTipo data={formData} update={update} onNext={goNext} />
-              )}
-              {STEPS[currentStep] === 'ubicacion' && (
-                <StepUbicacion data={formData} update={update} onNext={advanceIfValid} />
-              )}
-              {STEPS[currentStep] === 'dimensiones' && (
-                <StepDimensiones data={formData} update={update} onNext={advanceIfValid} />
-              )}
-              {STEPS[currentStep] === 'precio' && (
-                <StepPrecio data={formData} update={update} onNext={advanceIfValid} />
-              )}
-              {STEPS[currentStep] === 'caracteristicas' && (
-                <StepCaracteristicas data={formData} update={update} onNext={goNext} />
-              )}
-              {STEPS[currentStep] === 'imagenes' && (
-                <StepImagenes data={formData} update={update} onNext={goNext} />
-              )}
-              {STEPS[currentStep] === 'textos' && (
-                <StepTextos data={formData} update={update} onNext={goNext} />
-              )}
-            </StepShell>
-          </AnimatePresence>
+    const hasBlobImages = formData.imagenes.some((u) => u.startsWith('blob:'));
+    setSyncingFiles(hasBlobImages);
+
+    let imagenesPayload = [...formData.imagenes];
+    const blobSourcesUploaded: string[] = [];
+
+    try {
+      if (hasBlobImages) {
+        const tituloSeg =
+          formData.titulo.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9/-]/g, '') ||
+          'propiedad';
+        const folderPath = `tandilurban/propiedades/${tituloSeg}`;
+        const batch = Date.now();
+        const nextUrls: string[] = [];
+
+        for (let i = 0; i < formData.imagenes.length; i++) {
+          const src = formData.imagenes[i];
+          if (src.startsWith('blob:')) {
+            const dataUrl = await blobUrlToDataUrl(src);
+            const file = blobFiles?.getFileForBlob(src);
+            const rawStem = (file?.name ?? 'photo').replace(/\.[^.]+$/, '');
+            const stem = rawStem.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'photo';
+            const publicId = `${stem}-${batch}-${i}`;
+
+            const up = await fetch('/api/upload', {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ file: dataUrl, folderPath, publicId }),
+            });
+
+            if (!up.ok) {
+              const j = (await up.json().catch(() => ({}))) as { error?: string };
+              throw new Error(
+                typeof j.error === 'string' ? j.error : 'Falló la subida de imágenes a la nube.'
+              );
+            }
+
+            const json = (await up.json()) as { url: string };
+            nextUrls.push(json.url);
+            blobSourcesUploaded.push(src);
+          } else {
+            nextUrls.push(src);
+          }
+        }
+
+        imagenesPayload = nextUrls;
+        setSyncingFiles(false);
+      }
+
+      const lat = formData.lat ?? DEFAULT_CENTER.lat;
+      const lng = formData.lng ?? DEFAULT_CENTER.lng;
+
+      const payload = {
+        operacion: formData.operacion,
+        tipo: formData.tipo,
+        direccion: formData.direccion,
+        barrio: formData.barrio || null,
+        lat,
+        lng,
+        m2Total: Number(formData.m2Total) || 0,
+        m2Cubiertos: formData.m2Cubiertos ? Number(formData.m2Cubiertos) : null,
+        ambientes: formData.ambientes ? Number(formData.ambientes) : null,
+        dormitorios: formData.dormitorios,
+        banos: formData.banos,
+        cocheras: formData.cocheras,
+        moneda: formData.moneda,
+        precio: Number(formData.precio) || 0,
+        expensas: formData.expensas ? Number(formData.expensas) : null,
+        caracteristicas: formData.caracteristicas,
+        imagenes: imagenesPayload,
+        titulo: formData.titulo,
+        descripcion: formData.descripcion,
+      };
+
+      const editId = initialData?.id;
+      const url = editId ? `/api/panel/propiedades/${editId}` : '/api/panel/propiedades';
+      const method = editId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const json = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(
+          json.error ?? (editId ? 'No pudimos guardar los cambios.' : 'No pudimos publicar la propiedad.')
+        );
+      }
+
+      if (hasBlobImages) {
+        for (const src of blobSourcesUploaded) {
+          blobFiles?.unregisterBlob(src);
+          URL.revokeObjectURL(src);
+        }
+      }
+
+      if (editId) {
+        router.push('/panel/propiedades');
+      } else {
+        router.push('/panel?published=1');
+      }
+      router.refresh();
+    } catch (err) {
+      setSyncingFiles(false);
+      setSubmitError(
+        err instanceof Error
+          ? err.message
+          : initialData?.id
+            ? 'No pudimos guardar los cambios.'
+            : 'No pudimos publicar la propiedad.'
+      );
+      setSubmitting(false);
+    }
+  }, [blobFiles, formData, initialData?.id, router]);
+
+  return (
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-7xl flex-1 flex-col px-6 py-10 text-surface md:px-8">
+      <Header currentStep={currentStep} totalSteps={TOTAL_STEPS} />
+
+      <div className="relative min-h-0 flex-1">
+        <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-y-auto overflow-x-hidden">
+          <div className="flex w-full flex-1 flex-col justify-center mx-auto max-w-7xl px-6 md:px-8 pb-32 pt-12">
+            <div className="w-full">
+              <AnimatePresence mode="wait">
+                <StepShell key={STEPS[currentStep]} stepIndex={currentStep}>
+                  {STEPS[currentStep] === 'operacion' && (
+                    <StepOperacion
+                      data={formData}
+                      update={update}
+                      onNext={goNext}
+                      isEditMode={isEditMode}
+                    />
+                  )}
+                  {STEPS[currentStep] === 'tipo' && (
+                    <StepTipo data={formData} update={update} onNext={goNext} isEditMode={isEditMode} />
+                  )}
+                  {STEPS[currentStep] === 'ubicacion' && (
+                    <StepUbicacion
+                      data={formData}
+                      update={update}
+                      onNext={advanceIfValid}
+                      isEditMode={isEditMode}
+                    />
+                  )}
+                  {STEPS[currentStep] === 'dimensiones' && (
+                    <StepDimensiones
+                      data={formData}
+                      update={update}
+                      onNext={advanceIfValid}
+                      isEditMode={isEditMode}
+                    />
+                  )}
+                  {STEPS[currentStep] === 'precio' && (
+                    <StepPrecio
+                      data={formData}
+                      update={update}
+                      onNext={advanceIfValid}
+                      isEditMode={isEditMode}
+                    />
+                  )}
+                  {STEPS[currentStep] === 'caracteristicas' && (
+                    <StepCaracteristicas
+                      data={formData}
+                      update={update}
+                      onNext={goNext}
+                      isEditMode={isEditMode}
+                    />
+                  )}
+                  {STEPS[currentStep] === 'imagenes' && (
+                    <StepImagenes data={formData} update={update} onNext={goNext} isEditMode={isEditMode} />
+                  )}
+                  {STEPS[currentStep] === 'textos' && (
+                    <StepTextos data={formData} update={update} onNext={goNext} isEditMode={isEditMode} />
+                  )}
+                </StepShell>
+              </AnimatePresence>
+            </div>
+
+            {submitError ? (
+              <p className="mt-6 shrink-0 text-sm font-medium !text-naranja-light" role="alert">
+                {submitError}
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -110,9 +289,13 @@ export default function LinearPropertyForm() {
         currentStep={currentStep}
         totalSteps={TOTAL_STEPS}
         canContinue={canContinue}
+        onBack={goPrev}
         onContinue={goNext}
         isLast={currentStep === TOTAL_STEPS - 1}
-        formData={formData}
+        submitting={submitting}
+        syncingFiles={syncingFiles}
+        onPublish={handleSubmit}
+        isEditMode={isEditMode}
       />
     </div>
   );
@@ -121,29 +304,15 @@ export default function LinearPropertyForm() {
 function Header({
   currentStep,
   totalSteps,
-  onBack,
-  canGoBack,
 }: {
   currentStep: number;
   totalSteps: number;
-  onBack: () => void;
-  canGoBack: boolean;
 }) {
   return (
-    <header className="flex items-center justify-between">
-      <button
-        type="button"
-        onClick={onBack}
-        disabled={!canGoBack}
-        className="group flex items-center gap-2 text-sm font-medium text-surface/70 transition-colors hover:text-surface disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        <span aria-hidden className="transition-transform group-hover:-translate-x-0.5">←</span>
-        Volver
-      </button>
-
+    <header className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2">
+      <div aria-hidden className="min-w-0" />
       <Progress current={currentStep} total={totalSteps} />
-
-      <span className="text-xs font-medium uppercase tracking-[0.18em] text-surface/50">
+      <span className="justify-self-end text-xs font-medium uppercase tracking-[0.18em] text-surface/50">
         {String(currentStep + 1).padStart(2, '0')} / {String(totalSteps).padStart(2, '0')}
       </span>
     </header>
@@ -174,56 +343,72 @@ function Footer({
   currentStep,
   totalSteps: _totalSteps,
   canContinue,
+  onBack,
   onContinue,
   isLast,
-  formData,
+  submitting,
+  syncingFiles,
+  onPublish,
+  isEditMode,
 }: {
   currentStep: number;
   totalSteps: number;
   canContinue: boolean;
+  onBack: () => void;
   onContinue: () => void;
   isLast: boolean;
-  formData: PropertyFormData;
+  submitting: boolean;
+  syncingFiles: boolean;
+  onPublish: () => void;
+  isEditMode: boolean;
 }) {
-  const stepKey = STEPS[currentStep];
-  const autoAdvance = stepKey === 'operacion' || stepKey === 'tipo';
+  const publishLabel = isEditMode
+    ? !submitting
+      ? 'Guardar Cambios'
+      : syncingFiles
+        ? 'Sincronizando archivos con la nube...'
+        : 'Guardando…'
+    : !submitting
+      ? 'Publicar propiedad'
+      : syncingFiles
+        ? 'Sincronizando archivos con la nube...'
+        : 'Publicando…';
+
+  const label = isLast ? publishLabel : 'Continuar';
+  const disabled = submitting || (!isLast && !canContinue) || (isLast && !canContinue);
+  const showBack = currentStep > 0 && !submitting;
 
   return (
-    <footer className="mt-6 flex items-center justify-between gap-4">
-      <p className="hidden text-xs text-surface/50 md:block">
-        Esc para volver · Enter para continuar
-      </p>
-      <div className="ml-auto flex items-center gap-3">
-        {!autoAdvance && (
-          <PrimaryButton
-            onClick={isLast ? () => publish(formData) : onContinue}
-            disabled={!canContinue}
-            label={isLast ? 'Publicar propiedad' : 'Continuar'}
+    <div className="pointer-events-none fixed bottom-8 left-0 right-0 z-40 mx-auto flex w-full max-w-7xl items-center justify-between px-6 md:px-8">
+      <button
+        type="button"
+        onClick={onBack}
+        disabled={!showBack}
+        aria-hidden={!showBack}
+        tabIndex={showBack ? 0 : -1}
+        className={`pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-surface/20 px-6 py-3 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-surface/30 ${
+          !showBack ? 'pointer-events-none opacity-0' : ''
+        }`}
+      >
+        <span aria-hidden>←</span>
+        Volver
+      </button>
+
+      <button
+        type="button"
+        onClick={isLast ? onPublish : onContinue}
+        disabled={disabled}
+        className="pointer-events-auto flex items-center gap-2 rounded-xl bg-naranja px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-naranja/80 disabled:opacity-50"
+      >
+        {isLast && submitting ? (
+          <span
+            aria-hidden
+            className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
           />
-        )}
-      </div>
-    </footer>
-  );
-}
-
-function PrimaryButton({
-  onClick,
-  disabled,
-  label,
-}: {
-  onClick: () => void;
-  disabled?: boolean;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="group inline-flex items-center gap-2 rounded-xl bg-naranja px-5 py-3 text-sm font-semibold text-surface shadow-lg shadow-naranja/30 transition hover:bg-naranja-hover disabled:cursor-not-allowed disabled:opacity-40"
-    >
-      {label}
-      <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
-    </button>
+        ) : null}
+        {label}
+        {!isLast || !submitting ? <span aria-hidden>→</span> : null}
+      </button>
+    </div>
   );
 }

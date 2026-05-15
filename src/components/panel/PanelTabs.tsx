@@ -15,6 +15,7 @@ export default function PanelTabs({ showEquipo }: Props) {
 
   const tabs: Tab[] = [
     { href: '/panel', label: 'Resumen' },
+    { href: '/panel/propiedades', label: 'Propiedades' },
     { href: '/panel/propiedades/nueva', label: 'Nueva propiedad' },
     { href: '/panel/equipo', label: 'Mi equipo', visible: showEquipo },
   ];
@@ -28,7 +29,12 @@ export default function PanelTabs({ showEquipo }: Props) {
         .filter((tab) => tab.visible !== false)
         .map((tab) => {
           const isActive =
-            tab.href === '/panel' ? pathname === tab.href : pathname?.startsWith(tab.href) ?? false;
+            tab.href === '/panel'
+              ? pathname === '/panel'
+              :             tab.href === '/panel/propiedades'
+                ? pathname === '/panel/propiedades' ||
+                  !!pathname?.startsWith('/panel/propiedades/editar/')
+                : (pathname?.startsWith(tab.href) ?? false);
           return (
             <Link
               key={tab.href}

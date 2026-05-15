@@ -1,163 +1,168 @@
-// src/app/(web)/propiedades/[id]/page.tsx
-'use client';
+import { notFound } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Waves,
+  UtensilsCrossed,
+  Car,
+  TreePine,
+  Shield,
+  Sun,
+  Snowflake,
+  Check,
+} from 'lucide-react';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
+import { prisma } from '@/lib/prisma';
 
-// 1. Un solo import dinámico del mapa
-const MapComponent = dynamic(() => import('@/components/Map'), { ssr: false });
+import { PropertyGallery } from '@/components/propiedades/PropertyGallery';
+import { PropiedadUbicacionMap } from '@/components/propiedades/PropiedadUbicacionMap';
 
-// 2. Una sola definición de los filtros
-const FILTROS_POI = [
-  { id: 'escuelas', nombre: 'Escuelas', icono: '🏫' },
-  { id: 'hospitales', nombre: 'Salud', icono: '🏥' },
-  { id: 'supermercados', nombre: 'Súper', icono: '🛒' },
-  { id: 'policia', nombre: 'Policía', icono: '🚓' },
-  { id: 'colectivos', nombre: 'Transporte', icono: '🚌' },
-];
+import { PropiedadContactoForm } from './PropiedadContactoForm';
 
-// 3. Generador de puntos de interés simulados
-const generarPOIs = (lat: number, lng: number) => {
-  const puntos = [];
-  for (const filtro of FILTROS_POI) {
-    for (let i = 0; i < 2; i++) {
-      puntos.push({
-        id: `${filtro.id}-${i}`,
-        lat: lat + (Math.random() - 0.5) * 0.015,
-        lng: lng + (Math.random() - 0.5) * 0.015,
-        categoriaId: filtro.id,
-        titulo: `${filtro.nombre} Cercano`,
-        icono: filtro.icono
-      });
-    }
-  }
-  return puntos;
+const iconMap: Record<string, LucideIcon> = {
+  Piscina: Waves,
+  Quincho: UtensilsCrossed,
+  Cochera: Car,
+  Jardín: TreePine,
+  Seguridad: Shield,
+  Balcón: Sun,
+  'Aire acondicionado': Snowflake,
 };
 
-export default function DetallePropiedad() {
-  const params = useParams();
-  const id = params?.id;
+function ComodidadIcon({ label }: { label: string }) {
+  const Icon = iconMap[label] ?? Check;
+  return <Icon className="h-5 w-5 shrink-0 text-emerald-700" aria-hidden />;
+}
 
-  const [prop, setProp] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+type PageProps = { params: Promise<{ id: string }> };
 
-  useEffect(() => {
-    if (!id) return;
+export default async function PropiedadPage({ params }: PageProps) {
+  const { id } = await params;
+  const propiedad = await prisma.propiedad.findUnique({
+    where: { id },
+    include: { inmobiliaria: true },
+  });
+  if (!propiedad) notFound();
 
-    fetch(`/api/propiedades/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setProp(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("❌ Error grave de conexión:", error);
-        setLoading(false);
-      });
-  }, [id]);
+  const agente =
+    propiedad.agenteId != null
+      ? await prisma.user.findUnique({
+          where: { id: propiedad.agenteId },
+          select: { nombre: true },
+        })
+      : null;
 
-  if (loading) return <div className="flex h-screen items-center justify-center bg-background font-sans uppercase tracking-widest text-text-secondary">Cargando detalles...</div>;
-  if (!prop || prop.error) return <div className="flex h-screen flex-col items-center justify-center bg-background font-sans"><span className="mb-2 text-xl font-bold text-naranja-dark">Propiedad no encontrada.</span><span className="text-text-secondary">Revisa la consola para más detalles.</span></div>;
+  const agenciaNombre = propiedad.inmobiliaria?.nombreAgencia ?? 'Agencia Independiente';
+  const contactoComercial = agente?.nombre ?? 'Consultá con la agencia';
+
+  const precioFmt =
+    propiedad.precio != null
+      ? `${propiedad.moneda} ${propiedad.precio.toLocaleString('es-AR')}`
+      : 'Valor a consultar';
+
+  const operacionLabel = String(propiedad.operacion).toUpperCase();
+  const tipoLabel = String(propiedad.tipo).toUpperCase();
+
+  const direccionCompleta = [propiedad.direccion, propiedad.barrio].filter(Boolean).join(' · ');
 
   return (
-    <main className="min-h-screen bg-background pb-20 font-sans">
+    <main className="min-h-screen bg-white pb-20 font-sans text-gray-900">
       <Navbar />
 
-      {/* Hero Image / Gallery */}
-      <section className="relative h-[60vh] w-full overflow-hidden bg-verde-dark">
-        <img 
-          src={prop.imagenes?.[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop"} 
-          alt={prop.titulo} 
-          className="w-full h-full object-cover opacity-80" 
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-text-primary/70 to-transparent"></div>
-        <div className="absolute bottom-10 left-10 text-surface">
-          <div className="flex gap-2 mb-4">
-             <span className="rounded-full bg-verde px-4 py-1 text-xs font-bold uppercase">{prop.operacion}</span>
-             {prop.esSustentable && <span className="rounded-full bg-verde-hover px-4 py-1 text-xs font-bold uppercase">🌱 Sustentable</span>}
+      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        {/* 1. Encabezado */}
+        <header className="border-b border-gray-200 pb-8">
+          <div className="mb-4 flex flex-wrap gap-2">
+            <span className="rounded-full bg-gray-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+              {operacionLabel}
+            </span>
+            <span className="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gray-900">
+              {tipoLabel}
+            </span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-2">{prop.titulo}</h1>
-          <p className="text-2xl font-light text-naranja">
-            {prop.precio ? `${prop.moneda} ${prop.precio.toLocaleString('es-AR')}` : 'Valor a consultar'}
-          </p>        
-         </div>
-      </section>
+          <h1 className="text-4xl font-bold leading-tight text-gray-900">{propiedad.titulo}</h1>
+          <p className="mt-3 text-2xl font-semibold text-naranja">{precioFmt}</p>
+          <p className="mt-2 text-base text-gray-500">{direccionCompleta}</p>
+        </header>
 
-      <section className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
-        
-        {/* Columna Izquierda: Información */}
-        <div className="lg:col-span-2">
-          {/* AQUÍ SE CORRIGIÓ EL TAMAÑO Y COLOR DE LOS TEXTOS */}
-          <div className="mb-10 flex flex-wrap gap-8 rounded-3xl border border-border-light bg-surface p-8">
-            <div className="flex flex-col"><span className="mb-1 text-xs font-bold uppercase text-text-secondary">Dormitorios</span><span className="text-2xl font-bold text-text-primary">🛏️ {prop.dormitorios}</span></div>
-            <div className="flex flex-col"><span className="mb-1 text-xs font-bold uppercase text-text-secondary">Baños</span><span className="text-2xl font-bold text-text-primary">🚿 {prop.banos}</span></div>
-            <div className="flex flex-col"><span className="mb-1 text-xs font-bold uppercase text-text-secondary">Superficie</span><span className="text-2xl font-bold text-text-primary">📐 {prop.m2Total} m²</span></div>
-            <div className="flex flex-col"><span className="mb-1 text-xs font-bold uppercase text-text-secondary">Antigüedad</span><span className="text-2xl font-bold text-text-primary">⏳ {prop.antiguedadAnos} años</span></div>
+        <PropertyGallery imagenes={propiedad.imagenes} />
+
+        {/* Barra de métricas (debajo de la galería, encima del grid de 2 columnas) */}
+        <div className="mt-8 flex flex-wrap gap-x-10 gap-y-6 border-b border-gray-200 pb-8">
+          <div className="flex min-w-[4.5rem] flex-col gap-1">
+            <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Dormitorios</span>
+            <span className="text-2xl font-semibold text-gray-900">{propiedad.dormitorios}</span>
           </div>
-
-          <h3 className="mb-6 text-2xl font-bold text-text-primary">Descripción</h3>
-          <p className="mb-10 text-lg leading-relaxed text-text-secondary">{prop.descripcion}</p>
-
-          <h3 className="mb-6 text-2xl font-bold text-text-primary">Comodidades e Instalaciones</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {prop.comodidades?.map((item: string, i: number) => (
-              <div key={i} className="flex items-center gap-2 rounded-xl border border-border-light bg-surface px-4 py-2 text-text-secondary">
-                <span className="text-verde">✓</span> {item}
-              </div>
-            ))}
+          <div className="flex min-w-[4.5rem] flex-col gap-1">
+            <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Baños</span>
+            <span className="text-2xl font-semibold text-gray-900">{propiedad.banos}</span>
+          </div>
+          <div className="flex min-w-[4.5rem] flex-col gap-1">
+            <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Cocheras</span>
+            <span className="text-2xl font-semibold text-gray-900">{propiedad.cocheras}</span>
+          </div>
+          <div className="flex min-w-[5rem] flex-col gap-1">
+            <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Superficie</span>
+            <span className="text-2xl font-semibold text-gray-900">{propiedad.m2Total} m²</span>
+          </div>
+          <div className="flex min-w-[4.5rem] flex-col gap-1">
+            <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Ambientes</span>
+            <span className="text-2xl font-semibold text-gray-900">{propiedad.ambientes}</span>
           </div>
         </div>
 
-        {/* Columna Derecha: Formulario de Contacto (Sticky) */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-24 rounded-3xl border border-border-light bg-surface p-8 shadow-2xl">
-            <h3 className="mb-6 text-xl font-bold text-text-primary">¿Te interesa esta propiedad?</h3>
-            <form className="flex flex-col gap-4">
-              <input 
-                type="text" 
-                placeholder="Tu nombre" 
-                className="w-full rounded-xl border border-border-light bg-background p-4 text-text-primary outline-none transition-all placeholder:text-text-secondary focus:ring-2 focus:ring-verde" 
-              />
-              <input 
-                type="email" 
-                placeholder="Tu email" 
-                className="w-full rounded-xl border border-border-light bg-background p-4 text-text-primary outline-none transition-all placeholder:text-text-secondary focus:ring-2 focus:ring-verde" 
-              />
-              <textarea 
-                placeholder="Hola, me gustaría recibir más información..." 
-                rows={4} 
-                className="w-full rounded-xl border border-border-light bg-background p-4 text-text-primary outline-none transition-all placeholder:text-text-secondary focus:ring-2 focus:ring-verde"
-              ></textarea>
-              <button className="w-full rounded-xl bg-verde py-4 font-bold text-surface shadow-lg transition-all hover:bg-verde-hover">
-                Enviar Consulta
-              </button>
-            </form>
-          </div>
-        </div>
+        {/* Cuerpo: 2 columnas */}
+        <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-3">
+          <div className="space-y-12 lg:col-span-2">
+            <section>
+              <h2 className="mb-4 text-2xl font-bold text-gray-900">Descripción</h2>
+              <p className="whitespace-pre-wrap text-lg leading-relaxed text-gray-700">
+                {propiedad.descripcion}
+              </p>
+            </section>
 
-      </section>
-      
-      {/* SECCIÓN: MAPA DE ENTORNO */}
-      <section className="relative z-0 mt-12 h-[60vh] w-full border-t border-border-light">
-        <MapComponent 
-          centro={[prop.latitud, prop.longitud]} 
-          zoom={14}
-          marcadorFijo={{
-            id: prop.id,
-            lat: prop.latitud,
-            lng: prop.longitud,
-            categoriaId: 'fijo',
-            titulo: prop.titulo,
-            subtitulo: 'Ubicación Exacta',
-            icono: '📍'
-          }}
-          filtros={FILTROS_POI}
-          filtrosActivosIniciales={[]} 
-          puntos={generarPOIs(prop.latitud, prop.longitud)} 
-        />
-      </section>
+            {propiedad.caracteristicas.length > 0 ? (
+              <section>
+                <h2 className="mb-4 text-2xl font-bold text-gray-900">Comodidades</h2>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                  {propiedad.caracteristicas.map((c) => (
+                    <div
+                      key={c}
+                      className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm"
+                    >
+                      <ComodidadIcon label={c} />
+                      <span className="text-sm font-medium">{c}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            <section>
+              <h2 className="mb-4 text-2xl font-bold text-gray-900">Ubicación</h2>
+              <PropiedadUbicacionMap
+                propiedadId={propiedad.id}
+                titulo={propiedad.titulo}
+                latitud={propiedad.latitud}
+                longitud={propiedad.longitud}
+              />
+            </section>
+          </div>
+
+          <aside className="lg:col-span-1">
+            <div className="sticky top-8 rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+              <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Inmobiliaria</p>
+              <p className="mt-1 text-lg font-bold text-emerald-800">{agenciaNombre}</p>
+              <p className="mt-6 text-xs font-bold uppercase tracking-wide text-gray-500">
+                Contacto comercial
+              </p>
+              <p className="mt-1 font-semibold text-gray-900">{contactoComercial}</p>
+              <h3 className="mb-4 mt-8 text-xl font-bold text-gray-900">¿Te interesa esta propiedad?</h3>
+              <PropiedadContactoForm propiedadId={propiedad.id} />
+            </div>
+          </aside>
+        </div>
+      </div>
     </main>
   );
 }

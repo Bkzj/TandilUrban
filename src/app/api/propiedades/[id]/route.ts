@@ -14,13 +14,22 @@ export async function GET(
 
     const propiedad = await prisma.propiedad.findUnique({
       where: { id: id },
+      include: { inmobiliaria: true },
     });
 
     if (!propiedad) {
       return NextResponse.json({ error: "Propiedad no encontrada" }, { status: 404 });
     }
 
-    return NextResponse.json(propiedad);
+    const agente =
+      propiedad.agenteId != null
+        ? await prisma.user.findUnique({
+            where: { id: propiedad.agenteId },
+            select: { id: true, nombre: true, email: true, telefono: true },
+          })
+        : null;
+
+    return NextResponse.json({ ...propiedad, agente });
   } catch (error) {
     return NextResponse.json({ error: "Error al buscar la propiedad" }, { status: 500 });
   }

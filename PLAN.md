@@ -1,39 +1,51 @@
+# 🏙️ TandilUrban - Plan de Desarrollo V2.0
+
 ## 1. Visión y Stack Tecnológico
-Plataforma inmobiliaria de vanguardia, inmersiva, escalable y altamente interactiva.
-- **Framework:** Next.js (App Router).
-- **Base de Datos & ORM:** PostgreSQL + Prisma.
-- **Estilos:** Tailwind CSS.
-- **Autenticación:** NextAuth.js (Auth.js) con soporte 2FA.
-- **Imágenes:** Cloudinary / S3 (formato WebP/AVIF y uso estricto de `<Image>`).
-- **Motor de Animaciones (Core):** Framer Motion y Lenis (Smooth Scrolling).
-- **Motor 3D (Core):** React Three Fiber / Drei / Spline (Para elementos inmersivos).
+Plataforma inmobiliaria de vanguardia, inmersiva, escalable y altamente interactiva, diseñada con mentalidad B2B SaaS y foco en la experiencia de usuario (UX).
+- **Framework:** Next.js 14+ (App Router).
+- **Base de Datos & ORM:** PostgreSQL + Prisma (Dockerizado).
+- **Estilos:** Tailwind CSS (Uso estricto de **Literales de Cadena Completos** en Backoffice para evitar Ghost Caching en Safari/iOS).
+- **Autenticación:** NextAuth.js (Auth.js) con sistema RBAC (Tenant/Agencia).
+- **Mapas:** React Leaflet + Nominatim (OpenStreetMap) con Geofencing local.
+- **Inteligencia Artificial:** Gemini 1.5 Flash/Pro (Grounding Visual + Contexto).
+- **Imágenes:** Cloudinary / AWS S3 (Próximamente para persistencia real).
+- **Motor de Animaciones:** Framer Motion y Lenis (Smooth Scrolling).
+- **Motor 3D:** React Three Fiber / Spline (Pendiente para Hero/Portal).
 
-## 2. Experiencia 3D y Animaciones (Pilar Fundamental)
-La plataforma NO debe sentirse estática en ningún momento. Las animaciones no son parches, son parte de la arquitectura base:
-- **Smooth Scrolling:** Implementar `Lenis` globalmente para un scroll fluido.
-- **Elementos 3D Integrados:** Incorporar un componente 3D interactivo en el Hero (ej. un modelado arquitectónico abstracto o llaves flotantes que reaccionan al mouse) cargado dinámicamente (`next/dynamic`) para no afectar el renderizado inicial.
-- **Micro-interacciones Constantes:** Botones magnéticos (que siguen un poco al cursor), físicas de "Spring" (rebote natural) en los hover de las tarjetas, y skeleton loaders dinámicos.
-- **Macro-interacciones:** Transiciones de página fluidas (Page Transitions) al navegar entre el Home y el Detalle. Elementos que aparecen gradualmente al hacer scroll (Scroll Reveals y Parallax).
-- **Efectos en Tarjetas:** Las "Property Cards" deben tener un ligero efecto de inclinación 3D (3D Tilt) al pasar el mouse.
+## 2. Experiencia Visual y Animaciones (Pilar Core)
+La plataforma NO debe sentirse estática.
+- **Smooth Scrolling:** `Lenis` global para navegación fluida.
+- **Micro-interacciones:** Botones magnéticos, físicas "Spring" en hovers, StepShells con "zig-zag" de Framer Motion en el onboarding.
+- **Theming Dinámico:** - **Portal Público:** Primario Verde, luminoso, enfocado en el cliente.
+  - **Backoffice (Inmobiliaria):** Primario Naranja, gradientes oscuros (`text-primary` a `naranja-dark`), diseño premium de alta concentración.
 
-## 3. Principios de Arquitectura (Frontend & Backend)
-- **Modularización Extrema (DRY):** Todo debe ser un componente reutilizable aislado en `src/components/ui/` (Botones animados, inputs, modales).
-- **Theming Dinámico:** - **Portal Público:** Primario: Verde / Secundario: Naranja.
-  - **Dashboard Inmobiliaria:** Colores invertidos (Primario: Naranja / Secundario: Verde) para dar identidad visual propia al backoffice.
-- **Programación Defensiva:** Manejo de errores en cada endpoint con Try/Catch, tipado estricto e interfaces de TypeScript.
+## 3. Principios de Arquitectura
+- **Modularización Extrema (DRY):** Componentes aislados. El formulario de propiedades se divide por pasos (Principio de Responsabilidad Única).
+- **Programación Defensiva:** Tipado estricto (`@src/types/panel.ts`), validación antes de avanzar pasos y manejo seguro de promesas en Next.js.
+- **Human-in-the-loop (IA):** La IA asiste al agente, pero el agente controla el contexto (notas, correcciones).
 
 ## 4. Estructura de Datos (Prisma)
-- **User:** `id`, `rol` (ADMIN, INMOBILIARIA, USUARIO_NORMAL), `nombre`, `email`, `passwordHash`, `telefono`, `avatarUrl`, `twoFactorEnabled`, `twoFactorSecret`.
-  - *Perfil Inmobiliaria:* `nombreAgencia`, `logoAgencia`, `cuit`, `direccion`.
-- **Propiedad:** `id`, `inmobiliariaId` (relación), `titulo`, `descripcion`, `estado` (DISPONIBLE, RESERVADA, VENDIDA, PAUSADA), `tipo` (Casa, Depto, etc.), `operacion` (Venta, Alquiler), `precio`, `moneda`, `expensas`, `direccion`, `barrio`, `latitud`, `longitud`, `m2Total`, `m2Cubiertos`, `ambientes`, `caracteristicas` (array), `imagenes` (array URLs).
-- **Contacto (Leads):** `nombre`, `email`, `mensaje`, `propiedadId` (relación).
+- **User / Rol:** `ADMIN`, `INMOBILIARIA` (Dueño/Tenant), `AGENTE` (Empleado, vinculado por `agenciaId`), `USUARIO_NORMAL`.
+- **Propiedad:** `id`, `inmobiliariaId`, `agenteId`, `titulo`, `descripcion`, `estado`, `tipo`, `operacion`, `precio`, `moneda`, `direccion`, `barrio`, `latitud`, `longitud`, `m2Total`, `m2Cubiertos`, `ambientes`, **`dormitorios`, `banos`, `cocheras`** (Nuevos), `caracteristicas` (array), `imagenes` (array URLs).
 
-## 5. Features Principales
-- **Para el Cliente Final:** Búsqueda inteligente por URL, mapa interactivo, sistema de propiedades favoritas, alertas personalizadas y visualizador de imágenes inmersivo.
-- **Para la Inmobiliaria (Backoffice):** Panel de control, ABM (CRUD) animado de propiedades, gestión de leads (mensajes recibidos), métricas clave (vistas, conversiones).
+---
 
-## 6. Fases de Ejecución
-1. **Fase 1 - Base de Datos & Auth:** Actualizar `schema.prisma`. Configurar NextAuth y registro/login con soporte de roles.
-2. **Fase 2 - Core Animado & Ui Kit:** Configurar Lenis (Scroll), instalar Framer Motion, crear componentes base animados (Botones 3D, Cards con Tilt) y el sistema de colores dinámicos.
-3. **Fase 3 - Experiencia Inmersiva (Frontend):** Integrar R3F/Spline para el Hero 3D, y conectar la carga real de propiedades con el buscador y el mapa.
-4. **Fase 4 - Backoffice Inmobiliarias:** Dashboard naranja/verde y formulario multipaso animado para crear/editar propiedades.
+## 5. Roadmap y Fases de Ejecución
+
+### ✅ Fases Completadas (Estables)
+- [x] **Fase 1 - Base de Datos & Auth:** Docker + PostgreSQL, NextAuth, Roles RBAC, Protección de rutas.
+- [x] **Fase 2 - UI Kit & Layouts:** Tailwind configurado, gradientes oscuros, layout dual (Web vs Panel).
+- [x] **Fase 3 - Linear Onboarding V1:** Formulario paso a paso con Framer Motion, validaciones aisladas y persistencia inicial en BD.
+- [x] **Fase 4 - RBAC en Acción:** Lógica B2B. La inmobiliaria ve a su equipo; el agente solo publica; el admin ve todo.
+- [x] **Fase 5 - Mapa Inteligente:** Integración Leaflet + Nominatim, geofencing en Tandil, pin personalizado arrastrable (SVG Piedra).
+
+### ⏳ En Progreso / Inmediato
+- [ ] **Fase 6 - IA Generativa Definitiva:** Conectar Gemini 2.5 flash con envío de imagen Base64 (Grounding) + "Notas del Agente" para generación de copy perfecto y honesto.
+- [ ] **Fase 7 - Enriquecimiento y Rediseño de Property Page:** - Agregar `dormitorios`, `baños` y `cocheras` al backend y al flujo del panel.
+  - Rediseñar `[id]/page.tsx` público: Grilla de fotos atractiva, íconos de Lucide para comodidades, saltos de línea en descripción y Tarjeta de Contacto real (Inmobiliaria/Agente).
+
+### 🚀 Futuras Fases (Backlog)
+- [ ] **Fase 8 - Persistencia Real de Imágenes:** Cambiar los `blob:http` locales por subida asíncrona a Cloudinary o S3 (`/api/upload`) para que las fotos sobrevivan a la recarga de página.
+- [ ] **Fase 9 - Inteligencia Geoespacial (POIs):** Usar la API de OpenStreetMap (Overpass) para calcular distancia a escuelas, plazas y paradas de colectivo más cercanas al pin de la propiedad.
+- [ ] **Fase 10 - Inmersión 3D:** Integrar Spline o React Three Fiber en el Hero público del portal para el impacto visual (ej. llaves o logo flotante interactivo).
+- [ ] **Fase 11 - Sistema de Leads:** Bandeja de mensajes B2B donde la inmobiliaria recibe las consultas de la página de propiedad y las asigna a sus agentes.

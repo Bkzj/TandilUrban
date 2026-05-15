@@ -67,6 +67,7 @@ export function SubtleInput({
   type = 'text',
   inputMode,
   autoFocus,
+  disabled = false,
 }: {
   label: string;
   value: string;
@@ -76,11 +77,12 @@ export function SubtleInput({
   type?: 'text' | 'number';
   inputMode?: 'numeric' | 'decimal';
   autoFocus?: boolean;
+  disabled?: boolean;
 }) {
   const ref = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
-    if (autoFocus) ref.current?.focus();
-  }, [autoFocus]);
+    if (autoFocus && !disabled) ref.current?.focus();
+  }, [autoFocus, disabled]);
 
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
@@ -99,10 +101,11 @@ export function SubtleInput({
         type={type}
         inputMode={inputMode}
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className="border-0 border-b-[3px] border-surface/40 bg-transparent px-0 pb-3 pt-2 text-2xl font-medium text-white caret-naranja outline-none transition-colors placeholder:font-light placeholder:text-surface/35 focus:border-naranja focus:placeholder:text-surface/55"
+        className="border-0 border-b-[3px] border-surface/40 bg-transparent px-0 pb-3 pt-2 text-2xl font-medium text-white caret-naranja outline-none transition-colors placeholder:font-light placeholder:text-surface/35 focus:border-naranja focus:placeholder:text-surface/55 disabled:opacity-50"
       />
     </label>
   );

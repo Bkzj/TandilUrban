@@ -4,12 +4,57 @@ import type { StepProps } from '@/types/panel';
 
 import { HintEnter, StepHeading, SubtleInput } from './step-ui';
 
-export function StepDimensiones({ data, update, onNext }: StepProps) {
+function CounterRow({
+  label,
+  value,
+  onMinus,
+  onPlus,
+  disabled,
+}: {
+  label: string;
+  value: number;
+  onMinus: () => void;
+  onPlus: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-2.5">
+      <span className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-surface/65">
+        {label}
+      </span>
+      <div className="flex items-center gap-4 rounded-xl border !border-surface/20 !bg-black/20 p-2">
+        <button
+          type="button"
+          onClick={onMinus}
+          disabled={disabled}
+          className="flex h-10 w-10 items-center justify-center rounded-lg hover:!bg-surface/10 !text-white text-xl disabled:opacity-40"
+        >
+          -
+        </button>
+        <span className="w-8 text-center text-lg font-bold !text-white">{value}</span>
+        <button
+          type="button"
+          onClick={onPlus}
+          disabled={disabled}
+          className="flex h-10 w-10 items-center justify-center rounded-lg hover:!bg-surface/10 !text-white text-xl disabled:opacity-40"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function StepDimensiones({ data, update, onNext, isEditMode }: StepProps) {
   const esLote = data.tipo === 'Lote';
   return (
     <>
       <StepHeading>
-        {esLote ? '¿Cuántos m² tiene el lote?' : '¿Cuáles son las dimensiones?'}
+        {isEditMode
+          ? 'Modificá las dimensiones y distribución'
+          : esLote
+            ? '¿Cuántos m² tiene el lote?'
+            : '¿Qué dimensiones tiene?'}
       </StepHeading>
       <div className={`grid gap-6 ${esLote ? 'sm:grid-cols-1' : 'sm:grid-cols-3'}`}>
         <SubtleInput
@@ -45,6 +90,28 @@ export function StepDimensiones({ data, update, onNext }: StepProps) {
           </>
         )}
       </div>
+      {!esLote ? (
+        <div className="mt-8 grid gap-6 sm:grid-cols-3">
+          <CounterRow
+            label="Dormitorios"
+            value={data.dormitorios}
+            onMinus={() => update('dormitorios', Math.max(0, data.dormitorios - 1))}
+            onPlus={() => update('dormitorios', data.dormitorios + 1)}
+          />
+          <CounterRow
+            label="Baños"
+            value={data.banos}
+            onMinus={() => update('banos', Math.max(0, data.banos - 1))}
+            onPlus={() => update('banos', data.banos + 1)}
+          />
+          <CounterRow
+            label="Cocheras"
+            value={data.cocheras}
+            onMinus={() => update('cocheras', Math.max(0, data.cocheras - 1))}
+            onPlus={() => update('cocheras', data.cocheras + 1)}
+          />
+        </div>
+      ) : null}
       <HintEnter />
     </>
   );

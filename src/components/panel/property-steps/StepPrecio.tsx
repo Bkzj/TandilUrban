@@ -4,10 +4,12 @@ import type { StepProps } from '@/types/panel';
 
 import { HintEnter, StepHeading, SubtleInput } from './step-ui';
 
-export function StepPrecio({ data, update, onNext }: StepProps) {
+export function StepPrecio({ data, update, onNext, isEditMode }: StepProps) {
   return (
     <>
-      <StepHeading>¿Cuál es el precio de publicación?</StepHeading>
+      <StepHeading>
+        {isEditMode ? 'Actualizá el valor y las expensas' : '¿Cuál es el valor de publicación?'}
+      </StepHeading>
       <div className="space-y-6">
         <div className="flex items-end gap-4">
           <div className="flex shrink-0 overflow-hidden rounded-xl border border-surface/20 bg-surface/5">

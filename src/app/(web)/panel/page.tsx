@@ -7,9 +7,19 @@ import MetricCard from '@/components/panel/MetricCard';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PanelPage() {
+type PanelPageProps = {
+  searchParams?:
+    | Promise<Record<string, string | string[] | undefined>>
+    | Record<string, string | string[] | undefined>;
+};
+
+export default async function PanelPage({ searchParams }: PanelPageProps) {
   const user: CurrentUser | null = await getCurrentUser();
   if (!user) redirect('/login?callbackUrl=/panel');
+
+  const sp = await Promise.resolve(searchParams ?? {});
+  const publishedFlag = Array.isArray(sp.published) ? sp.published[0] : sp.published;
+  const justPublished = publishedFlag === '1';
 
   const canManageTeam = isInmobiliariaMain(user);
   const isAgente = user.rol !== 'INMOBILIARIA' && user.rol !== 'ADMIN';
@@ -26,6 +36,12 @@ export default async function PanelPage() {
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-12 md:px-8">
       <PanelTabs showEquipo={canManageTeam} />
+
+      {justPublished ? (
+        <div className="mt-6 rounded-2xl border border-naranja/40 !bg-black/30 p-4 text-sm font-medium !text-white" role="status">
+          Propiedad publicada con éxito.
+        </div>
+      ) : null}
 
       <header className="mt-8 flex flex-col">
         <p className="mb-2 text-xs font-bold uppercase tracking-widest !text-naranja-light/80">

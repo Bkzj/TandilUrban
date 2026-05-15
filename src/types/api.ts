@@ -19,3 +19,29 @@ export type CreateAgentePayload = {
   email: string;
   password: string;
 };
+
+/**
+ * Cuerpo esperado por `POST /api/panel/propiedades`.
+ * Refleja el output del onboarding lineal del panel.
+ */
+export type CreatePropiedadPayload = {
+  operacion: 'VENTA' | 'ALQUILER';
+  tipo: string;
+  direccion: string;
+  barrio?: string | null;
+  lat: number;
+  lng: number;
+  m2Total: number;
+  m2Cubiertos?: number | null;
+  ambientes?: number | null;
+  dormitorios: number;
+  banos: number;
+  cocheras: number;
+  moneda: 'USD' | 'ARS';
+  precio: number;
+  expensas?: number | null;
+  caracteristicas: string[];
+  imagenes: string[];
+  titulo: string;
+  descripcion: string;
+};

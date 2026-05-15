@@ -5,3 +5,9 @@ body {
   @apply bg-background text-text-primary antialiased;
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Marcador panel onboarding — Leaflet no debe dibujar borde/fondo sobre el divIcon SVG */
+.custom-tandil-pin {
+  background: transparent !important;
+  border: none !important;
+}

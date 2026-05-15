@@ -1,3 +1,17 @@
+/** Fila de propiedad en el panel administrador (serializable para client components). */
+export type PanelPropiedadTableRow = {
+  id: string;
+  titulo: string;
+  imagenes: string[];
+  operacion: string;
+  tipo: string;
+  precio: number;
+  moneda: string;
+  visitas: number;
+  consultas: number;
+  createdAt: string;
+};
+
 /** Fila de agente serializada para el panel (client + server). */
 export type Agente = {
   id: string;
@@ -16,9 +30,14 @@ export type PropertyFormData = {
   tipo: TipoInmueble | '';
   direccion: string;
   barrio: string;
+  lat: number | null;
+  lng: number | null;
   m2Total: string;
   m2Cubiertos: string;
   ambientes: string;
+  dormitorios: number;
+  banos: number;
+  cocheras: number;
   moneda: Moneda;
   precio: string;
   expensas: string;
@@ -32,4 +51,5 @@ export type StepProps = {
   data: PropertyFormData;
   update: (key: keyof PropertyFormData, value: any) => void;
   onNext: () => void;
+  isEditMode?: boolean;
 };

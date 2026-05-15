@@ -1,13 +1,21 @@
 import type { PropertyFormData, TipoInmueble } from '@/types/panel';
 
+/** Centro por defecto del mapa: Tandil (Plaza Independencia). */
+export const DEFAULT_CENTER = { lat: -37.32167, lng: -59.13316 };
+
 export const INITIAL_DATA: PropertyFormData = {
   operacion: '',
   tipo: '',
   direccion: '',
   barrio: '',
+  lat: null,
+  lng: null,
   m2Total: '',
   m2Cubiertos: '',
   ambientes: '',
+  dormitorios: 0,
+  banos: 0,
+  cocheras: 0,
   moneda: 'USD',
   precio: '',
   expensas: '',

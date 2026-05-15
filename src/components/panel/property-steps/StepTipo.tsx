@@ -5,10 +5,14 @@ import type { StepProps, TipoInmueble } from '@/types/panel';
 import { TIPOS_INMUEBLE } from './constants';
 import { BigChoice, StepHeading } from './step-ui';
 
-export function StepTipo({ data, update, onNext }: StepProps) {
+export function StepTipo({ data, update, onNext, isEditMode }: StepProps) {
   return (
     <>
-      <StepHeading>¿Qué tipo de inmueble es?</StepHeading>
+      <StepHeading>
+        {isEditMode
+          ? 'Corregí el tipo de operación o inmueble'
+          : '¿Qué tipo de inmueble es?'}
+      </StepHeading>
       <div className="grid gap-3 sm:grid-cols-3">
         {TIPOS_INMUEBLE.map((tipo: TipoInmueble) => (
           <BigChoice

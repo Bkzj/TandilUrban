@@ -47,6 +47,8 @@ model User {
   agencia   Inmobiliaria? @relation("AgentesDeInmobiliaria", fields: [agenciaId], references: [id], onDelete: SetNull)
 
   verificationTokens VerificationToken[]
+  propiedadesComoAgente Propiedad[] @relation("PropiedadAgente")
+
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
@@ -73,6 +75,9 @@ model Propiedad {
   inmobiliariaId String
   inmobiliaria   Inmobiliaria @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
 
+  agenteId String?
+  agente   User? @relation("PropiedadAgente", fields: [agenteId], references: [id], onDelete: SetNull)
+
   titulo          String
   descripcion     String          @db.Text
   estado          EstadoPropiedad @default(DISPONIBLE)
@@ -88,8 +93,14 @@ model Propiedad {
   m2Total         Float
   m2Cubiertos     Float
   ambientes       Int
+  dormitorios     Int             @default(0)
+  banos           Int             @default(0)
+  cocheras        Int             @default(0)
   caracteristicas String[]
   imagenes        String[]
+
+  visitas    Int @default(0)
+  consultas Int @default(0)
 
   contactos Contacto[]
   createdAt DateTime   @default(now())
@@ -100,6 +111,7 @@ model Propiedad {
   @@index([tipo])
   @@index([operacion])
   @@index([barrio])
+  @@index([agenteId])
 }
 
 model Contacto {

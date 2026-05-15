@@ -5,10 +5,12 @@ import type { StepProps } from '@/types/panel';
 import { CARACTERISTICAS } from './constants';
 import { StepHeading } from './step-ui';
 
-export function StepCaracteristicas({ data, update, onNext: _onNext }: StepProps) {
+export function StepCaracteristicas({ data, update, onNext: _onNext, isEditMode }: StepProps) {
   return (
     <>
-      <StepHeading>Marcá las características que destacan a la propiedad</StepHeading>
+      <StepHeading>
+        {isEditMode ? 'Actualizá las comodidades y extras' : '¿Qué comodidades tiene?'}
+      </StepHeading>
       <div className="flex flex-wrap gap-2">
         {CARACTERISTICAS.map((item) => {
           const active = data.caracteristicas.includes(item);

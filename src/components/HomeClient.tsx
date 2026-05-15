@@ -6,10 +6,9 @@ import Navbar from '@/components/Navbar';
 import SearchBox from '@/components/SearchBox';
 import HeroColumn from '@/components/HeroColumn';
 import { IMAGENES_HOME } from '@/constants/home';
-import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 
-const MapComponent = dynamic(() => import('@/components/Map'), { ssr: false });
+import MapComponent from '@/components/Map';
 
 const FILTROS_HOME = [
   { id: 'Casa', nombre: 'Casas', icono: '🏡' },

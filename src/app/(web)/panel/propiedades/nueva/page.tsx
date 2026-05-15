@@ -6,8 +6,10 @@ export const metadata = {
 
 export default function NuevaPropiedadPage() {
   return (
-    <main className="relative">
-      <LinearPropertyForm />
+    <main className="relative flex min-h-screen flex-col">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <LinearPropertyForm />
+      </div>
     </main>
   );
 }

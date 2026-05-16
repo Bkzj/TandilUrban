@@ -1,15 +1,17 @@
-import type { Prisma } from '@prisma/client';
+import { EstadoPropiedad, type Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import HomeClient, { type HomePropiedadListItem } from '@/components/HomeClient';
+import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (value === undefined) return undefined;
   return Array.isArray(value) ? value[0] : value;
 }
 
-function propiedadEsSustentable(caracteristicas: string[]): boolean {
+function propiedadEsSustentable(caracteristicas: unknown): boolean {
+  if (!Array.isArray(caracteristicas)) return false;
   return caracteristicas.some((c) => {
-    const s = c.toLowerCase();
+    const s = String(c).toLowerCase();
     return (
       s.includes('solar') ||
       s.includes('sustent') ||
@@ -32,7 +34,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   const barrio = firstParam(sp.barrio);
 
   const where: Prisma.PropiedadWhereInput = {
-    estado: 'DISPONIBLE',
+    estado: EstadoPropiedad.DISPONIBLE,
   };
 
   if (tipo && tipo !== 'Todos') where.tipo = tipo;
@@ -75,13 +77,23 @@ export default async function Home({ searchParams }: HomePageProps) {
     latitud: p.latitud,
     longitud: p.longitud,
     tipo: p.tipo,
-    imagenes: p.imagenes,
+    imagenes: imagenesItemsToUrls(normalizePropiedadImagenesDb(p.imagenes)),
     esSustentable: propiedadEsSustentable(p.caracteristicas),
   }));
 
+  const barriosRows = await prisma.propiedad.findMany({
+    where: { estado: EstadoPropiedad.DISPONIBLE, barrio: { not: null } },
+    select: { barrio: true },
+    distinct: ['barrio'],
+  });
+  const barrios = barriosRows
+    .map((r) => r.barrio)
+    .filter((b): b is string => typeof b === 'string' && b.trim() !== '')
+    .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
   return (
     <main className="flex min-h-screen flex-col bg-background">
-      <HomeClient propiedades={propiedades} />
+      <HomeClient propiedades={propiedades} barrios={barrios} />
     </main>
   );
 }

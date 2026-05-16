@@ -1,29 +1,100 @@
 import { Resend } from 'resend';
 
-function getResendClient(): Resend {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error('RESEND_API_KEY no está definida.');
-  }
-  return new Resend(apiKey);
+/** Remite todos los mails de Auth (aligned con RESEND_FROM_EMAIL del proyecto). */
+export const AUTH_FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL || 'Tandil Urban <onboarding@resend.dev>';
+
+function isDev(): boolean {
+  return process.env.NODE_ENV !== 'production';
 }
 
-function verificationUrl(token: string): string {
+function getAppBase(): string {
   const base =
-    process.env.APP_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    'http://localhost:3000';
-  const trimmed = base.replace(/\/$/, '');
-  return `${trimmed}/api/auth/verify?token=${encodeURIComponent(token)}`;
+    process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  return base.replace(/\/$/, '');
 }
 
-export async function sendVerificationEmail(email: string, token: string): Promise<void> {
-  const resend = getResendClient();
-  const from = process.env.RESEND_FROM ?? 'TandilUrban <onboarding@resend.dev>';
-  const link = verificationUrl(token);
+/** URL absoluta para completar verificación tras registro (útil también en logs de desarrollo). */
+export function buildAuthVerificationLink(token: string): string {
+  return `${getAppBase()}/api/auth/verify?token=${encodeURIComponent(token)}`;
+}
 
-  const { error } = await resend.emails.send({
-    from,
+/** Base para pantalla futura de restablecer contraseña (mismo degradado en desarrollo que el registro). */
+export function buildAuthPasswordResetLink(token: string): string {
+  return `${getAppBase()}/restablecer-contrasena?token=${encodeURIComponent(token)}`;
+}
+
+function logDevFallback(kind: string, url: string, extra?: unknown): void {
+  console.warn('\n⚠️ [DEV FALLBACK] Correo de auth no enviado por Resend (sandbox / error).');
+  console.warn(`⚠️ [DEV FALLBACK] ${kind}:`, url);
+  if (extra !== undefined) console.warn('⚠️ [DEV FALLBACK] Detalle:', extra);
+}
+
+type SendAuthEmailResult =
+  | { ok: true; delivered: true }
+  | { ok: true; delivered: false; reason: 'dev_fallback' | 'missing_api_key' }
+  | { ok: false; error: Error };
+
+async function sendWithResendOrDevFallback(opts: {
+  to: string;
+  subject: string;
+  html: string;
+  devLinkLabel: string;
+  fallbackUrlForLog: string;
+}): Promise<SendAuthEmailResult> {
+  const from = AUTH_FROM_EMAIL;
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+
+  if (!apiKey) {
+    if (isDev()) {
+      logDevFallback(opts.devLinkLabel, opts.fallbackUrlForLog, 'RESEND_API_KEY no definida');
+      return { ok: true, delivered: false, reason: 'missing_api_key' };
+    }
+    return { ok: false, error: new Error('RESEND_API_KEY no está definida.') };
+  }
+
+  try {
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from,
+      to: opts.to,
+      subject: opts.subject,
+      html: opts.html,
+    });
+
+    if (error) {
+      if (isDev()) {
+        logDevFallback(opts.devLinkLabel, opts.fallbackUrlForLog, error);
+        return { ok: true, delivered: false, reason: 'dev_fallback' };
+      }
+      return {
+        ok: false,
+        error: new Error(
+          typeof error === 'object' && error !== null && 'message' in error
+            ? String((error as { message?: string }).message)
+            : 'No se pudo enviar el correo.'
+        ),
+      };
+    }
+
+    return { ok: true, delivered: true };
+  } catch (e) {
+    if (isDev()) {
+      logDevFallback(opts.devLinkLabel, opts.fallbackUrlForLog, e);
+      return { ok: true, delivered: false, reason: 'dev_fallback' };
+    }
+    const msg = e instanceof Error ? e.message : String(e);
+    return { ok: false, error: new Error(msg) };
+  }
+}
+
+/** Envío del mail de verificación de cuenta tras el registro. En desarrollo no lanza ante fallos de Resend. */
+export async function sendVerificationEmail(
+  email: string,
+  token: string
+): Promise<SendAuthEmailResult> {
+  const link = buildAuthVerificationLink(token);
+  return sendWithResendOrDevFallback({
     to: email,
     subject: 'Verifica tu cuenta en TandilUrban',
     html: `
@@ -32,10 +103,30 @@ export async function sendVerificationEmail(email: string, token: string): Promi
       <p><a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a></p>
       <p>Si no solicitaste este registro, podés ignorar este correo.</p>
     `,
+    devLinkLabel: 'Link de verificación',
+    fallbackUrlForLog: link,
   });
+}
 
-  if (error) {
-    console.error('[mail] Resend:', error);
-    throw new Error(error.message ?? 'No se pudo enviar el correo de verificación.');
-  }
+/**
+ * Pendiente de conectar desde un futuro POST /api/auth/forgot-password (o similar).
+ * Misma política que la verificación: en desarrollo no bloquea el flujo ante errores de Resend.
+ */
+export async function sendPasswordResetEmail(
+  email: string,
+  token: string
+): Promise<SendAuthEmailResult> {
+  const link = buildAuthPasswordResetLink(token);
+  return sendWithResendOrDevFallback({
+    to: email,
+    subject: 'Restablecé tu contraseña — TandilUrban',
+    html: `
+      <p>Hola,</p>
+      <p>Recibimos una solicitud para restablecer tu contraseña. Usá este enlace:</p>
+      <p><a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a></p>
+      <p>Si no fuiste vos, ignorá este correo.</p>
+    `,
+    devLinkLabel: 'Link de restablecer contraseña',
+    fallbackUrlForLog: link,
+  });
 }

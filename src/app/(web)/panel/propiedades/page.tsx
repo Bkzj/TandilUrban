@@ -3,8 +3,9 @@ import { redirect } from 'next/navigation';
 import { RolUsuario } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
+import { normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import { resolvePanelTenantInmobiliariaId } from '@/lib/panel-tenant';
-import { getCurrentUser, isInmobiliariaMain } from '@/lib/auth';
+import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/auth';
 import type { CurrentUser } from '@/types/auth';
 import type { PanelPropiedadTableRow } from '@/types/panel';
 import PanelTabs from '@/components/panel/PanelTabs';
@@ -19,6 +20,7 @@ export const dynamic = 'force-dynamic';
 export default async function PanelPropiedadesPage() {
   const user: CurrentUser | null = await getCurrentUser();
   if (!user) redirect('/login?callbackUrl=/panel/propiedades');
+  if (!roleCanAccessPanel(user.rol)) redirect('/?error=unauthorized');
 
   const canManageTeam = isInmobiliariaMain(user);
   const isAgente = user.rol === RolUsuario.AGENTE && Boolean(user.agenciaId);
@@ -72,7 +74,7 @@ export default async function PanelPropiedadesPage() {
   const propiedades: PanelPropiedadTableRow[] = rows.map((p) => ({
     id: p.id,
     titulo: p.titulo,
-    imagenes: p.imagenes,
+    imagenes: normalizePropiedadImagenesDb(p.imagenes),
     operacion: p.operacion,
     tipo: p.tipo,
     precio: p.precio,

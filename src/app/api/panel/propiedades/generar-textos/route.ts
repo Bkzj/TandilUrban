@@ -3,7 +3,7 @@ import type { GenerateContentResult } from '@google/generative-ai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { RolUsuario } from '@prisma/client';
 
-import { AuthError, getCurrentUser } from '@/lib/auth';
+import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
 
 function handleAuthError(error: unknown): NextResponse | null {
   if (error instanceof AuthError) {
@@ -18,6 +18,7 @@ async function requirePanelPublisher() {
   if (!user) {
     throw new AuthError(401, 'Tenés que iniciar sesión.');
   }
+  assertNotPublicPortalUser(user);
   if (
     (user.rol === RolUsuario.INMOBILIARIA && user.inmobiliariaPerfil) ||
     (user.rol === RolUsuario.AGENTE && user.agenciaId)

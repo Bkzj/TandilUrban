@@ -1,6 +1,6 @@
 import { RolUsuario } from '@prisma/client';
 
-import { AuthError, getCurrentUser } from '@/lib/auth';
+import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
 
 /**
  * Usuario autenticado con contexto de agencia para publicar / subir en el panel.
@@ -11,6 +11,8 @@ export async function requireAgencyPublishingContext() {
   if (!user) {
     throw new AuthError(401, 'Tenés que iniciar sesión.');
   }
+
+  assertNotPublicPortalUser(user);
 
   if (user.rol === RolUsuario.INMOBILIARIA && user.inmobiliariaPerfil) {
     return { user, inmobiliariaId: user.inmobiliariaPerfil.id };

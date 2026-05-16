@@ -1,0 +1,742 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-05-16T16:35:14Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1392870386",
+        "addr:city": "Tandil",
+        "addr:housenumber": "1515",
+        "addr:postcode": "7000",
+        "addr:street": "Avenida Juan Antonio Salceda",
+        "amenity": "pharmacy",
+        "building": "commercial",
+        "building:levels": "1",
+        "healthcare": "pharmacy",
+        "height": "4",
+        "name": "Farmacia Salceda",
+        "payment:app": "yes",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "payment:electronic_purses": "yes",
+        "phone": "02494370167"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1034301,
+              -37.3180609
+            ],
+            [
+              -59.1034382,
+              -37.3180645
+            ],
+            [
+              -59.1034026,
+              -37.3180919
+            ],
+            [
+              -59.103437,
+              -37.3181202
+            ],
+            [
+              -59.1034749,
+              -37.3180901
+            ],
+            [
+              -59.1035185,
+              -37.3181248
+            ],
+            [
+              -59.1033442,
+              -37.3182678
+            ],
+            [
+              -59.10326,
+              -37.3181983
+            ],
+            [
+              -59.1034301,
+              -37.3180609
+            ]
+          ]
+        ]
+      },
+      "id": "way/1392870386"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1121752138",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Perez"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1106051,
+          -37.3337009
+        ]
+      },
+      "id": "node/1121752138"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1370378925",
+        "addr:housenumber": "542",
+        "addr:street": "Avenida Buzón",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Farmacia de la Ciudad"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1186194,
+          -37.3202677
+        ]
+      },
+      "id": "node/1370378925"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1548811874",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Colón"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1348803,
+          -37.3167936
+        ]
+      },
+      "id": "node/1548811874"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3030975394",
+        "addr:city": "Tandil",
+        "addr:housenumber": "181",
+        "addr:postcode": "7000",
+        "addr:street": "Chacabuco",
+        "amenity": "pharmacy",
+        "dispensing": "yes",
+        "healthcare": "pharmacy",
+        "name": "Heer",
+        "opening_hours": "Mo-Fr 08:00-20:30 Sa 08:00 - 13:00 Sun: closed"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1360812,
+          -37.3323968
+        ]
+      },
+      "id": "node/3030975394"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3831881164",
+        "addr:city": "Tandil",
+        "addr:housenumber": "493",
+        "addr:postcode": "7000",
+        "addr:street": "9 de Julio",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Farmacia Tandil"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1343165,
+          -37.3271449
+        ]
+      },
+      "id": "node/3831881164"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3831995057",
+        "addr:city": "Tandil",
+        "addr:housenumber": "667",
+        "addr:postcode": "7000",
+        "addr:street": "General Rodríguez",
+        "amenity": "pharmacy",
+        "contact:facebook": "https://www.facebook.com/SiempreFarmacias/",
+        "contact:instagram": "https://www.instagram.com/siemprefarmacias",
+        "email": "info@siemprefarmacias.com.ar",
+        "healthcare": "pharmacy",
+        "name": "Siempre Farmacias del Centro",
+        "phone": "+54 249 440-2100"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1370469,
+          -37.3255501
+        ]
+      },
+      "id": "node/3831995057"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3831995058",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Farnacia Mutual Municipal"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1364491,
+          -37.3265676
+        ]
+      },
+      "id": "node/3831995058"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195171",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1433209,
+          -37.3068864
+        ]
+      },
+      "id": "node/3835195171"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195172",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1393395,
+          -37.3100057
+        ]
+      },
+      "id": "node/3835195172"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195173",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1371943,
+          -37.3133911
+        ]
+      },
+      "id": "node/3835195173"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195177",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1503929,
+          -37.3156197
+        ]
+      },
+      "id": "node/3835195177"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195178",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1427824,
+          -37.3161825
+        ]
+      },
+      "id": "node/3835195178"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195179",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.139043,
+          -37.3165673
+        ]
+      },
+      "id": "node/3835195179"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195180",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1326425,
+          -37.3175439
+        ]
+      },
+      "id": "node/3835195180"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195181",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1412851,
+          -37.3187108
+        ]
+      },
+      "id": "node/3835195181"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195185",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1297455,
+          -37.3194111
+        ]
+      },
+      "id": "node/3835195185"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195188",
+        "addr:housenumber": "1182",
+        "addr:street": "Avenida Falucho",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Farmacia Del Lago",
+        "website": "https://m.facebook.com/farmacia.dellago.7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1077337,
+          -37.3213424
+        ]
+      },
+      "id": "node/3835195188"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195190",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1493362,
+          -37.3224882
+        ]
+      },
+      "id": "node/3835195190"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195191",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1387943,
+          -37.3226189
+        ]
+      },
+      "id": "node/3835195191"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195192",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1369292,
+          -37.3227749
+        ]
+      },
+      "id": "node/3835195192"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195193",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1335181,
+          -37.3228084
+        ]
+      },
+      "id": "node/3835195193"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195194",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1318548,
+          -37.3230291
+        ]
+      },
+      "id": "node/3835195194"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195195",
+        "addr:city": "Tandil",
+        "addr:housenumber": "1334",
+        "addr:postcode": "7000",
+        "addr:street": "Alem",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Lucchetti",
+        "phone": "+54 249 4422081"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.134522,
+          -37.3241647
+        ]
+      },
+      "id": "node/3835195195"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195196",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1333247,
+          -37.3249891
+        ]
+      },
+      "id": "node/3835195196"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195197",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1451081,
+          -37.3250586
+        ]
+      },
+      "id": "node/3835195197"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195199",
+        "addr:housenumber": "701",
+        "addr:street": "Avenida Falucho",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Farmacia Subelza"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1126845,
+          -37.3256043
+        ]
+      },
+      "id": "node/3835195199"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195200",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Farmacia del Pueblo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1358014,
+          -37.3259745
+        ]
+      },
+      "id": "node/3835195200"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195201",
+        "addr:city": "Tandil",
+        "addr:postcode": "7000",
+        "addr:street": "General Rodríguez",
+        "alt_name": "Siempre Farmacias",
+        "amenity": "pharmacy",
+        "contact:facebook": "https://www.facebook.com/SiempreFarmacias/",
+        "contact:instagram": "https://www.instagram.com/siemprefarmacias",
+        "email": "info@siemprefarmacias.com.ar",
+        "healthcare": "pharmacy",
+        "name": "Siempre Farmacias - Badanez",
+        "phone": "+54 249 4402100",
+        "website": "https://www.siemprefarmacias.com.ar/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1353026,
+          -37.3284947
+        ]
+      },
+      "id": "node/3835195201"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195202",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1191558,
+          -37.328537
+        ]
+      },
+      "id": "node/3835195202"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195203",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Nueva Rubbi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1371426,
+          -37.3309863
+        ]
+      },
+      "id": "node/3835195203"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195205",
+        "addr:housenumber": "998",
+        "addr:street": "Avenida Avellaneda",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Avellaneda",
+        "website": "https://www.farmaciaavellaneda.com.ar/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1266338,
+          -37.3313333
+        ]
+      },
+      "id": "node/3835195205"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195208",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Traverso"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1244246,
+          -37.3351258
+        ]
+      },
+      "id": "node/3835195208"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195211",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1322266,
+          -37.3357491
+        ]
+      },
+      "id": "node/3835195211"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3964664697",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1359302,
+          -37.3150387
+        ]
+      },
+      "id": "node/3964664697"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3969131272",
+        "addr:housenumber": "1057",
+        "addr:street": "Avenida Buzón",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Farmacia Bufor"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1206549,
+          -37.3163597
+        ]
+      },
+      "id": "node/3969131272"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3989024820",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1263324,
+          -37.3255081
+        ]
+      },
+      "id": "node/3989024820"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3994027670",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.141175,
+          -37.3213768
+        ]
+      },
+      "id": "node/3994027670"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3995785237",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1587569,
+          -37.3093032
+        ]
+      },
+      "id": "node/3995785237"
+    }
+  ]
+}

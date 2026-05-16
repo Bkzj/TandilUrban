@@ -1,0 +1,159 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+import { formatDistanciaCercania } from '@/lib/cercanias-format';
+import { getPoiDivIcon } from '@/lib/poi-map-icons';
+import type { CercaniasCategoryKey, PoisCercanosResult } from '@/types/cercanias';
+
+const tandilIcon = L.divIcon({
+  className: 'custom-tandil-pin',
+  html: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 22C12 22 20 14.4183 20 10C20 5.58172 16.4183 2 12 2C7.58172 2 4 5.58172 4 10C4 14.4183 12 22 12 22Z" fill="#957327" stroke="#12422A" stroke-width="2"/>
+    <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" fill="#F5F6F4"/>
+    <path d="M10 10.5L11.5 9L13.5 11" stroke="#957327" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+});
+
+type PoiMarker = {
+  id: string;
+  lat: number;
+  lng: number;
+  categoria: CercaniasCategoryKey;
+  nombre: string;
+  distanciaMetros: number;
+};
+
+type Props = {
+  titulo: string;
+  latitud: number;
+  longitud: number;
+  pois?: PoisCercanosResult | null;
+  activeCategorias?: string[];
+};
+
+function flattenPointPois(
+  pois: PoisCercanosResult | null | undefined,
+  activeCategorias: string[] | undefined
+): PoiMarker[] {
+  if (!pois || !activeCategorias?.length) return [];
+
+  const active = new Set(activeCategorias);
+  const markers: PoiMarker[] = [];
+
+  for (const categoria of Object.keys(pois) as CercaniasCategoryKey[]) {
+    if (categoria === 'transporte') continue;
+    if (!active.has(categoria)) continue;
+
+    const list = pois[categoria];
+    if (!Array.isArray(list)) continue;
+
+    list.forEach((poi, index) => {
+      if (!Number.isFinite(poi.lat) || !Number.isFinite(poi.lng)) return;
+      markers.push({
+        id: `${categoria}-${poi.nombre}-${poi.lat}-${poi.lng}-${index}`,
+        lat: poi.lat,
+        lng: poi.lng,
+        categoria,
+        nombre: poi.nombre,
+        distanciaMetros: poi.distanciaMetros,
+      });
+    });
+  }
+
+  return markers;
+}
+
+export default function PropiedadUbicacionMapInner({
+  titulo,
+  latitud,
+  longitud,
+  pois,
+  activeCategorias = [],
+}: Props) {
+  const [isMounted, setIsMounted] = useState(false);
+  const pinFijo = useMemo(() => tandilIcon, []);
+  const activeSet = useMemo(() => new Set(activeCategorias), [activeCategorias]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
+  const centro = useMemo<[number, number]>(() => {
+    const lat = Number.isFinite(latitud) ? latitud : -37.3217;
+    const lng = Number.isFinite(longitud) ? longitud : -59.1332;
+    return [lat, lng];
+  }, [latitud, longitud]);
+
+  const poiMarkers = useMemo(
+    () => flattenPointPois(pois, activeCategorias),
+    [pois, activeCategorias]
+  );
+
+  const activeBusLines = useMemo(() => {
+    if (!pois?.transporte?.length) return [];
+    return pois.transporte.filter((line) => activeSet.has(line.id));
+  }, [pois?.transporte, activeSet]);
+
+  if (!isMounted) {
+    return (
+      <div className="flex h-full w-full animate-pulse items-center justify-center bg-background text-text-secondary">
+        Cargando mapa...
+      </div>
+    );
+  }
+
+  return (
+    <MapContainer center={centro} zoom={14} scrollWheelZoom={false} className="z-0 h-full w-full">
+      <TileLayer
+        attribution="&copy; OpenStreetMap"
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+      />
+
+      {Number.isFinite(latitud) && Number.isFinite(longitud) ? (
+        <Marker position={[latitud, longitud]} icon={pinFijo} zIndexOffset={1000}>
+          <Popup className="text-center font-sans">
+            <strong className="block text-lg text-verde">{titulo}</strong>
+            <span className="block text-xs uppercase text-text-secondary">Ubicación exacta</span>
+          </Popup>
+        </Marker>
+      ) : null}
+
+      {activeBusLines.map((line) =>
+        line.segments.length > 0 ? (
+          <Polyline
+            key={line.id}
+            positions={line.segments}
+            pathOptions={{
+              color: line.color,
+              weight: 5,
+              opacity: 0.9,
+            }}
+          />
+        ) : null
+      )}
+
+      {poiMarkers.map((poi) => (
+        <Marker
+          key={poi.id}
+          position={[poi.lat, poi.lng]}
+          icon={getPoiDivIcon(poi.categoria)}
+          zIndexOffset={100}
+        >
+          <Popup className="font-sans">
+            <strong className="block text-sm text-gray-900">{poi.nombre}</strong>
+            <span className="mt-1 block text-xs text-gray-500">
+              a {formatDistanciaCercania(poi.distanciaMetros)}
+            </span>
+          </Popup>
+        </Marker>
+      ))}
+    </MapContainer>
+  );
+}

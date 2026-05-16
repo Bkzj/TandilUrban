@@ -1,0 +1,876 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Gobierno Abierto Tandil | Centros de Salud</name>
+    <description/>
+    <Style id="icon-1624-880E4F-normal">
+      <IconStyle>
+        <color>ff4f0e88</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1624-880E4F-highlight">
+      <IconStyle>
+        <color>ff4f0e88</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1624-880E4F">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1624-880E4F-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1624-880E4F-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1624-E65100-normal">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1624-E65100-highlight">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1624-E65100">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1624-E65100-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1624-E65100-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>Centros de Salud</name>
+      <Placemark>
+        <name>C.Salud Barrio Maggiori</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 4,66<br>FID: 0<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Barrio Maggiori<br>Dirección: 1848 LAS ANIMAS<br>Field_1: 1848 LAS ANIMAS<br>Latitud: -37.30087<br>Longitud: -59.16455]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>4,66</value>
+          </Data>
+          <Data name="FID">
+            <value>0</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Barrio Maggiori</value>
+          </Data>
+          <Data name="Dirección">
+            <value>1848 LAS ANIMAS</value>
+          </Data>
+          <Data name="Field_1">
+            <value>1848 LAS ANIMAS</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.30087</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.16455</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.164559,-37.300875,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Villa Italia</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 4,81<br>FID: 1<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Villa Italia<br>Dirección: 977 PATAGONIA<br>Field_1: 977 PATAGONIA<br>Latitud: -37.29812<br>Longitud: -59.14195]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>4,81</value>
+          </Data>
+          <Data name="FID">
+            <value>1</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Villa Italia</value>
+          </Data>
+          <Data name="Dirección">
+            <value>977 PATAGONIA</value>
+          </Data>
+          <Data name="Field_1">
+            <value>977 PATAGONIA</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.29812</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.14195</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.141952,-37.298127,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Lisandro de La Torre</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 2,26<br>FID: 2<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Lisandro de La Torre<br>Dirección: 46 JUJUY<br>Field_1: 46 JUJUY<br>Latitud: -37.30858<br>Longitud: -59.15237]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>2,26</value>
+          </Data>
+          <Data name="FID">
+            <value>2</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Lisandro de La Torre</value>
+          </Data>
+          <Data name="Dirección">
+            <value>46 JUJUY</value>
+          </Data>
+          <Data name="Field_1">
+            <value>46 JUJUY</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.30858</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.15237</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.152373,-37.308583,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Centros de Salud</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 3,49<br>FID: 3<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Villa Aguirre<br>Dirección: 1722 DARRAGUEIRA<br>Field_1: 1722 DARRAGUEIRA<br>Latitud: -37.30317<br>Longitud: -59.12107]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>3,49</value>
+          </Data>
+          <Data name="FID">
+            <value>3</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Villa Aguirre</value>
+          </Data>
+          <Data name="Dirección">
+            <value>1722 DARRAGUEIRA</value>
+          </Data>
+          <Data name="Field_1">
+            <value>1722 DARRAGUEIRA</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.30317</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.12107</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.121071,-37.303178,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud San Cayetano</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 5,05<br>FID: 4<br>Tipo: Centros de Salud<br>Centro_de: C.Salud San Cayetano<br>Dirección: 2077 INDEPENDENCIA<br>Field_1: 2077 INDEPENDENCIA<br>Latitud: -37.29322<br>Longitud: -59.11737]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>5,05</value>
+          </Data>
+          <Data name="FID">
+            <value>4</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud San Cayetano</value>
+          </Data>
+          <Data name="Dirección">
+            <value>2077 INDEPENDENCIA</value>
+          </Data>
+          <Data name="Field_1">
+            <value>2077 INDEPENDENCIA</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.29322</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.11737</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.117378,-37.293226,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Barrio Palermo</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 4,01<br>FID: 5<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Barrio Palermo<br>Dirección: 968 ARGERICH<br>Field_1: 968 ARGERICH<br>Latitud: -37.30524<br>Longitud: -59.10681]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>4,01</value>
+          </Data>
+          <Data name="FID">
+            <value>5</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Barrio Palermo</value>
+          </Data>
+          <Data name="Dirección">
+            <value>968 ARGERICH</value>
+          </Data>
+          <Data name="Field_1">
+            <value>968 ARGERICH</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.30524</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.10681</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.106814,-37.305247,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Barrio Metalurgico</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 2,78<br>FID: 6<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Barrio Metalurgico<br>Dirección: GARCIA MY. &amp; CARDIEL<br>Field_1: GARCIA MY. &amp; CARDIEL<br>Latitud: -37.31013<br>Longitud: -59.16109]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>2,78</value>
+          </Data>
+          <Data name="FID">
+            <value>6</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Barrio Metalurgico</value>
+          </Data>
+          <Data name="Dirección">
+            <value><![CDATA[GARCIA MY. &amp; CARDIEL]]></value>
+          </Data>
+          <Data name="Field_1">
+            <value><![CDATA[GARCIA MY. &amp; CARDIEL]]></value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31013</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.16109</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.161092,-37.310135,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Barrio Belgrano</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 2,41<br>FID: 7<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Barrio Belgrano<br>Dirección: 338 CHEVERRIER<br>Field_1: 338 CHEVERRIER<br>Latitud: -37.32009<br>Longitud: -59.15718]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>2,41</value>
+          </Data>
+          <Data name="FID">
+            <value>7</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Barrio Belgrano</value>
+          </Data>
+          <Data name="Dirección">
+            <value>338 CHEVERRIER</value>
+          </Data>
+          <Data name="Field_1">
+            <value>338 CHEVERRIER</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.32009</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.15718</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.157189,-37.3201,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud La Movediza</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 5,84<br>FID: 8<br>Tipo: Centros de Salud<br>Centro_de: C.Salud La Movediza<br>Dirección: MISIONES &amp; LA PASTORA<br>Field_1: MISIONES &amp; LA PASTORA<br>Latitud: -37.30949<br>Longitud: -59.1739]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>5,84</value>
+          </Data>
+          <Data name="FID">
+            <value>8</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud La Movediza</value>
+          </Data>
+          <Data name="Dirección">
+            <value><![CDATA[MISIONES &amp; LA PASTORA]]></value>
+          </Data>
+          <Data name="Field_1">
+            <value><![CDATA[MISIONES &amp; LA PASTORA]]></value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.30949</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.1739</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.173903,-37.309492,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Las Tunitas</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 6,8<br>FID: 9<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Las Tunitas<br>Dirección: JULDAIN &amp; DE LOS GRANADEROS<br>Field_1: JULDAIN &amp; DE LOS GRANADEROS<br>Latitud: -37.34113<br>Longitud: -59.14603]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>6,8</value>
+          </Data>
+          <Data name="FID">
+            <value>9</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Las Tunitas</value>
+          </Data>
+          <Data name="Dirección">
+            <value><![CDATA[JULDAIN &amp; DE LOS GRANADEROS]]></value>
+          </Data>
+          <Data name="Field_1">
+            <value><![CDATA[JULDAIN &amp; DE LOS GRANADEROS]]></value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.34113</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.14603</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.146037,-37.341134,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Rodriguez Selvetti</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 1,26<br>FID: 10<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Rodriguez Selvetti<br>Dirección: 1775 CASEROS<br>Field_1: 1775 CASEROS<br>Latitud: -37.3125<br>Longitud: -59.10498]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>1,26</value>
+          </Data>
+          <Data name="FID">
+            <value>10</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Rodriguez Selvetti</value>
+          </Data>
+          <Data name="Dirección">
+            <value>1775 CASEROS</value>
+          </Data>
+          <Data name="Field_1">
+            <value>1775 CASEROS</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.3125</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.10498</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.10499,-37.3125,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Maria Auxiliadora</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 1,04<br>FID: 11<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Maria Auxiliadora<br>Dirección: 1612 LOBERIA<br>Field_1: 1612 LOBERIA<br>Latitud: -37.33339<br>Longitud: -59.11472]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>1,04</value>
+          </Data>
+          <Data name="FID">
+            <value>11</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Maria Auxiliadora</value>
+          </Data>
+          <Data name="Dirección">
+            <value>1612 LOBERIA</value>
+          </Data>
+          <Data name="Field_1">
+            <value>1612 LOBERIA</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.33339</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.11472</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.114721,-37.333393,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>C.Salud Arco Iris</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 3,33<br>FID: 12<br>Tipo: Centros de Salud<br>Centro_de: C.Salud Arco Iris<br>Dirección: 2020 SAENZ PEÑA<br>Field_1: 2020 SAENZ PEÑA<br>Latitud: -37.2924<br>Longitud: -59.15826]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>3,33</value>
+          </Data>
+          <Data name="FID">
+            <value>12</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Centros de Salud</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>C.Salud Arco Iris</value>
+          </Data>
+          <Data name="Dirección">
+            <value>2020 SAENZ PEÑA</value>
+          </Data>
+          <Data name="Field_1">
+            <value>2020 SAENZ PEÑA</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.2924</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.15826</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.158264,-37.292404,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Servicios de Emergencias Médicas</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 0<br>FID: 13<br>Tipo: Otras dependencias<br>Centro_de: Servicios de Emergencias Médicas<br>Dirección: 1400 ALEM<br>Field_1: 1400 ALEM<br>Latitud: -37.31469<br>Longitud: -59.14021]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>0</value>
+          </Data>
+          <Data name="FID">
+            <value>13</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Otras dependencias</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>Servicios de Emergencias Médicas</value>
+          </Data>
+          <Data name="Dirección">
+            <value>1400 ALEM</value>
+          </Data>
+          <Data name="Field_1">
+            <value>1400 ALEM</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31469</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.14021</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.140213,-37.314694,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dirección de Salud Comunitaria</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 0<br>FID: 14<br>Tipo: Otras dependencias<br>Centro_de: Dirección de Salud Comunitaria<br>Dirección: 1320 9 DE JULIO<br>Field_1: 1320 9 DE JULIO<br>Latitud: -37.31654<br>Longitud: -59.14082]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>0</value>
+          </Data>
+          <Data name="FID">
+            <value>14</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Otras dependencias</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>Dirección de Salud Comunitaria</value>
+          </Data>
+          <Data name="Dirección">
+            <value>1320 9 DE JULIO</value>
+          </Data>
+          <Data name="Field_1">
+            <value>1320 9 DE JULIO</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31654</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.14082</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.140822,-37.316544,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Gestión de Programas/PSISP</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 0<br>FID: 15<br>Tipo: Otras dependencias<br>Centro_de: Gestión de Programas/PSISP<br>Dirección: 1510 ALEM<br>Field_1: 1510 ALEM<br>Latitud: -37.31369<br>Longitud: -59.14071]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>0</value>
+          </Data>
+          <Data name="FID">
+            <value>15</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Otras dependencias</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>Gestión de Programas/PSISP</value>
+          </Data>
+          <Data name="Dirección">
+            <value>1510 ALEM</value>
+          </Data>
+          <Data name="Field_1">
+            <value>1510 ALEM</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31369</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.14071</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.140711,-37.313691,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dispensario de Vías Respiratorias</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: clampToGround<br>PorcPacien: 0<br>FID: 16<br>Tipo: Otras dependencias<br>Centro_de: Dispensario de Vías Respiratorias<br>Dirección: 101 ESPAÑA<br>Field_1: 101 ESPAÑA<br>Latitud: -37.32513<br>Longitud: -59.14579]]></description>
+        <styleUrl>#icon-1624-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value>clampToGround</value>
+          </Data>
+          <Data name="PorcPacien">
+            <value>0</value>
+          </Data>
+          <Data name="FID">
+            <value>16</value>
+          </Data>
+          <Data name="Tipo">
+            <value>Otras dependencias</value>
+          </Data>
+          <Data name="Centro_de">
+            <value>Dispensario de Vías Respiratorias</value>
+          </Data>
+          <Data name="Dirección">
+            <value>101 ESPAÑA</value>
+          </Data>
+          <Data name="Field_1">
+            <value>101 ESPAÑA</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.32513</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.14579</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.145794,-37.325138,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hospital Debilio Blanco Villegas</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: <br>PorcPacien: <br>FID: <br>Tipo: <br>Centro_de: <br>Dirección: Leandro Alem 1300<br>Field_1: <br>Latitud: -37.31637<br>Longitud: -59.13872]]></description>
+        <styleUrl>#icon-1624-880E4F</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value/>
+          </Data>
+          <Data name="PorcPacien">
+            <value/>
+          </Data>
+          <Data name="FID">
+            <value/>
+          </Data>
+          <Data name="Tipo">
+            <value/>
+          </Data>
+          <Data name="Centro_de">
+            <value/>
+          </Data>
+          <Data name="Dirección">
+            <value>Leandro Alem 1300</value>
+          </Data>
+          <Data name="Field_1">
+            <value/>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31637</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13872</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.138729,-37.316379,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hospital Ramón Santamarina</name>
+        <description><![CDATA[Descripción: <br>altitudeMode: <br>PorcPacien: <br>FID: <br>Tipo: <br>Centro_de: <br>Dirección: Gral. Paz 1406<br>Field_1: <br>Latitud: -37.31542<br>Longitud: -59.1388]]></description>
+        <styleUrl>#icon-1624-880E4F</styleUrl>
+        <ExtendedData>
+          <Data name="Descripción">
+            <value/>
+          </Data>
+          <Data name="altitudeMode">
+            <value/>
+          </Data>
+          <Data name="PorcPacien">
+            <value/>
+          </Data>
+          <Data name="FID">
+            <value/>
+          </Data>
+          <Data name="Tipo">
+            <value/>
+          </Data>
+          <Data name="Centro_de">
+            <value/>
+          </Data>
+          <Data name="Dirección">
+            <value>Gral. Paz 1406</value>
+          </Data>
+          <Data name="Field_1">
+            <value/>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31542</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.1388</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.138804,-37.3154259,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

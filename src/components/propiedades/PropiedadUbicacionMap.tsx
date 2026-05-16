@@ -1,32 +1,45 @@
 'use client';
 
-import MapComponent from '@/components/Map';
+import dynamic from 'next/dynamic';
+
+import type { PoisCercanosResult } from '@/types/cercanias';
+
+function MapLoading() {
+  return (
+    <div className="flex h-full w-full animate-pulse items-center justify-center bg-background text-text-secondary">
+      Cargando mapa...
+    </div>
+  );
+}
+
+const PropiedadUbicacionMapInner = dynamic(() => import('./PropiedadUbicacionMapInner'), {
+  ssr: false,
+  loading: MapLoading,
+});
 
 type Props = {
-  propiedadId: string;
   titulo: string;
   latitud: number;
   longitud: number;
+  pois?: PoisCercanosResult | null;
+  activeCategorias?: string[];
 };
 
-export function PropiedadUbicacionMap({ propiedadId, titulo, latitud, longitud }: Props) {
+export function PropiedadUbicacionMap({
+  titulo,
+  latitud,
+  longitud,
+  pois,
+  activeCategorias,
+}: Props) {
   return (
     <div className="h-[400px] w-full overflow-hidden rounded-2xl border border-gray-200">
-      <MapComponent
-        centro={[latitud, longitud]}
-        zoom={14}
-        marcadorFijo={{
-          id: propiedadId,
-          lat: latitud,
-          lng: longitud,
-          categoriaId: 'fijo',
-          titulo,
-          subtitulo: 'Ubicación exacta',
-          icono: '',
-        }}
-        filtros={[]}
-        puntos={[]}
-        filtrosActivosIniciales={[]}
+      <PropiedadUbicacionMapInner
+        titulo={titulo}
+        latitud={latitud}
+        longitud={longitud}
+        pois={pois}
+        activeCategorias={activeCategorias}
       />
     </div>
   );

@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import { roleCanAccessPanel } from '@/lib/rbac';
+import type { SessionUserAugmented } from '@/types/auth';
+
 export default function Navbar() {
   const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -40,6 +43,9 @@ export default function Navbar() {
     typeof session?.user?.image === 'string' && session.user.image.length > 0
       ? session.user.image
       : null;
+
+  const sessionRole = (session?.user as SessionUserAugmented | undefined)?.role;
+  const showPanelLink = Boolean(session && roleCanAccessPanel(sessionRole));
 
   return (
     <nav className="relative z-50 flex w-full items-center justify-between bg-verde px-4 py-2 text-surface shadow-lg sm:px-8">
@@ -146,14 +152,25 @@ export default function Navbar() {
                       <p className="truncate text-sm font-semibold">{displayName}</p>
                       <p className="truncate text-xs text-text-secondary">{session.user?.email}</p>
                     </div>
-                    <Link
-                      role="menuitem"
-                      href="/panel"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2.5 text-sm font-medium transition hover:bg-verde-light hover:text-verde-dark"
-                    >
-                      Panel
-                    </Link>
+                    {showPanelLink ? (
+                      <Link
+                        role="menuitem"
+                        href="/panel"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-4 py-2.5 text-sm font-medium transition hover:bg-verde-light hover:text-verde-dark"
+                      >
+                        Panel
+                      </Link>
+                    ) : (
+                      <Link
+                        role="menuitem"
+                        href="/perfil"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-4 py-2.5 text-sm font-medium transition hover:bg-verde-light hover:text-verde-dark"
+                      >
+                        Mi perfil
+                      </Link>
+                    )}
                     <button
                       type="button"
                       role="menuitem"

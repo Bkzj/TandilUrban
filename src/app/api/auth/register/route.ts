@@ -78,11 +78,11 @@ export async function POST(request: Request) {
       },
     });
 
-    try {
-      await sendVerificationEmail(payload.data.email, verificationToken);
-    } catch (mailError) {
-      console.error('[register] Fallo envio de correo:', mailError);
+    const mailResult = await sendVerificationEmail(payload.data.email, verificationToken);
+
+    if (!mailResult.ok) {
       await prisma.user.delete({ where: { id: user.id } });
+      console.error('[register]', mailResult.error);
       return NextResponse.json(
         { error: 'No se pudo enviar el correo de verificación. Intentá de nuevo más tarde.' },
         { status: 502 }
@@ -92,7 +92,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          'Usuario registrado. Te enviamos un email de verificacion para activar tu cuenta.',
+          !mailResult.delivered && process.env.NODE_ENV !== 'production'
+            ? 'Usuario registrado. En desarrollo el mail no se envió: revisá la consola del servidor para copiar el enlace de verificación.'
+            : 'Usuario registrado. Te enviamos un email de verificacion para activar tu cuenta.',
         user,
       },
       { status: 201 }

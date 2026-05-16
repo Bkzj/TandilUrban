@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "geo:process": "node scripts/process-geo.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -19,8 +20,11 @@
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@studio-freight/react-lenis": "^0.0.47",
+    "@tmcw/togeojson": "^7.1.2",
+    "@xmldom/xmldom": "^0.9.10",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
+    "csv-parser": "^3.2.1",
     "framer-motion": "^12.38.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.14.0",
@@ -30,7 +34,9 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-leaflet": "^5.0.0",
-    "resend": "^6.12.3"
+    "resend": "^6.12.3",
+    "wellknown": "^0.5.0",
+    "xmldom": "^0.6.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -39,10 +45,12 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/xmldom": "^0.1.34",
     "dotenv": "^16.4.7",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "prisma": "^7.8.0",
+    "proj4": "^2.20.8",
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
     "typescript": "^5"

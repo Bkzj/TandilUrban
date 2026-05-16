@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Gobierno Abierto Tandil | Comisarias</name>
+    <description/>
+    <Style id="icon-1657-3949AB-normal">
+      <IconStyle>
+        <color>ffab4939</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1657-3949AB-highlight">
+      <IconStyle>
+        <color>ffab4939</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1657-3949AB">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1657-3949AB-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1657-3949AB-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>Comisarías</name>
+      <Placemark>
+        <name>Comisaría 1era</name>
+        <description><![CDATA[Dirección: Fuerte Independencia 261<br>Latitud: -37.33108<br>Longitud: -59.13539]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Fuerte Independencia 261</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.33108</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13539</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1353957,-37.3310848,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Comisaría 2da</name>
+        <description><![CDATA[Dirección: Av. Colón 1274<br><br>Latitud: -37.31613<br>Longitud: -59.13567]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Av. Colón 1274
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31613</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13567</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1356797,-37.3161331,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Comisaría 3era</name>
+        <description><![CDATA[Dirección: Beiró 640<br>Latitud: -37.30329<br>Longitud: -59.13875]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Beiró 640</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.30329</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13875</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1387507,-37.3032946,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Comisaría 4ta</name>
+        <description><![CDATA[Dirección: Independencia 1998<br><br>Latitud: -37.29433<br>Longitud: -59.11545]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Independencia 1998
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.29433</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.11545</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1154501,-37.2943387,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Comisaría de la Mujer y la Familia</name>
+        <description><![CDATA[Dirección: Leandro Alem 1073<br>Latitud: -37.31959<br>Longitud: -59.13707]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Leandro Alem 1073</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31959</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13707</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1370736,-37.3195933,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DDI Tandil</name>
+        <description><![CDATA[Dirección: Perón y Arana<br><br>Latitud: -37.31878<br>Longitud: -59.15138]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Perón y Arana
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31878</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.15138</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1513877,-37.3187824,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Infantería</name>
+        <description><![CDATA[Dirección: Arana 1125<br><br>Latitud: -37.31273<br>Longitud: -59.13513]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Arana 1125
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31273</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13513</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1351356,-37.3127353,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Investigación y Drogas Ilícitas</name>
+        <description><![CDATA[Dirección: Av. Santamarina 686<br>Latitud: -37.3232<br>Longitud: -59.13142]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Av. Santamarina 686</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.3232</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13142</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1314294,-37.3232017,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Policía Federal Argentina
+</name>
+        <description><![CDATA[Dirección: Maipú 541<br><br>Latitud: -37.33045<br>Longitud: -59.13513]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Maipú 541
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.33045</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13513</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1351336,-37.3304537,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Policía Local</name>
+        <description><![CDATA[Dirección: Ugalde 1045<br><br>Latitud: -37.31045<br>Longitud: -59.11346]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Ugalde 1045
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31045</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.11346</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1134671,-37.3104595,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Radio Estación Z-Int.Sur
+</name>
+        <description><![CDATA[Dirección: Fuerte Independencia 259<br><br>Latitud: -37.33111<br>Longitud: -59.13539]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Fuerte Independencia 259
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.33111</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13539</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1353348,-37.3312007,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Seguridad Vial</name>
+        <description><![CDATA[Dirección: Colectora Norte L. M. Macaya 2155<br>Latitud: -37.30023<br>Longitud: -59.12796]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Colectora Norte L. M. Macaya 2155</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.30023</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.12796</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1279665,-37.30023,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Subdel. Dep. Invest. en Funcion Judicial Tandil</name>
+        <description><![CDATA[Dirección: Machado 940<br><br>Latitud: -37.31245<br>Longitud: -59.13891]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Machado 940
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31245</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13891</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1389197,-37.3124541,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Subjefatura de Policía</name>
+        <description><![CDATA[Dirección: Pellegrini 1139<br><br>Latitud: -37.31503<br>Longitud: -59.13347]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Pellegrini 1139
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.31503</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13347</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1334775,-37.3150384,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Subcomisaría de Seguridad Vial
+</name>
+        <description><![CDATA[Dirección: Ruta 226 Km 168<br>Latitud: -37.29216<br>Longitud: -59.1421]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Ruta 226 Km 168</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.29216</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.1421</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1421018,-37.2921604,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Subcomando Radioeléctrico</name>
+        <description><![CDATA[Dirección: Fuerte Independencia 263<br><br>Latitud: -37.33106<br>Longitud: -59.13541]]></description>
+        <styleUrl>#icon-1657-3949AB</styleUrl>
+        <ExtendedData>
+          <Data name="Dirección">
+            <value>Fuerte Independencia 263
+</value>
+          </Data>
+          <Data name="Latitud">
+            <value>-37.33106</value>
+          </Data>
+          <Data name="Longitud">
+            <value>-59.13541</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -59.1354757,-37.33094,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

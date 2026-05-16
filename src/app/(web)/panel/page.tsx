@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { getCurrentUser, isInmobiliariaMain } from '@/lib/auth';
+import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/auth';
 import type { CurrentUser } from '@/types/auth';
 import PanelTabs from '@/components/panel/PanelTabs';
 import MetricCard from '@/components/panel/MetricCard';
@@ -16,6 +16,7 @@ type PanelPageProps = {
 export default async function PanelPage({ searchParams }: PanelPageProps) {
   const user: CurrentUser | null = await getCurrentUser();
   if (!user) redirect('/login?callbackUrl=/panel');
+  if (!roleCanAccessPanel(user.rol)) redirect('/?error=unauthorized');
 
   const sp = await Promise.resolve(searchParams ?? {});
   const publishedFlag = Array.isArray(sp.published) ? sp.published[0] : sp.published;

@@ -15,4 +15,5 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
 
+/** En dev el singleton puede quedar desfasado tras `prisma generate` o cambios de schema: reiniciá el servidor. */
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

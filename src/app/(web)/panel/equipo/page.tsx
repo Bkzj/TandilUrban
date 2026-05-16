@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 
 import { prisma } from '@/lib/prisma';
 import EquipoManager from '@/components/panel/EquipoManager';
-import { getCurrentUser, isInmobiliariaMain } from '@/lib/auth';
+import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/auth';
 import type { Agente } from '@/types/panel';
 import type { CurrentUser } from '@/types/auth';
 import PanelTabs from '@/components/panel/PanelTabs';
@@ -17,6 +17,7 @@ export const dynamic = 'force-dynamic';
 export default async function EquipoPage() {
   const user: CurrentUser | null = await getCurrentUser();
   if (!user) redirect('/login?callbackUrl=/panel/equipo');
+  if (!roleCanAccessPanel(user.rol)) redirect('/?error=unauthorized');
 
   if (!isInmobiliariaMain(user) || !user.inmobiliariaPerfil) {
     return (

@@ -10,6 +10,35 @@ type Props = {
   showEquipo: boolean;
 };
 
+function tabIsActive(pathname: string | null, tab: Tab): boolean {
+  const path = pathname ?? '';
+
+  if (tab.href === '/panel') {
+    return path === '/panel' || path === '/panel/';
+  }
+
+  if (tab.href === '/panel/propiedades') {
+    return (
+      path === '/panel/propiedades' ||
+      path.startsWith('/panel/propiedades/editar/')
+    );
+  }
+
+  if (tab.href === '/panel/propiedades/nueva') {
+    return path.startsWith('/panel/propiedades/nueva');
+  }
+
+  if (tab.href === '/panel/mensajes') {
+    return path.startsWith('/panel/mensajes');
+  }
+
+  if (tab.href === '/panel/equipo') {
+    return path.startsWith('/panel/equipo');
+  }
+
+  return path.startsWith(tab.href);
+}
+
 export default function PanelTabs({ showEquipo }: Props) {
   const pathname = usePathname();
 
@@ -17,6 +46,7 @@ export default function PanelTabs({ showEquipo }: Props) {
     { href: '/panel', label: 'Resumen' },
     { href: '/panel/propiedades', label: 'Propiedades' },
     { href: '/panel/propiedades/nueva', label: 'Nueva propiedad' },
+    { href: '/panel/mensajes', label: 'Mensajes' },
     { href: '/panel/equipo', label: 'Mi equipo', visible: showEquipo },
   ];
 
@@ -28,13 +58,7 @@ export default function PanelTabs({ showEquipo }: Props) {
       {tabs
         .filter((tab) => tab.visible !== false)
         .map((tab) => {
-          const isActive =
-            tab.href === '/panel'
-              ? pathname === '/panel'
-              :             tab.href === '/panel/propiedades'
-                ? pathname === '/panel/propiedades' ||
-                  !!pathname?.startsWith('/panel/propiedades/editar/')
-                : (pathname?.startsWith(tab.href) ?? false);
+          const isActive = tabIsActive(pathname, tab);
           return (
             <Link
               key={tab.href}

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
-import type { PropertyFormData } from '@/types/panel';
+import type { PropertyFormData, PropiedadImagenItem } from '@/types/panel';
 
 import { blobUrlToDataUrl } from '@/lib/blob-upload';
 
@@ -95,10 +95,14 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
     setSubmitError(null);
     setSubmitting(true);
 
-    const hasBlobImages = formData.imagenes.some((u) => u.startsWith('blob:'));
+    const hasBlobImages = formData.imagenes.some((img) => img.url.startsWith('blob:'));
     setSyncingFiles(hasBlobImages);
 
-    let imagenesPayload = [...formData.imagenes];
+    let imagenesPayload: PropiedadImagenItem[] = formData.imagenes.map((img) => ({
+      url: img.url.trim(),
+      public_id: img.public_id ?? null,
+      categoria: img.categoria?.trim() || 'Sin clasificar',
+    }));
     const blobSourcesUploaded: string[] = [];
 
     try {
@@ -108,10 +112,11 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
           'propiedad';
         const folderPath = `tandilurban/propiedades/${tituloSeg}`;
         const batch = Date.now();
-        const nextUrls: string[] = [];
+        const nextItems: PropiedadImagenItem[] = [];
 
         for (let i = 0; i < formData.imagenes.length; i++) {
-          const src = formData.imagenes[i];
+          const item = formData.imagenes[i]!;
+          const src = item.url;
           if (src.startsWith('blob:')) {
             const dataUrl = await blobUrlToDataUrl(src);
             const file = blobFiles?.getFileForBlob(src);
@@ -133,15 +138,23 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
               );
             }
 
-            const json = (await up.json()) as { url: string };
-            nextUrls.push(json.url);
+            const json = (await up.json()) as { url: string; public_id?: string };
+            nextItems.push({
+              url: json.url,
+              public_id: json.public_id ?? null,
+              categoria: item.categoria?.trim() || 'Sin clasificar',
+            });
             blobSourcesUploaded.push(src);
           } else {
-            nextUrls.push(src);
+            nextItems.push({
+              url: src.trim(),
+              public_id: item.public_id ?? null,
+              categoria: item.categoria?.trim() || 'Sin clasificar',
+            });
           }
         }
 
-        imagenesPayload = nextUrls;
+        imagenesPayload = nextItems;
         setSyncingFiles(false);
       }
 
@@ -193,6 +206,8 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
           URL.revokeObjectURL(src);
         }
       }
+
+      setSubmitting(false);
 
       if (editId) {
         router.push('/panel/propiedades');

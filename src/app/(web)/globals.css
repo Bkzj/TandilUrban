@@ -7,7 +7,8 @@ body {
 }
 
 /* Marcador panel onboarding — Leaflet no debe dibujar borde/fondo sobre el divIcon SVG */
-.custom-tandil-pin {
+.custom-tandil-pin,
+.poi-marker-leaflet {
   background: transparent !important;
   border: none !important;
 }

@@ -52,7 +52,7 @@ function termometro(visitas: number, consultas: number): { label: string; classN
 }
 
 export function PropertyQuickView({ propiedad, onClose }: Props) {
-  const thumb = propiedad.imagenes[0]?.trim() || PLACEHOLDER;
+  const thumb = propiedad.imagenes[0]?.url?.trim() || PLACEHOLDER;
   const visitas = propiedad.visitas ?? 0;
   const consultas = propiedad.consultas ?? 0;
   const dias = diasEnMercado(propiedad.createdAt);

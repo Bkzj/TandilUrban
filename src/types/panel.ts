@@ -1,8 +1,15 @@
+/** Una foto de propiedad persistida (URL Cloudinary + metadatos). */
+export type PropiedadImagenItem = {
+  url: string;
+  public_id?: string | null;
+  categoria?: string | null;
+};
+
 /** Fila de propiedad en el panel administrador (serializable para client components). */
 export type PanelPropiedadTableRow = {
   id: string;
   titulo: string;
-  imagenes: string[];
+  imagenes: PropiedadImagenItem[];
   operacion: string;
   tipo: string;
   precio: number;
@@ -10,6 +17,25 @@ export type PanelPropiedadTableRow = {
   visitas: number;
   consultas: number;
   createdAt: string;
+};
+
+/** Estado serializado desde Prisma `EstadoContacto`. */
+export type PanelLeadEstado = 'NUEVO' | 'LEIDO' | 'RESPONDIDO';
+
+/** Lead / consulta en inbox del panel (tenant-safe desde server). */
+export type PanelLeadRow = {
+  id: string;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  mensaje: string;
+  estado: PanelLeadEstado;
+  createdAt: string;
+  propiedad: {
+    id: string;
+    titulo: string;
+    imagenes: PropiedadImagenItem[];
+  };
 };
 
 /** Fila de agente serializada para el panel (client + server). */
@@ -42,7 +68,8 @@ export type PropertyFormData = {
   precio: string;
   expensas: string;
   caracteristicas: string[];
-  imagenes: string[];
+  imagenes: PropiedadImagenItem[];
+  layoutContext: string;
   titulo: string;
   descripcion: string;
 };

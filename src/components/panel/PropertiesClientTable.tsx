@@ -53,7 +53,7 @@ export function PropertiesClientTable({ propiedades }: Props) {
                 </tr>
               ) : (
                 propiedades.map((prop) => {
-                  const thumb = prop.imagenes[0]?.trim();
+                  const thumb = prop.imagenes[0]?.url?.trim();
                   const visitas = prop.visitas ?? 0;
                   const consultas = prop.consultas ?? 0;
                   const conv = formatConvRate(visitas, consultas);

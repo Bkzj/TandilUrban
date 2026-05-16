@@ -7,6 +7,8 @@ export type {
   Agente,
   Moneda,
   Operacion,
+  PanelLeadEstado,
+  PanelLeadRow,
   PropertyFormData,
   StepProps,
   TipoInmueble,

@@ -6,12 +6,12 @@ import {
   cloudinary,
   isCloudinaryServerConfigured,
   managedPropertyFoldersFromPublicIds,
-  publicIdsFromImageUrls,
 } from '@/lib/cloudinary';
+import { collectPublicIdsForDeletion, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
 import { prisma } from '@/lib/prisma';
-import { AuthError, getCurrentUser } from '@/lib/auth';
+import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
 
 function handleAuthError(error: unknown): NextResponse | null {
   if (error instanceof AuthError) {
@@ -29,6 +29,8 @@ export async function PUT(
     if (!user) {
       return NextResponse.json({ error: 'Tenés que iniciar sesión.' }, { status: 401 });
     }
+
+    assertNotPublicPortalUser(user);
 
     const { id } = await params;
     const propiedad = await prisma.propiedad.findUnique({
@@ -104,6 +106,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Tenés que iniciar sesión.' }, { status: 401 });
     }
 
+    assertNotPublicPortalUser(user);
+
     const { id } = await params;
     const propiedad = await prisma.propiedad.findUnique({
       where: { id },
@@ -121,14 +125,12 @@ export async function DELETE(
       );
     }
 
-    const imageUrls = Array.isArray(propiedad.imagenes)
-      ? propiedad.imagenes.filter((u): u is string => typeof u === 'string')
-      : [];
+    const items = normalizePropiedadImagenesDb(propiedad.imagenes);
 
-    if (isCloudinaryServerConfigured() && imageUrls.length > 0) {
+    if (isCloudinaryServerConfigured()) {
       try {
         configureCloudinary();
-        const publicIds = publicIdsFromImageUrls(imageUrls);
+        const publicIds = collectPublicIdsForDeletion(items);
         if (publicIds.length > 0) {
           await cloudinary.api.delete_resources(publicIds, { resource_type: 'image' });
         }

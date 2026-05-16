@@ -21,6 +21,7 @@ export const INITIAL_DATA: PropertyFormData = {
   expensas: '',
   caracteristicas: [],
   imagenes: [],
+  layoutContext: '',
   titulo: '',
   descripcion: '',
 };

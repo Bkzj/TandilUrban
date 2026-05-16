@@ -1,4 +1,5 @@
 import type { CreatePropiedadPayload } from '@/types/api';
+import type { PropiedadImagenItem } from '@/types/panel';
 
 const TIPOS_VALIDOS = new Set(['Casa', 'Departamento', 'Lote', 'Local', 'Oficina']);
 const OPERACIONES_VALIDAS = new Set(['VENTA', 'ALQUILER']);
@@ -20,6 +21,31 @@ function asNonNegativeNumber(v: unknown): number | null {
     if (Number.isFinite(n) && n >= 0) return n;
   }
   return null;
+}
+
+function parseImagenesPayload(raw: unknown): PropiedadImagenItem[] | null {
+  if (!Array.isArray(raw)) return null;
+  const out: PropiedadImagenItem[] = [];
+  for (const item of raw) {
+    if (typeof item === 'string') {
+      const url = item.trim();
+      if (url) out.push({ url, public_id: null, categoria: 'Sin clasificar' });
+      continue;
+    }
+    if (item && typeof item === 'object' && typeof (item as Record<string, unknown>).url === 'string') {
+      const o = item as Record<string, unknown>;
+      const url = String(o.url).trim();
+      if (!url) continue;
+      const public_id =
+        typeof o.public_id === 'string' && o.public_id.trim() !== '' ? o.public_id.trim() : null;
+      const categoria =
+        typeof o.categoria === 'string' && o.categoria.trim() !== ''
+          ? o.categoria.trim()
+          : 'Sin clasificar';
+      out.push({ url, public_id, categoria });
+    }
+  }
+  return out;
 }
 
 export function validarPropiedadPayload(
@@ -68,11 +94,16 @@ export function validarPropiedadPayload(
   const cocheras = asNonNegativeNumber(b.cocheras) ?? 0;
   const expensas = asNonNegativeNumber(b.expensas);
 
+  const imagenesParsed = parseImagenesPayload(b.imagenes);
+  if (imagenesParsed === null) {
+    return { ok: false, error: 'Las imágenes deben ser un arreglo válido.' };
+  }
+  if (imagenesParsed.length > 80) {
+    return { ok: false, error: 'Máximo 80 imágenes por propiedad.' };
+  }
+
   const caracteristicas = Array.isArray(b.caracteristicas)
     ? b.caracteristicas.filter((c): c is string => typeof c === 'string')
-    : [];
-  const imagenes = Array.isArray(b.imagenes)
-    ? b.imagenes.filter((c): c is string => typeof c === 'string')
     : [];
 
   return {
@@ -94,7 +125,7 @@ export function validarPropiedadPayload(
       precio,
       expensas,
       caracteristicas,
-      imagenes,
+      imagenes: imagenesParsed,
       titulo: b.titulo.trim(),
       descripcion: b.descripcion.trim(),
     },

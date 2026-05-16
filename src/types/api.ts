@@ -1,3 +1,5 @@
+import type { PropiedadImagenItem } from './panel';
+
 /** Cuerpo esperado por `POST /api/auth/register`. */
 export type RegisterPayload = {
   nombre: string;
@@ -9,6 +11,7 @@ export type RegisterPayload = {
 export type ContactoPayload = {
   nombre: string;
   email: string;
+  telefono?: string | null;
   mensaje: string;
   propiedadId: string;
 };
@@ -41,7 +44,7 @@ export type CreatePropiedadPayload = {
   precio: number;
   expensas?: number | null;
   caracteristicas: string[];
-  imagenes: string[];
+  imagenes: PropiedadImagenItem[];
   titulo: string;
   descripcion: string;
 };

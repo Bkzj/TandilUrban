@@ -27,6 +27,12 @@ enum CategoriaPuntoInteres {
   PARQUE
 }
 
+enum EstadoContacto {
+  NUEVO
+  LEIDO
+  RESPONDIDO
+}
+
 model User {
   id               String     @id @default(cuid())
   rol              RolUsuario @default(USUARIO_NORMAL)
@@ -97,7 +103,8 @@ model Propiedad {
   banos           Int             @default(0)
   cocheras        Int             @default(0)
   caracteristicas String[]
-  imagenes        String[]
+  /** Fotos: `{ url, public_id?, categoria? }[]` persistido como JSONB */
+  imagenes          Json              @default("[]")
 
   visitas    Int @default(0)
   consultas Int @default(0)
@@ -115,15 +122,18 @@ model Propiedad {
 }
 
 model Contacto {
-  id          String    @id @default(cuid())
+  id          String         @id @default(cuid())
   nombre      String
   email       String
-  mensaje     String    @db.Text
+  telefono    String?
+  mensaje     String         @db.Text
   propiedadId String
-  propiedad   Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
+  propiedad   Propiedad      @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  estado      EstadoContacto @default(NUEVO)
+  createdAt   DateTime       @default(now())
 
   @@index([propiedadId])
+  @@index([estado])
 }
 
 model PuntoInteres {

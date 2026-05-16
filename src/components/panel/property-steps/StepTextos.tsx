@@ -29,9 +29,9 @@ export function StepTextos({ data, update, onNext: _onNext, isEditMode }: StepPr
     setIsGenerating(true);
     try {
       let portadaBase64: string | null = null;
-      const firstImg = data.imagenes[0];
-      if (typeof firstImg === 'string' && firstImg.length > 0) {
-        portadaBase64 = await blobToBase64(firstImg);
+      const firstUrl = data.imagenes[0]?.url;
+      if (typeof firstUrl === 'string' && firstUrl.length > 0) {
+        portadaBase64 = await blobToBase64(firstUrl);
       }
 
       const res = await fetch('/api/panel/propiedades/generar-textos', {

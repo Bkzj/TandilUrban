@@ -15,9 +15,8 @@ import Navbar from '@/components/Navbar';
 import { prisma } from '@/lib/prisma';
 
 import { PropertyGallery } from '@/components/propiedades/PropertyGallery';
-import { PropiedadUbicacionMap } from '@/components/propiedades/PropiedadUbicacionMap';
-
-import { PropiedadContactoForm } from './PropiedadContactoForm';
+import PropertyLocationSection from '@/components/public/PropertyLocationSection';
+import { PropertyContactForm } from '@/components/public/PropertyContactForm';
 
 const iconMap: Record<string, LucideIcon> = {
   Piscina: Waves,
@@ -64,6 +63,11 @@ export default async function PropiedadPage({ params }: PageProps) {
   const tipoLabel = String(propiedad.tipo).toUpperCase();
 
   const direccionCompleta = [propiedad.direccion, propiedad.barrio].filter(Boolean).join(' · ');
+
+  const tieneUbicacion =
+    Number.isFinite(propiedad.latitud) &&
+    Number.isFinite(propiedad.longitud) &&
+    !(propiedad.latitud === 0 && propiedad.longitud === 0);
 
   return (
     <main className="min-h-screen bg-white pb-20 font-sans text-gray-900">
@@ -138,27 +142,28 @@ export default async function PropiedadPage({ params }: PageProps) {
               </section>
             ) : null}
 
-            <section>
-              <h2 className="mb-4 text-2xl font-bold text-gray-900">Ubicación</h2>
-              <PropiedadUbicacionMap
-                propiedadId={propiedad.id}
-                titulo={propiedad.titulo}
-                latitud={propiedad.latitud}
-                longitud={propiedad.longitud}
-              />
-            </section>
+            {tieneUbicacion ? (
+              <section>
+                <h2 className="mb-4 text-2xl font-bold text-gray-900">Ubicación</h2>
+                <PropertyLocationSection
+                  lat={propiedad.latitud}
+                  lng={propiedad.longitud}
+                  titulo={propiedad.titulo}
+                />
+              </section>
+            ) : null}
           </div>
 
           <aside className="lg:col-span-1">
-            <div className="sticky top-8 rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+            <div className="sticky top-8 space-y-8 rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
               <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Inmobiliaria</p>
               <p className="mt-1 text-lg font-bold text-emerald-800">{agenciaNombre}</p>
               <p className="mt-6 text-xs font-bold uppercase tracking-wide text-gray-500">
                 Contacto comercial
               </p>
               <p className="mt-1 font-semibold text-gray-900">{contactoComercial}</p>
-              <h3 className="mb-4 mt-8 text-xl font-bold text-gray-900">¿Te interesa esta propiedad?</h3>
-              <PropiedadContactoForm propiedadId={propiedad.id} />
+              <h3 className="mb-4 text-xl font-bold text-gray-900">¿Te interesa esta propiedad?</h3>
+              <PropertyContactForm propiedadId={propiedad.id} />
             </div>
           </aside>
         </div>

@@ -3,9 +3,12 @@ import { getServerSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { compare } from 'bcryptjs';
+import { RolUsuario } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 import { currentUserInclude, type CurrentUser, type SessionUserAugmented } from '@/types/auth';
+
+export { roleCanAccessPanel } from '@/lib/rbac';
 
 export type { CurrentUser } from '@/types/auth';
 export { currentUserInclude } from '@/types/auth';
@@ -70,6 +73,10 @@ export const authOptions: NextAuthOptions = {
 // Helpers de sesión / RBAC
 // =============================================================================
 
+export async function getServerAuthSession() {
+  return getServerSession(authOptions);
+}
+
 /** Devuelve el `User` con relaciones de panel si hay sesión, o `null`. */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const session = await getServerSession(authOptions);
@@ -99,6 +106,13 @@ export class AuthError extends Error {
   }
 }
 
+/** 403 HTTP si es cuenta solo de portal público. */
+export function assertNotPublicPortalUser(user: CurrentUser): void {
+  if (user.rol === RolUsuario.USUARIO_NORMAL) {
+    throw new AuthError(403, 'Las cuentas de usuario público no pueden acceder al panel.');
+  }
+}
+
 /**
  * Garantiza que el usuario logueado es MAIN. Tira `AuthError` 401/403 si no.
  * Útil para endpoints (route handlers) — devuelve `inmobiliariaId` listo para queries.
@@ -108,6 +122,7 @@ export async function requireInmobiliariaMain() {
   if (!user) {
     throw new AuthError(401, 'Tenés que iniciar sesión.');
   }
+  assertNotPublicPortalUser(user);
   if (!isInmobiliariaMain(user) || !user.inmobiliariaPerfil) {
     throw new AuthError(403, 'Solo el administrador de la inmobiliaria puede acceder.');
   }

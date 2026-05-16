@@ -3,8 +3,9 @@ import { notFound, redirect } from 'next/navigation';
 import { RolUsuario } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
+import { normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import { resolvePanelTenantInmobiliariaId } from '@/lib/panel-tenant';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, roleCanAccessPanel } from '@/lib/auth';
 import type { CurrentUser } from '@/types/auth';
 import type { PropertyFormData } from '@/types/panel';
 import LinearPropertyForm from '@/components/panel/LinearPropertyForm';
@@ -34,7 +35,7 @@ function mapToFormData(
     precio: number;
     expensas: number | null;
     caracteristicas: string[];
-    imagenes: string[];
+    imagenes: unknown;
     titulo: string;
     descripcion: string;
   }
@@ -74,7 +75,7 @@ function mapToFormData(
     precio: String(prop.precio),
     expensas: prop.expensas != null ? String(prop.expensas) : '',
     caracteristicas: [...prop.caracteristicas],
-    imagenes: [...prop.imagenes],
+    imagenes: normalizePropiedadImagenesDb(prop.imagenes),
     titulo: prop.titulo,
     descripcion: prop.descripcion,
   };
@@ -84,6 +85,7 @@ export default async function EditarPropiedadPage({ params }: { params: Promise<
   const { id } = await params;
   const user: CurrentUser | null = await getCurrentUser();
   if (!user) redirect(`/login?callbackUrl=/panel/propiedades/editar/${id}`);
+  if (!roleCanAccessPanel(user.rol)) redirect('/?error=unauthorized');
 
   const tenantInmobiliariaId = resolvePanelTenantInmobiliariaId(user);
   if (!tenantInmobiliariaId) {

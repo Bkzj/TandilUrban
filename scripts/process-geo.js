@@ -357,6 +357,43 @@ function processGeoJsonFile(filename, category) {
   }
 }
 
+/** POIs de educación generados por scripts/geocode-education.js */
+function processEducacionGeocoded() {
+  const filePath = path.join(GEO_DIR, 'educacion-geocoded.json');
+  if (!fs.existsSync(filePath)) {
+    console.warn('[educacion-geocoded.json] No encontrado. Ejecutá: npm run geo:geocode');
+    return;
+  }
+
+  try {
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const items = JSON.parse(raw);
+    if (!Array.isArray(items)) {
+      throw new Error('Se esperaba un array JSON');
+    }
+
+    let count = 0;
+    for (const item of items) {
+      const lat = Number(item.lat);
+      const lng = Number(item.lng);
+      const nombre = String(item.nombre ?? '').trim();
+      if (!nombre || !isValidCoord(lat, lng)) continue;
+
+      pushPoi('educacion', {
+        nombre,
+        lat,
+        lng,
+        ...(item.extraData !== undefined ? { extraData: item.extraData } : {}),
+      });
+      count++;
+    }
+
+    console.log(`[educacion-geocoded.json] ${count} POIs → educacion`);
+  } catch (err) {
+    console.error('[educacion-geocoded.json] Error:', err.message);
+  }
+}
+
 /** WKT (EPSG:22185) → segmentos Leaflet [lat, lng][]. */
 function wktToPathSegments(wktString) {
   const geom = wellknown.parse(String(wktString).trim());
@@ -433,12 +470,13 @@ function processBusCsv() {
 async function main() {
   console.log('Procesando fuentes geográficas de Tandil…\n');
 
-  processKml('gobierno-abierto-tandil-establecimientos-educativos-2.kml', 'educacion');
+  processEducacionGeocoded();
   processKml('gobierno-abierto-tandil-centros-de-salud.kml', 'salud');
   processKml('hospitales_tandil.kml', 'salud');
   processKml('gobierno-abierto-tandil-espacios-verdes.kml', 'parques');
   processKml('gobierno-abierto-tandil-comisarias.kml', 'seguridad');
-  processGeoJsonFile('export.geojson', 'supermercados');
+
+  processGeoJsonFile('supermercados.geojson', 'supermercados');
 
   await processBusCsv();
 

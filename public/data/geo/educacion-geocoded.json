@@ -1,0 +1,392 @@
+[
+  {
+    "nombre": "Jardín de Infantes Nº 901",
+    "lat": -37.3312444,
+    "lng": -59.1377755,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 902",
+    "lat": -37.3041665,
+    "lng": -59.1200126,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 903",
+    "lat": -37.3033788,
+    "lng": -59.1501815,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 905",
+    "lat": -37.3254136,
+    "lng": -59.1244095,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 906",
+    "lat": -37.3124687,
+    "lng": -59.1502565,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 907",
+    "lat": -37.3235033,
+    "lng": -59.1084366,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 910",
+    "lat": -37.3215538,
+    "lng": -59.1851834,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 911",
+    "lat": -37.3376667,
+    "lng": -59.1314677,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 912",
+    "lat": -37.3361638,
+    "lng": -59.1844595,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 918 (San Benito)",
+    "lat": -37.3197005,
+    "lng": -59.1037653,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín de Infantes Nº 922",
+    "lat": -37.3209419,
+    "lng": -59.1321964,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín O. Zarini",
+    "lat": -37.3103977,
+    "lng": -59.1289934,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín San Francisco de Asís",
+    "lat": -37.3107311,
+    "lng": -59.1084381,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín Santa Cecilia",
+    "lat": -37.3151257,
+    "lng": -59.1216158,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín San Ignacio",
+    "lat": -37.330177,
+    "lng": -59.1151839,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín San José",
+    "lat": -37.3307753,
+    "lng": -59.1364054,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín Sagrada Familia",
+    "lat": -37.3238282,
+    "lng": -59.1329695,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín Estrella de Belén",
+    "lat": -37.3238378,
+    "lng": -59.1374015,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín Bambi",
+    "lat": -37.3283693,
+    "lng": -59.1417111,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín Belén",
+    "lat": -37.3233012,
+    "lng": -59.1404853,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín Barquito de Papel",
+    "lat": -37.3345484,
+    "lng": -59.1439496,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Jardín Trompita",
+    "lat": -37.3213464,
+    "lng": -59.1411611,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 1: Manuel Belgrano",
+    "lat": -37.3291923,
+    "lng": -59.1357223,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 2: Carlos Pellegrini",
+    "lat": -37.3214689,
+    "lng": -59.135157,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 4: Mariano Moreno",
+    "lat": -37.3149886,
+    "lng": -59.2016511,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 5: Nicolás Avellaneda",
+    "lat": -37.3173725,
+    "lng": -59.1247586,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 6: San Antonio",
+    "lat": -37.5124626,
+    "lng": -58.8535095,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 7: Julio A. Roca",
+    "lat": -37.3257587,
+    "lng": -59.1469821,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 9: Fuerte Independencia",
+    "lat": -37.321313,
+    "lng": -59.1369895,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 11: Bartolomé Mitre",
+    "lat": -37.3140627,
+    "lng": -59.1430679,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 14: E. de Levy",
+    "lat": -37.3354845,
+    "lng": -59.1415601,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 15: Martín Miguel de Gúemes",
+    "lat": -37.3100181,
+    "lng": -59.1755734,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 21: Juan B. Alberdi",
+    "lat": -37.3078251,
+    "lng": -59.1432536,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 22: Lorenzo Montufar",
+    "lat": -37.3361638,
+    "lng": -59.1844595,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 28: Gabriela Mistral",
+    "lat": -37.308214,
+    "lng": -59.1778617,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 31: A. López de Osornio",
+    "lat": -37.3554731,
+    "lng": -59.1719771,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 32: Baldomera Gúiraldes",
+    "lat": -37.3048079,
+    "lng": -59.1009515,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 34: Gral. José de San Martín",
+    "lat": -37.327618,
+    "lng": -59.1204922,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 35: Enrique Larreta",
+    "lat": -37.2586401,
+    "lng": -59.6320191,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 36: Ejército Argentina",
+    "lat": -37.3290517,
+    "lng": -59.1940173,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 42: Juan M. de Pueyrredón",
+    "lat": -37.3198348,
+    "lng": -59.1551478,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 44: Enrique J. Risso",
+    "lat": -37.4161448,
+    "lng": -58.8085163,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 58: Brig. Gral. Martín Rodríguez",
+    "lat": -37.3126065,
+    "lng": -59.149904,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 60: Vicente López y Planes",
+    "lat": -37.3162697,
+    "lng": -59.138234,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 64: Almafuerte",
+    "lat": -37.3162697,
+    "lng": -59.138234,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 68: Esc. Nac. Normal Gral. San Martín",
+    "lat": -37.2954607,
+    "lng": -59.0906514,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Colegio Santo Domingo en la Sierra",
+    "lat": -37.3279351,
+    "lng": -59.1097825,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Colegio San José",
+    "lat": -37.3307753,
+    "lng": -59.1364054,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Colegio de La Sierra",
+    "lat": -37.325224,
+    "lng": -59.1415063,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Colegio Nuestra Tierra",
+    "lat": -37.322684,
+    "lng": -59.1305869,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.M. Nº 2 - Organización Empresarial",
+    "lat": -37.3068305,
+    "lng": -59.1467955,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.M. Nº 3 - Turismo - Salud",
+    "lat": -37.3253827,
+    "lng": -59.147378,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.M. Nº 4 - Ciencia, Técnica y Sociedad - Administración Contable",
+    "lat": -37.3013957,
+    "lng": -59.1260457,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.M. Nº 7 - Cultura y Sociedad",
+    "lat": -37.2922936,
+    "lng": -59.1582852,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.M. Nº 8 - Administración Contable - Comunicación",
+    "lat": -37.3203539,
+    "lng": -59.1314649,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.M. Nº 10 - Producción e Industria Alimentaria - Administración Contable - Educación - Letras  y  Santamarina 851",
+    "lat": -37.3209419,
+    "lng": -59.1321964,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.M. Nº 11 - Arte y Diseño",
+    "lat": -37.3268978,
+    "lng": -59.1329426,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.T. Nº 2 - Dispositivos de control -",
+    "lat": -37.3292337,
+    "lng": -59.1313091,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "E.E.T. Nº 3 - Industria de Proceso - Economía y Gestión",
+    "lat": -37.3263845,
+    "lng": -59.1384031,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Escuela Nacional Ernesto Sábato",
+    "lat": -37.3333815,
+    "lng": -59.1125137,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 501: Ricardo Gutiérrez",
+    "lat": -37.3321522,
+    "lng": -59.1285336,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 502: Cecilia Grierson",
+    "lat": -37.3156661,
+    "lng": -59.1378115,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 503: Jorge A. Newbery",
+    "lat": -37.3263993,
+    "lng": -59.1434319,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 504: Gilberto Urcelay",
+    "lat": -37.2885704,
+    "lng": -59.1106195,
+    "categoria": "educacion"
+  },
+  {
+    "nombre": "Esc. Nro 553: Anexo Escuela 503, Avellaneda 477",
+    "lat": -37.3027459,
+    "lng": -59.1643433,
+    "categoria": "educacion"
+  }
+]

@@ -40,7 +40,7 @@ export type TandilPoisByCategory = {
 export type { PoiConDistancia, PoisCercanosResult, TransporteCercano, LatLngTuple };
 
 const POI_FILE = path.join(process.cwd(), 'public/data/tandil-pois.json');
-const TOP_PER_CATEGORY = 3;
+const TOP_PER_CATEGORY = 15;
 const TRANSPORT_LINE_NEAR_M = 700;
 const EARTH_RADIUS_M = 6_371_000;
 

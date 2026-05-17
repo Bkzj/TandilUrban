@@ -104,7 +104,7 @@ function buildCategoryItems(
       text: `${line.nombre} - a ${formatDistanciaCercania(line.distanciaMetros)}`,
     }));
   }
-  return categorias[key].map((poi, index) => ({
+  return categorias[key].slice(0, 4).map((poi, index) => ({
     key: poiKeyPunto(poi, index),
     text: `${poi.nombre} - a ${formatDistanciaCercania(poi.distanciaMetros)}`,
   }));

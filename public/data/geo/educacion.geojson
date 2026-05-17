@@ -1,0 +1,1563 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-05-16T20:36:13Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/122886604",
+        "alt_name": "Campus Universitario",
+        "amenity": "university",
+        "name": "Universidad Nacional del Centro de la Provincia de Buenos Aires"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.0818862,
+              -37.318966
+            ],
+            [
+              -59.0830691,
+              -37.3199629
+            ],
+            [
+              -59.083285,
+              -37.3201391
+            ],
+            [
+              -59.0859105,
+              -37.3222823
+            ],
+            [
+              -59.0863572,
+              -37.3226225
+            ],
+            [
+              -59.0859978,
+              -37.3229083
+            ],
+            [
+              -59.0848581,
+              -37.3238046
+            ],
+            [
+              -59.0843756,
+              -37.3241658
+            ],
+            [
+              -59.0836602,
+              -37.324726
+            ],
+            [
+              -59.0818023,
+              -37.3262103
+            ],
+            [
+              -59.0811131,
+              -37.3256172
+            ],
+            [
+              -59.0802788,
+              -37.3249285
+            ],
+            [
+              -59.0797551,
+              -37.3244849
+            ],
+            [
+              -59.0795079,
+              -37.324283
+            ],
+            [
+              -59.0788096,
+              -37.3237097
+            ],
+            [
+              -59.0774266,
+              -37.322536
+            ],
+            [
+              -59.0779712,
+              -37.3220861
+            ],
+            [
+              -59.0818862,
+              -37.318966
+            ]
+          ]
+        ]
+      },
+      "id": "way/122886604"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/375032221",
+        "amenity": "kindergarten",
+        "name": "Guardería Barrio Maggiori"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.164027,
+              -37.3005935
+            ],
+            [
+              -59.1643361,
+              -37.300363
+            ],
+            [
+              -59.164635,
+              -37.3006167
+            ],
+            [
+              -59.164326,
+              -37.3008472
+            ],
+            [
+              -59.164027,
+              -37.3005935
+            ]
+          ]
+        ]
+      },
+      "id": "way/375032221"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/400095206",
+        "addr:housenumber": "661",
+        "addr:street": "Fugl",
+        "amenity": "school",
+        "name": "Escuela N°1"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1294725,
+              -37.3384883
+            ],
+            [
+              -59.1288794,
+              -37.3395267
+            ],
+            [
+              -59.1286834,
+              -37.3394614
+            ],
+            [
+              -59.128431,
+              -37.3380776
+            ],
+            [
+              -59.1294725,
+              -37.3384883
+            ]
+          ]
+        ]
+      },
+      "id": "way/400095206"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/516518063",
+        "addr:city": "Tandil",
+        "addr:housenumber": "1703",
+        "addr:postcode": "7000",
+        "addr:street": "Rosales",
+        "amenity": "school",
+        "name": "Jardín De Infantes San Francisco De Asís"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1078208,
+              -37.3104497
+            ],
+            [
+              -59.1082872,
+              -37.310844
+            ],
+            [
+              -59.1077255,
+              -37.3112643
+            ],
+            [
+              -59.1072591,
+              -37.3108699
+            ],
+            [
+              -59.1078208,
+              -37.3104497
+            ]
+          ]
+        ]
+      },
+      "id": "way/516518063"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/516518123",
+        "addr:city": "Tandil",
+        "addr:postcode": "7000",
+        "addr:street": "4 de Abril",
+        "addr:street_1": "Sarmiento",
+        "amenity": "school",
+        "name": "Escuela Polivalente de Arte"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1298184,
+              -37.3223279
+            ],
+            [
+              -59.1293292,
+              -37.3231722
+            ],
+            [
+              -59.1287849,
+              -37.3229727
+            ],
+            [
+              -59.1292741,
+              -37.3221284
+            ],
+            [
+              -59.1298184,
+              -37.3223279
+            ]
+          ]
+        ]
+      },
+      "id": "way/516518123"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/543893409",
+        "amenity": "college",
+        "name": "Residencias Universitarias UNICEN"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.0817363,
+              -37.3188395
+            ],
+            [
+              -59.0816667,
+              -37.3188952
+            ],
+            [
+              -59.0793933,
+              -37.320714
+            ],
+            [
+              -59.0767389,
+              -37.3184173
+            ],
+            [
+              -59.0788766,
+              -37.3166271
+            ],
+            [
+              -59.0817363,
+              -37.3188395
+            ]
+          ]
+        ]
+      },
+      "id": "way/543893409"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/543893410",
+        "amenity": "college",
+        "name": "Centro de Investigación Veterinaria de Tandil (CIVETAN) - Unidad Experimental"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.0792943,
+              -37.3207482
+            ],
+            [
+              -59.0771057,
+              -37.3224717
+            ],
+            [
+              -59.0757753,
+              -37.3213626
+            ],
+            [
+              -59.0779854,
+              -37.3196263
+            ],
+            [
+              -59.0792943,
+              -37.3207482
+            ]
+          ]
+        ]
+      },
+      "id": "way/543893410"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/845502954",
+        "addr:city": "Tandil",
+        "addr:full": "Chapaleofú Y Pujol S/N El Molino",
+        "addr:street": "Chapaleofú",
+        "amenity": "school",
+        "isced:level": "1",
+        "name": "Escuela Primaria Nº25 \"Hipólito Yrigoyen\"",
+        "operator:type": "public",
+        "ref:cue": "060069500"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1281598,
+              -37.2818208
+            ],
+            [
+              -59.1283486,
+              -37.2817135
+            ],
+            [
+              -59.1287314,
+              -37.282056
+            ],
+            [
+              -59.1283351,
+              -37.2823788
+            ],
+            [
+              -59.1282093,
+              -37.2822106
+            ],
+            [
+              -59.1281598,
+              -37.2818208
+            ]
+          ]
+        ]
+      },
+      "id": "way/845502954"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/904329733",
+        "addr:city": "Tandil",
+        "addr:housenumber": "635",
+        "addr:street": "Pozos",
+        "amenity": "school",
+        "name": "Colegio Santo Domingo en la Sierra",
+        "operator": "Asociación Civil Santo Domingo",
+        "operator:type": "private",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1115167,
+              -37.328372
+            ],
+            [
+              -59.1097491,
+              -37.3292277
+            ],
+            [
+              -59.1088141,
+              -37.328456
+            ],
+            [
+              -59.1083234,
+              -37.3274983
+            ],
+            [
+              -59.1082711,
+              -37.3273962
+            ],
+            [
+              -59.1082342,
+              -37.3273241
+            ],
+            [
+              -59.1093489,
+              -37.3264738
+            ],
+            [
+              -59.1115167,
+              -37.328372
+            ]
+          ]
+        ]
+      },
+      "id": "way/904329733"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/904329762",
+        "addr:housenumber": "61",
+        "addr:street": "Avenida Dorrego",
+        "amenity": "school",
+        "min_age": "2",
+        "name": "Colegio Santa Catalina en la Sierra",
+        "operator": "Asociación Civil Santo Domingo",
+        "operator:type": "private",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1404417,
+              -37.3374058
+            ],
+            [
+              -59.140707,
+              -37.3374799
+            ],
+            [
+              -59.1407526,
+              -37.3374108
+            ],
+            [
+              -59.1408008,
+              -37.3373377
+            ],
+            [
+              -59.1409274,
+              -37.3373775
+            ],
+            [
+              -59.1410158,
+              -37.3372224
+            ],
+            [
+              -59.1412602,
+              -37.3373085
+            ],
+            [
+              -59.1411544,
+              -37.3374568
+            ],
+            [
+              -59.1412702,
+              -37.3375051
+            ],
+            [
+              -59.1412235,
+              -37.337612
+            ],
+            [
+              -59.1411321,
+              -37.3376977
+            ],
+            [
+              -59.1409607,
+              -37.3376458
+            ],
+            [
+              -59.14092,
+              -37.3377288
+            ],
+            [
+              -59.140844,
+              -37.33769
+            ],
+            [
+              -59.1408077,
+              -37.3376715
+            ],
+            [
+              -59.1407367,
+              -37.3377815
+            ],
+            [
+              -59.1406462,
+              -37.3378967
+            ],
+            [
+              -59.1407191,
+              -37.3379387
+            ],
+            [
+              -59.1407534,
+              -37.3379585
+            ],
+            [
+              -59.1406769,
+              -37.3381488
+            ],
+            [
+              -59.1404306,
+              -37.3380584
+            ],
+            [
+              -59.1405007,
+              -37.3377897
+            ],
+            [
+              -59.1405158,
+              -37.3377572
+            ],
+            [
+              -59.1405462,
+              -37.3376356
+            ],
+            [
+              -59.1405554,
+              -37.3376105
+            ],
+            [
+              -59.1403641,
+              -37.337534
+            ],
+            [
+              -59.1403899,
+              -37.3374914
+            ],
+            [
+              -59.1404401,
+              -37.3374085
+            ],
+            [
+              -59.1404417,
+              -37.3374058
+            ]
+          ]
+        ]
+      },
+      "id": "way/904329762"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/904335329",
+        "amenity": "school",
+        "building": "yes",
+        "building:levels": "2",
+        "building:use": "education",
+        "name": "Escuela 1",
+        "operator:type": "public",
+        "roof:material": "metal"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1360164,
+              -37.3293263
+            ],
+            [
+              -59.1359517,
+              -37.3294341
+            ],
+            [
+              -59.1358946,
+              -37.3294124
+            ],
+            [
+              -59.1359116,
+              -37.3293841
+            ],
+            [
+              -59.1357477,
+              -37.329322
+            ],
+            [
+              -59.1356865,
+              -37.329424
+            ],
+            [
+              -59.1358946,
+              -37.3295028
+            ],
+            [
+              -59.1357527,
+              -37.3297395
+            ],
+            [
+              -59.135645,
+              -37.3296987
+            ],
+            [
+              -59.1356837,
+              -37.3296341
+            ],
+            [
+              -59.1357261,
+              -37.3296502
+            ],
+            [
+              -59.135775,
+              -37.3295688
+            ],
+            [
+              -59.1356357,
+              -37.3295159
+            ],
+            [
+              -59.1355082,
+              -37.3297286
+            ],
+            [
+              -59.1353773,
+              -37.329679
+            ],
+            [
+              -59.1355008,
+              -37.3294732
+            ],
+            [
+              -59.1353945,
+              -37.3294328
+            ],
+            [
+              -59.1354486,
+              -37.3293426
+            ],
+            [
+              -59.1355557,
+              -37.3293832
+            ],
+            [
+              -59.1356219,
+              -37.3292729
+            ],
+            [
+              -59.1355139,
+              -37.3292319
+            ],
+            [
+              -59.1355609,
+              -37.3291536
+            ],
+            [
+              -59.1360164,
+              -37.3293263
+            ]
+          ]
+        ]
+      },
+      "id": "way/904335329"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1150262145",
+        "amenity": "school"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -59.1306669,
+              -37.3211082
+            ],
+            [
+              -59.1310124,
+              -37.3205383
+            ],
+            [
+              -59.1311143,
+              -37.320517
+            ],
+            [
+              -59.1313128,
+              -37.3201608
+            ],
+            [
+              -59.1312859,
+              -37.3200882
+            ],
+            [
+              -59.1313284,
+              -37.3200185
+            ],
+            [
+              -59.1325546,
+              -37.32049
+            ],
+            [
+              -59.1324131,
+              -37.3207227
+            ],
+            [
+              -59.1324579,
+              -37.3207399
+            ],
+            [
+              -59.131939,
+              -37.3215959
+            ],
+            [
+              -59.1306669,
+              -37.3211082
+            ]
+          ]
+        ]
+      },
+      "id": "way/1150262145"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/456247880",
+        "addr:city": "Tandil",
+        "addr:housenumber": "399",
+        "addr:postcode": "7000",
+        "addr:street": "General Pinto",
+        "amenity": "university",
+        "email": "difusion@rec.unicen.edu.ar",
+        "name": "Unicen",
+        "name:en": "National University of Central Buenos Aires",
+        "website": "https://www.unicen.edu.ar/",
+        "wikidata": "Q5576619",
+        "wikipedia": "es:Universidad Nacional del Centro de la Provincia de Buenos Aires"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1385728,
+          -37.3285798
+        ]
+      },
+      "id": "node/456247880"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/871916305",
+        "amenity": "school",
+        "name": "Escuela N* 1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.135713,
+          -37.3292472
+        ]
+      },
+      "id": "node/871916305"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1374310716",
+        "addr:housenumber": "2150",
+        "addr:street": "Rosales",
+        "amenity": "school",
+        "name": "Centro de Referencia \"La Tribu\""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1243417,
+          -37.2986591
+        ]
+      },
+      "id": "node/1374310716"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1374310718",
+        "addr:housenumber": "1620",
+        "addr:street": "Nigro",
+        "amenity": "school",
+        "name": "Universidad Barrial de Villa Aguirre"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1245241,
+          -37.2995254
+        ]
+      },
+      "id": "node/1374310718"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1374325607",
+        "amenity": "kindergarten"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1171426,
+          -37.2934997
+        ]
+      },
+      "id": "node/1374325607"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1374325608",
+        "amenity": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1177971,
+          -37.2940204
+        ]
+      },
+      "id": "node/1374325608"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1374326951",
+        "amenity": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1183978,
+          -37.2939905
+        ]
+      },
+      "id": "node/1374326951"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1374340356",
+        "addr:city": "TANDIL",
+        "addr:housenumber": "2092",
+        "addr:postcode": "7000",
+        "addr:street": "Colectora Norte L. M. Macaya",
+        "amenity": "school",
+        "email": "eest1tandil@abc.gob.ar",
+        "isced:level": "2",
+        "name": "Escuela de Educación Secundaria Técnica 1 \"Vi Brigada Aérea\"",
+        "official_name": "Escuela de Educación Secundaria Técnica Nº1 \"Vi Brigada Aérea\"",
+        "opening_hours": "Mo-Fr 08:00-16:00",
+        "operator:type": "public",
+        "phone": "+54 0249 443-3793",
+        "ref:cue": "060619700",
+        "ref:cui": "610200758"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1259706,
+          -37.3014388
+        ]
+      },
+      "id": "node/1374340356"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1525190546",
+        "amenity": "school",
+        "name": "Centro Cultural Universitario"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.138503,
+          -37.3262407
+        ]
+      },
+      "id": "node/1525190546"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1527642810",
+        "amenity": "kindergarten",
+        "name": "Jardín N* 919"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.0912238,
+          -37.3268621
+        ]
+      },
+      "id": "node/1527642810"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1527643494",
+        "amenity": "school",
+        "name": "Escuela N* 8"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.0913725,
+          -37.3270057
+        ]
+      },
+      "id": "node/1527643494"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1534144813",
+        "amenity": "school",
+        "name": "Campus Universitario",
+        "name:es": "Campus Universitario"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.0821743,
+          -37.3222238
+        ]
+      },
+      "id": "node/1534144813"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1547871393",
+        "amenity": "school",
+        "name": "UNICEN"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1385002,
+          -37.328686
+        ]
+      },
+      "id": "node/1547871393"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1715697040",
+        "amenity": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1312093,
+          -37.329317
+        ]
+      },
+      "id": "node/1715697040"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1859202440",
+        "amenity": "school",
+        "name": "ESB 15. \"Presidente Peron\""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1471505,
+          -37.3255074
+        ]
+      },
+      "id": "node/1859202440"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2192595523",
+        "amenity": "kindergarten",
+        "name": "Jardín Nuestra Tierra"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1164579,
+          -37.3419504
+        ]
+      },
+      "id": "node/2192595523"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2192595524",
+        "amenity": "school",
+        "name": "Colegio Nuestra Tierra"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.116345,
+          -37.3416691
+        ]
+      },
+      "id": "node/2192595524"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3633493815",
+        "addr:housenumber": "250",
+        "addr:street": "Urquiza",
+        "amenity": "school",
+        "name": "Escuela Secundaria 2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1467955,
+          -37.3068305
+        ]
+      },
+      "id": "node/3633493815"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3653108354",
+        "addr:city": "Tandil",
+        "addr:housenumber": "2226",
+        "addr:postcode": "7000",
+        "addr:street": "Figueroa",
+        "amenity": "school",
+        "name": "Centro Cultural Atrapasueños"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1663997,
+          -37.2967116
+        ]
+      },
+      "id": "node/3653108354"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3735831116",
+        "addr:city": "Tandil",
+        "addr:housenumber": "590",
+        "addr:postcode": "7000",
+        "addr:street": "Dante Alighieri",
+        "amenity": "school",
+        "description": "Escuela primaria publica. Cuenta con ambos turnos. Primer ciclo t.t y segundo ciclo t.m. Actualmente comparte edificio con la ES Nº 17, que lo utiliza en el t.m y vespertino. Esta institución tiene orientación artística.",
+        "name": "EP N* 36 \"Ejercito Argentino\"",
+        "phone": "249 4452529"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1669514,
+          -37.3064979
+        ]
+      },
+      "id": "node/3735831116"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3740920980",
+        "amenity": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1416977,
+          -37.3283446
+        ]
+      },
+      "id": "node/3740920980"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3809060292",
+        "addr:city": "Tandil",
+        "addr:housenumber": "2450",
+        "addr:postcode": "7000",
+        "addr:street": "José A. Cabral",
+        "amenity": "school",
+        "name": "Las Pulgas"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.171465,
+          -37.2959122
+        ]
+      },
+      "id": "node/3809060292"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3816438357",
+        "addr:city": "Tandil",
+        "addr:housenumber": "1597",
+        "addr:street": "Palacios",
+        "amenity": "school",
+        "name": "Escuela N° 32 \"Baldomera Guiraldes\""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1095329,
+          -37.3120071
+        ]
+      },
+      "id": "node/3816438357"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3835195164",
+        "amenity": "school",
+        "name": "Escuela N* 2",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1349555,
+          -37.3214052
+        ]
+      },
+      "id": "node/3835195164"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3955980958",
+        "amenity": "school",
+        "name": "Escuela Martín Rodriguez"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1218154,
+          -37.3161876
+        ]
+      },
+      "id": "node/3955980958"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3958532554",
+        "amenity": "school",
+        "name": "Colegio"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.111481,
+          -37.3303637
+        ]
+      },
+      "id": "node/3958532554"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3966119293",
+        "amenity": "school",
+        "name": "Eescuela N* 31"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1672286,
+          -37.3467517
+        ]
+      },
+      "id": "node/3966119293"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3966757659",
+        "amenity": "kindergarten"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1377821,
+          -37.331289
+        ]
+      },
+      "id": "node/3966757659"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3967336577",
+        "amenity": "school",
+        "name": "Escuela N* 22"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1658602,
+          -37.3218737
+        ]
+      },
+      "id": "node/3967336577"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3969131278",
+        "amenity": "school",
+        "name": "Escuela N* 5"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1248875,
+          -37.3173599
+        ]
+      },
+      "id": "node/3969131278"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3987179050",
+        "amenity": "school",
+        "name": "Colegio"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.132906,
+          -37.3238176
+        ]
+      },
+      "id": "node/3987179050"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3989958251",
+        "amenity": "school",
+        "name": "Escuela N* 4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1540349,
+          -37.3194758
+        ]
+      },
+      "id": "node/3989958251"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3992285342",
+        "amenity": "university",
+        "name": "Facultad de Arte"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1340202,
+          -37.3279663
+        ]
+      },
+      "id": "node/3992285342"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4027213082",
+        "amenity": "school",
+        "name": "Tiro Federal"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1260794,
+          -37.3386392
+        ]
+      },
+      "id": "node/4027213082"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4030000944",
+        "amenity": "school",
+        "name": "Escuela N* 10"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1471,
+          -37.3408328
+        ]
+      },
+      "id": "node/4030000944"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5351869004",
+        "amenity": "kindergarten",
+        "name": "Mameluco"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.131514,
+          -37.3263389
+        ]
+      },
+      "id": "node/5351869004"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6752595991",
+        "addr:city": "tandil",
+        "addr:housenumber": "598",
+        "addr:postcode": "7000",
+        "addr:street": "Richieri",
+        "amenity": "school",
+        "name": "Instituto de Educacion Superior Tandil",
+        "website": "https://www.institutotandil.edu.ar/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1263269,
+          -37.3396098
+        ]
+      },
+      "id": "node/6752595991"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7827743271",
+        "addr:city": "Tandil",
+        "addr:housenumber": "1100",
+        "addr:postcode": "7000",
+        "addr:street": "Machado",
+        "amenity": "college",
+        "city": "tandil",
+        "name": "Instituto del Profesorado de Arte Tandil (IPAT) N°4 \"Escultor Carlos Allende\""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.136693,
+          -37.3108604
+        ]
+      },
+      "id": "node/7827743271"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8117016110",
+        "amenity": "school",
+        "name": "Instituto de Formación Técnica Nº 75"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1148917,
+          -37.2846895
+        ]
+      },
+      "id": "node/8117016110"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8132428808",
+        "amenity": "school",
+        "name": "Escuela Primaria Nº 4 \"Mariano Moreno\""
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.2039977,
+          -37.3166237
+        ]
+      },
+      "id": "node/8132428808"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8132428809",
+        "amenity": "school",
+        "name": "Escuela Secundaria Nº 16"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.203579,
+          -37.3164976
+        ]
+      },
+      "id": "node/8132428809"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8591840417",
+        "addr:postcode": "7000",
+        "amenity": "school",
+        "name": "GFUENTE"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.155011,
+          -37.3569804
+        ]
+      },
+      "id": "node/8591840417"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9814557518",
+        "addr:city": "Tandil",
+        "addr:housenumber": "640",
+        "addr:postcode": "B7000",
+        "addr:street": "Machado",
+        "amenity": "school",
+        "email": "ep11tandil@gmail.com",
+        "isced:level": "1",
+        "name": "Escuela de Educación Primaria 11 \"Bartolome Mitre\"",
+        "official_name": "Escuela de Educación Primaria Nº11 \"Bartolome Mitre\"",
+        "opening_hours": "Mo-Fr 08:00-17:00",
+        "operator:type": "public",
+        "phone": "+54 0249 45-1865",
+        "ref:cue": "061006000",
+        "ref:cui": "610200974"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1430679,
+          -37.3140627
+        ]
+      },
+      "id": "node/9814557518"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10720038308",
+        "amenity": "school",
+        "name": "Escuela Municipal de Danza"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1345443,
+          -37.329866
+        ]
+      },
+      "id": "node/10720038308"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12282335750",
+        "amenity": "school",
+        "name": "EESTN5 Técnica 5"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1473307,
+          -37.3252535
+        ]
+      },
+      "id": "node/12282335750"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12282335751",
+        "amenity": "school",
+        "name": "EET 3 Técnica 3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.138389,
+          -37.3265156
+        ]
+      },
+      "id": "node/12282335751"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13030661731",
+        "addr:housenumber": "2094",
+        "addr:postcode": "7000",
+        "addr:street": "Colectora Norte L. M. Macaya",
+        "amenity": "school",
+        "email": "secundaria4tandil@abc.gob.ar",
+        "isced:level": "2",
+        "name": "Escuela de Educación Secundaria 4 \"Dr Marciano Alduncin\"",
+        "official_name": "Escuela de Educación Secundaria Nº4 \"Dr Marciano Alduncin\"",
+        "opening_hours": "Mo-Fr 08:00-17:00",
+        "operator:type": "public",
+        "phone": "+54 0249 4443-3793",
+        "ref:cue": "060619500",
+        "ref:cui": "610200758"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.1260457,
+          -37.3013957
+        ]
+      },
+      "id": "node/13030661731"
+    }
+  ]
+}

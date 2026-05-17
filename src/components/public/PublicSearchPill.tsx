@@ -44,6 +44,12 @@ function operacionToUrl(o: string): string {
 
 const SUGGEST_MAX = 80;
 
+const DEFAULT_PILL_CLASS =
+  'relative z-10 mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 overflow-visible rounded-3xl border-0 bg-white p-4 shadow-2xl md:flex md:flex-row md:items-end md:gap-0 md:divide-x md:divide-gray-200/90 md:rounded-full md:border md:border-white/30 md:bg-white/92 md:p-3 md:shadow-2xl md:backdrop-blur-xl';
+
+const FIELD_SHELL =
+  'flex min-h-0 w-full items-center px-3 py-2 md:min-h-[52px] md:px-4';
+
 export function PublicSearchPill({
   formClassName,
   defaultQuery = '',
@@ -101,23 +107,19 @@ export function PublicSearchPill({
     router.push(qs ? `/buscar?${qs}` : '/buscar');
   }
 
-  const pillClass =
-    formClassName ??
-    'mx-auto flex w-full max-w-5xl flex-col gap-3 divide-y divide-gray-200 rounded-full border border-white/20 bg-white p-3 shadow-2xl sm:flex-row sm:items-stretch sm:gap-0 sm:divide-x sm:divide-y-0';
-
-  const fieldShell = 'flex min-h-[52px] flex-1 items-center px-4 sm:min-h-0';
-
+  const pillClass = formClassName ?? DEFAULT_PILL_CLASS;
   const formOverflow = hasBarrios ? 'overflow-visible' : '';
-
   const queryPlaceholder = hasBarrios ? 'Buscar barrio...' : 'Buscar barrio, ciudad o dirección';
 
+  const selectClass =
+    'w-full cursor-pointer appearance-none border-0 bg-transparent bg-[length:1rem] bg-[right_0.25rem_center] bg-no-repeat py-2 pr-7 text-sm font-medium text-text-primary outline-none md:py-1 md:pr-8';
+
   return (
-    <form
-      onSubmit={onSubmit}
-      className={`${pillClass} ${formOverflow} relative`.trim()}
-    >
-      <div className={`${fieldShell} relative z-20 min-w-0 gap-3 sm:overflow-visible`}>
-        <Search className="h-5 w-5 shrink-0 text-naranja" aria-hidden />
+    <form onSubmit={onSubmit} className={`${pillClass} ${formOverflow}`.trim()}>
+      <div
+        className={`${FIELD_SHELL} relative z-20 col-span-2 min-w-0 gap-2 md:col-span-1 md:flex-1 md:gap-3`}
+      >
+        <Search className="h-4 w-4 shrink-0 text-naranja md:h-5 md:w-5" aria-hidden />
         <div className="relative min-w-0 flex-1">
           <input
             type="search"
@@ -134,9 +136,9 @@ export function PublicSearchPill({
             }}
             onBlur={scheduleCloseSuggestions}
             placeholder={queryPlaceholder}
-            className="w-full min-w-0 border-0 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary"
+            className="w-full min-w-0 border-0 bg-transparent py-0 text-sm text-text-primary outline-none placeholder:text-text-secondary"
             autoComplete="off"
-            aria-label="Buscar"
+            aria-label="Buscar ubicación"
             aria-expanded={hasBarrios ? suggestOpen : undefined}
             aria-controls={hasBarrios ? 'hero-barrios-suggestions' : undefined}
             aria-autocomplete={hasBarrios ? 'list' : undefined}
@@ -174,12 +176,12 @@ export function PublicSearchPill({
         </div>
       </div>
 
-      <div className={fieldShell}>
+      <div className={`${FIELD_SHELL} col-span-1 md:flex-1`}>
         <select
           aria-label="Operación"
           value={operacion}
           onChange={(ev) => setOperacion(ev.target.value)}
-          className="w-full cursor-pointer appearance-none border-0 bg-transparent bg-[length:1rem] bg-[right_0.25rem_center] bg-no-repeat py-1 pr-8 text-sm font-medium text-text-primary outline-none"
+          className={selectClass}
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
           }}
@@ -190,12 +192,12 @@ export function PublicSearchPill({
         </select>
       </div>
 
-      <div className={fieldShell}>
+      <div className={`${FIELD_SHELL} col-span-1 md:flex-1`}>
         <select
           aria-label="Tipo de propiedad"
           value={tipo}
           onChange={(ev) => setTipo(ev.target.value)}
-          className="w-full cursor-pointer appearance-none border-0 bg-transparent bg-[length:1rem] bg-[right_0.25rem_center] bg-no-repeat py-1 pr-8 text-sm font-medium text-text-primary outline-none"
+          className={selectClass}
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
           }}
@@ -207,10 +209,10 @@ export function PublicSearchPill({
         </select>
       </div>
 
-      <div className="flex items-center justify-center px-2 pb-1 sm:justify-end sm:pb-0 sm:pl-2 sm:pr-1">
+      <div className="col-span-2 flex w-full items-center justify-center px-1 pb-0.5 md:col-span-1 md:w-auto md:justify-end md:px-2 md:pb-0">
         <button
           type="submit"
-          className="rounded-full bg-naranja px-8 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-naranja/90"
+          className="w-full rounded-full bg-naranja px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-naranja/90 md:w-auto md:px-8 md:py-3"
         >
           Buscar
         </button>

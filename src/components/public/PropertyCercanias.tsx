@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Bus,
@@ -29,6 +30,7 @@ type PropertyCercaniasProps = {
 };
 
 const ICON_CLASS = 'text-verde';
+const COLLAPSED_CATEGORY_COUNT = 2;
 
 const CATEGORY_META: Record<CercaniasCategoryKey, { label: string; icon: LucideIcon }> = {
   educacion: { label: 'Educación', icon: GraduationCap },
@@ -111,19 +113,32 @@ function buildCategoryItems(
 }
 
 export default function PropertyCercanias({ categorias, loading, error }: PropertyCercaniasProps) {
-  const blocks = categorias
-    ? CERCANIAS_CATEGORY_ORDER.filter((key) => categorias[key].length > 0).map((key) => {
-        const meta = CATEGORY_META[key];
-        return (
-          <CategoryBlock
-            key={key}
-            label={meta.label}
-            icon={meta.icon}
-            items={buildCategoryItems(key, categorias)}
-          />
-        );
-      })
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const activeKeys = categorias
+    ? CERCANIAS_CATEGORY_ORDER.filter((key) => categorias[key].length > 0)
     : [];
+
+  const visibleKeys =
+    isExpanded || activeKeys.length <= COLLAPSED_CATEGORY_COUNT
+      ? activeKeys
+      : activeKeys.slice(0, COLLAPSED_CATEGORY_COUNT);
+
+  const blocks =
+    categorias &&
+    visibleKeys.map((key) => {
+      const meta = CATEGORY_META[key];
+      return (
+        <CategoryBlock
+          key={key}
+          label={meta.label}
+          icon={meta.icon}
+          items={buildCategoryItems(key, categorias)}
+        />
+      );
+    });
+
+  const hasMoreCategories = activeKeys.length > COLLAPSED_CATEGORY_COUNT;
 
   return (
     <section className={CARD_CLASS} aria-busy={loading}>
@@ -136,13 +151,25 @@ export default function PropertyCercanias({ categorias, loading, error }: Proper
         </div>
       ) : error ? (
         <p className="text-sm text-gray-500">{error}</p>
-      ) : blocks.length === 0 ? (
+      ) : !blocks || blocks.length === 0 ? (
         <div className="flex items-center gap-3 text-gray-500">
           <MapPinOff className="h-5 w-5 shrink-0" aria-hidden />
           <p className="text-sm">No hay puntos de interés registrados cerca de esta ubicación.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">{blocks}</div>
+        <>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">{blocks}</div>
+          {hasMoreCategories ? (
+            <button
+              type="button"
+              onClick={() => setIsExpanded((open) => !open)}
+              className="mt-6 text-sm font-semibold text-verde transition-colors hover:text-verde-dark"
+              aria-expanded={isExpanded}
+            >
+              {isExpanded ? 'Mostrar menos' : 'Mostrar todo el entorno'}
+            </button>
+          ) : null}
+        </>
       )}
     </section>
   );

@@ -33,7 +33,7 @@ export function PropiedadUbicacionMap({
   activeCategorias,
 }: Props) {
   return (
-    <div className="h-[400px] w-full overflow-hidden rounded-2xl border border-gray-200">
+    <div className="h-[280px] w-full min-w-0 overflow-hidden rounded-xl border border-gray-200 sm:h-[360px] sm:rounded-2xl md:h-[400px]">
       <PropiedadUbicacionMapInner
         titulo={titulo}
         latitud={latitud}

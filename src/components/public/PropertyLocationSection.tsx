@@ -95,7 +95,7 @@ export default function PropertyLocationSection({
   }, []);
 
   return (
-    <section className="space-y-6">
+    <section className="w-full min-w-0 space-y-6 overflow-hidden">
       <PropiedadUbicacionMap
         titulo={titulo}
         latitud={lat}

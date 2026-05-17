@@ -83,8 +83,8 @@ export function PropertyGallery({ imagenes }: Props) {
 
   return (
     <>
-      <section className="relative mt-10" aria-label="Galería de imágenes">
-        <div className="relative grid h-[50vh] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-2xl md:h-[60vh]">
+      <section className="relative mt-6 w-full min-w-0 sm:mt-10" aria-label="Galería de imágenes">
+        <div className="relative grid h-[42vh] min-h-[240px] w-full grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-xl sm:h-[50vh] sm:rounded-2xl md:h-[60vh]">
           {/* Principal */}
           <div
             className="group relative col-span-4 row-span-2 min-h-0 cursor-pointer overflow-hidden md:col-span-2"

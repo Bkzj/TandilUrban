@@ -21,11 +21,11 @@ export default function HeroSearch({
   formClassName,
 }: HeroSearchProps) {
   const compactPillClass =
-    'mx-auto flex w-full max-w-5xl flex-col gap-2 divide-y divide-gray-200 rounded-full border border-white/15 bg-white/95 p-2 shadow-xl backdrop-blur-md sm:flex-row sm:items-stretch sm:gap-0 sm:divide-x sm:divide-y-0';
+    'mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 rounded-2xl border border-white/15 bg-white/95 p-3 shadow-xl backdrop-blur-md md:flex md:flex-row md:items-end md:gap-0 md:divide-x md:divide-gray-200 md:rounded-full md:p-2';
 
   const fullPillClass =
     formClassName ??
-    'relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-3 divide-y divide-gray-200/90 overflow-visible rounded-full border border-white/30 bg-white/92 p-3 shadow-2xl backdrop-blur-xl sm:flex-row sm:items-stretch sm:gap-0 sm:divide-x sm:divide-y-0';
+    'relative z-10 mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 overflow-visible rounded-3xl border-0 bg-white p-4 shadow-xl md:flex md:flex-row md:items-end md:gap-0 md:divide-x md:divide-gray-200/90 md:rounded-full md:border md:border-white/30 md:bg-white/92 md:p-3 md:shadow-2xl md:backdrop-blur-xl';
 
   if (compact) {
     return (

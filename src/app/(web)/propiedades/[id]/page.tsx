@@ -1,15 +1,4 @@
 import { notFound } from 'next/navigation';
-import type { LucideIcon } from 'lucide-react';
-import {
-  Waves,
-  UtensilsCrossed,
-  Car,
-  TreePine,
-  Shield,
-  Sun,
-  Snowflake,
-  Check,
-} from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import { prisma } from '@/lib/prisma';
@@ -17,21 +6,8 @@ import { prisma } from '@/lib/prisma';
 import { PropertyGallery } from '@/components/propiedades/PropertyGallery';
 import PropertyLocationSection from '@/components/public/PropertyLocationSection';
 import { PropertyContactForm } from '@/components/public/PropertyContactForm';
-
-const iconMap: Record<string, LucideIcon> = {
-  Piscina: Waves,
-  Quincho: UtensilsCrossed,
-  Cochera: Car,
-  Jardín: TreePine,
-  Seguridad: Shield,
-  Balcón: Sun,
-  'Aire acondicionado': Snowflake,
-};
-
-function ComodidadIcon({ label }: { label: string }) {
-  const Icon = iconMap[label] ?? Check;
-  return <Icon className="h-5 w-5 shrink-0 text-emerald-700" aria-hidden />;
-}
+import ExpandableText from '@/components/public/ExpandableText';
+import ExpandableAmenities from '@/components/public/ExpandableAmenities';
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -73,9 +49,9 @@ export default async function PropiedadPage({ params }: PageProps) {
     <main className="min-h-screen bg-white pb-20 font-sans text-gray-900">
       <Navbar />
 
-      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8">
         {/* 1. Encabezado */}
-        <header className="border-b border-gray-200 pb-8">
+        <header className="border-b border-gray-200 pb-6 sm:pb-8">
           <div className="mb-4 flex flex-wrap gap-2">
             <span className="rounded-full bg-gray-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
               {operacionLabel}
@@ -84,15 +60,17 @@ export default async function PropiedadPage({ params }: PageProps) {
               {tipoLabel}
             </span>
           </div>
-          <h1 className="text-4xl font-bold leading-tight text-gray-900">{propiedad.titulo}</h1>
-          <p className="mt-3 text-2xl font-semibold text-naranja">{precioFmt}</p>
-          <p className="mt-2 text-base text-gray-500">{direccionCompleta}</p>
+          <h1 className="text-2xl font-bold leading-tight text-gray-900 sm:text-3xl lg:text-4xl">
+            {propiedad.titulo}
+          </h1>
+          <p className="mt-3 text-xl font-semibold text-naranja sm:text-2xl">{precioFmt}</p>
+          <p className="mt-2 text-sm text-gray-500 sm:text-base">{direccionCompleta}</p>
         </header>
 
         <PropertyGallery imagenes={propiedad.imagenes} />
 
         {/* Barra de métricas (debajo de la galería, encima del grid de 2 columnas) */}
-        <div className="mt-8 flex flex-wrap gap-x-10 gap-y-6 border-b border-gray-200 pb-8">
+        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-4 border-b border-gray-200 pb-6 sm:mt-8 sm:gap-x-10 sm:gap-y-6 sm:pb-8">
           <div className="flex min-w-[4.5rem] flex-col gap-1">
             <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Dormitorios</span>
             <span className="text-2xl font-semibold text-gray-900">{propiedad.dormitorios}</span>
@@ -115,30 +93,18 @@ export default async function PropiedadPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Cuerpo: 2 columnas */}
-        <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-3">
-          <div className="space-y-12 lg:col-span-2">
+        {/* Cuerpo: 1 col móvil · 2+1 desktop */}
+        <div className="mt-8 grid grid-cols-1 gap-8 sm:mt-12 sm:gap-10 lg:grid-cols-3 lg:gap-12">
+          <div className="min-w-0 space-y-8 sm:space-y-12 lg:col-span-2">
             <section>
               <h2 className="mb-4 text-2xl font-bold text-gray-900">Descripción</h2>
-              <p className="whitespace-pre-wrap text-lg leading-relaxed text-gray-700">
-                {propiedad.descripcion}
-              </p>
+              <ExpandableText text={propiedad.descripcion ?? ''} />
             </section>
 
             {propiedad.caracteristicas.length > 0 ? (
               <section>
                 <h2 className="mb-4 text-2xl font-bold text-gray-900">Comodidades</h2>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                  {propiedad.caracteristicas.map((c) => (
-                    <div
-                      key={c}
-                      className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm"
-                    >
-                      <ComodidadIcon label={c} />
-                      <span className="text-sm font-medium">{c}</span>
-                    </div>
-                  ))}
-                </div>
+                <ExpandableAmenities items={propiedad.caracteristicas} />
               </section>
             ) : null}
 
@@ -154,8 +120,8 @@ export default async function PropiedadPage({ params }: PageProps) {
             ) : null}
           </div>
 
-          <aside className="lg:col-span-1">
-            <div className="sticky top-8 space-y-8 rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+          <aside className="min-w-0 lg:col-span-1">
+            <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-lg sm:space-y-8 sm:p-6 lg:sticky lg:top-24 lg:p-8">
               <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Inmobiliaria</p>
               <p className="mt-1 text-lg font-bold text-emerald-800">{agenciaNombre}</p>
               <p className="mt-6 text-xs font-bold uppercase tracking-wide text-gray-500">

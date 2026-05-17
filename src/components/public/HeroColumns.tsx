@@ -1,8 +1,48 @@
 'use client';
 
 import { type ReactNode, useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Building2, ChevronDown, Home, Star, Users, type LucideIcon } from 'lucide-react';
 
 import { HERO_VIDEO_SRC, HERO_VIDEO_STILL, IMAGENES_HOME } from '@/constants/home';
+
+const MOBILE_CATEGORIES: {
+  id: string;
+  titulo: string;
+  icono: LucideIcon;
+  imagen: string;
+  href: string;
+}[] = [
+  {
+    id: 'propiedades',
+    titulo: 'Propiedades',
+    icono: Home,
+    imagen: IMAGENES_HOME.propiedades,
+    href: '/buscar',
+  },
+  {
+    id: 'destacados',
+    titulo: 'Destacados',
+    icono: Star,
+    imagen: IMAGENES_HOME.destacados,
+    href: '/buscar?destacados=true',
+  },
+  {
+    id: 'emprendimientos',
+    titulo: 'Emprendimientos',
+    icono: Building2,
+    imagen: IMAGENES_HOME.tasaciones,
+    href: '/emprendimientos',
+  },
+  {
+    id: 'nosotros',
+    titulo: 'Nosotros',
+    icono: Users,
+    imagen: IMAGENES_HOME.nosotros,
+    href: '/nosotros',
+  },
+];
 
 const IconoModerno = ({ nombre }: { nombre: string }) => {
   const baseClasses = 'mb-4 h-10 w-10 text-white/95 drop-shadow-md md:h-12 md:w-12';
@@ -64,11 +104,50 @@ const COLUMNAS = [
 ] as const;
 
 type HeroColumnsProps = {
-  /** Buscador centrado (p. ej. HeroSearch con autocomplete). */
   children: ReactNode;
 };
 
-export function HeroColumns({ children }: HeroColumnsProps) {
+function HeroMobile({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-col bg-background md:hidden">
+      <div className="grid w-full grid-cols-2 gap-0">
+        {MOBILE_CATEGORIES.map((cat) => {
+          const Icon = cat.icono;
+          return (
+            <Link
+              key={cat.id}
+              href={cat.href}
+              className="group block w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-verde"
+            >
+              <div className="relative aspect-square w-full overflow-hidden group">
+                <Image
+                  src={cat.imagen}
+                  alt={cat.titulo}
+                  fill
+                  sizes="50vw"
+                  priority={cat.id === 'propiedades' || cat.id === 'destacados'}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"
+                  aria-hidden
+                />
+                <div className="absolute bottom-3 left-3 flex flex-col gap-1 text-white">
+                  <Icon className="h-5 w-5 drop-shadow-sm" strokeWidth={2} aria-hidden />
+                  <span className="text-sm font-semibold drop-shadow-sm">{cat.titulo}</span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="relative z-10 bg-gray-50/50 px-4 pb-6 pt-6">{children}</div>
+    </div>
+  );
+}
+
+function HeroDesktop({ children }: { children: ReactNode }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoBroken, setVideoBroken] = useState(false);
 
@@ -89,7 +168,7 @@ export function HeroColumns({ children }: HeroColumnsProps) {
   }, [videoBroken]);
 
   return (
-    <section className="relative flex min-h-[100dvh] h-screen w-full flex-col overflow-hidden bg-black">
+    <section className="relative flex h-screen min-h-[100dvh] w-full flex-col overflow-hidden bg-black">
       <div
         className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url('${HERO_VIDEO_STILL}')` }}
@@ -110,7 +189,10 @@ export function HeroColumns({ children }: HeroColumnsProps) {
           aria-hidden
         />
       ) : null}
-      <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/35 via-black/20 to-black/55" />
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/35 via-black/20 to-black/55"
+        aria-hidden
+      />
 
       <div className="absolute inset-0 z-10 flex min-h-0 w-full flex-row">
         {COLUMNAS.map((col) => (
@@ -125,21 +207,21 @@ export function HeroColumns({ children }: HeroColumnsProps) {
             />
             <div className="pointer-events-none absolute inset-0 z-[2] bg-black/35 transition-colors duration-500 group-hover:bg-black/45" />
 
-            <div className="relative z-20 flex w-full flex-col items-center justify-center px-3 text-center md:px-4">
+            <div className="relative z-20 flex w-full flex-col items-center justify-center px-4 text-center">
               <span className="mb-5 scale-100 transition-transform duration-500 group-hover:scale-110">
                 {col.icono}
               </span>
-              <div className="flex w-full max-w-[14rem] flex-col items-center gap-2 md:max-w-none">
+              <div className="flex w-full flex-col items-center gap-2">
                 <div className="flex w-full items-center justify-center gap-3">
-                  <span className="h-px w-8 shrink-0 bg-white/50 md:w-12" />
-                  <h2 className="text-lg font-extralight uppercase tracking-[0.28em] text-white drop-shadow-lg md:text-2xl md:tracking-[0.32em] lg:text-3xl">
+                  <span className="h-px w-12 shrink-0 bg-white/50" />
+                  <h2 className="text-2xl font-extralight uppercase tracking-[0.32em] text-white drop-shadow-lg lg:text-3xl">
                     {col.titulo.map((linea, i) => (
                       <span key={i} className="block leading-tight">
                         {linea}
                       </span>
                     ))}
                   </h2>
-                  <span className="h-px w-8 shrink-0 bg-white/50 md:w-12" />
+                  <span className="h-px w-12 shrink-0 bg-white/50" />
                 </div>
               </div>
             </div>
@@ -148,15 +230,27 @@ export function HeroColumns({ children }: HeroColumnsProps) {
       </div>
 
       <div className="pointer-events-none absolute inset-0 z-30 flex min-h-0 flex-col">
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-end px-4 pb-5 pt-20 sm:pb-6 md:pb-8">
-          <div className="pointer-events-auto w-full max-w-6xl">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-end px-4 pb-5 pt-20 lg:pb-8">
+          <div className="pointer-events-auto w-full max-w-6xl min-w-0">{children}</div>
         </div>
-        <div className="pointer-events-none shrink-0 pb-8 pt-1 text-center md:pb-10">
-          <p className="bg-gradient-to-r from-white/90 via-white/45 to-white/20 bg-clip-text text-[0.7rem] font-semibold uppercase tracking-[0.55em] text-transparent md:text-xs md:tracking-[0.65em]">
+        <div className="pointer-events-none flex shrink-0 flex-col items-center gap-2 pb-10 pt-1">
+          <ChevronDown className="h-7 w-7 animate-bounce text-white/70" aria-hidden />
+          <p className="bg-gradient-to-r from-white/90 via-white/45 to-white/20 bg-clip-text text-xs font-semibold uppercase tracking-[0.65em] text-transparent">
             OPORTUNIDADES
           </p>
         </div>
       </div>
     </section>
+  );
+}
+
+export function HeroColumns({ children }: HeroColumnsProps) {
+  return (
+    <>
+      <HeroMobile>{children}</HeroMobile>
+      <div className="hidden md:block">
+        <HeroDesktop>{children}</HeroDesktop>
+      </div>
+    </>
   );
 }

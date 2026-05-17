@@ -44,9 +44,9 @@ export default function PropertyCard({
   };
 
   return (
-    <Link href={`/propiedades/${id}`}>
+    <Link href={`/propiedades/${id}`} className="block h-full w-full min-w-0">
       <motion.div
-        className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border-light bg-surface shadow-lg transition-all duration-300 hover:shadow-2xl"
+        className="group relative flex h-full w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-2xl border border-border-light bg-surface shadow-lg transition-all duration-300 hover:shadow-2xl"
         style={{ rotateX, rotateY, transformPerspective: 1200 }}
         onMouseMove={handleMouseMove}
         onMouseLeave={resetTilt}

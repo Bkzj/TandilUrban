@@ -72,10 +72,15 @@ function PropsGridReveal({ propiedades }: { propiedades: HomePropiedadListItem[]
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: '-6% 0px', amount: 0.12 }}
-      className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+      className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
     >
-      {propiedades.map((prop) => (
-        <motion.div key={prop.id} variants={fadeSlideUpItem} layout>
+      {propiedades.map((prop, index) => (
+        <motion.div
+          key={prop.id}
+          variants={fadeSlideUpItem}
+          layout
+          className={`w-full min-w-0 ${index >= 4 ? 'hidden md:block' : ''}`}
+        >
           <PropertyCard
             id={prop.id}
             titulo={prop.titulo}
@@ -110,18 +115,20 @@ export default function HomeClient({ propiedades, barrios }: HomeClientProps) {
         <HeroSearch barrios={barrios} />
       </HeroColumns>
 
-      <section id="oportunidades" className="mx-auto w-full max-w-7xl px-4 py-20">
+      <section id="oportunidades" className="mx-auto w-full max-w-7xl px-4 pb-12 pt-4 md:px-6 md:py-20">
         <ScrollRevealHeading>
-          <div className="mb-10 flex items-end justify-between">
+          <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="mb-2 text-3xl font-bold uppercase tracking-widest text-text-primary">Oportunidades</h2>
+              <h2 className="mb-2 text-3xl font-bold uppercase tracking-widest text-text-primary md:text-5xl">
+                Oportunidades
+              </h2>
               <p className="font-light text-text-secondary">
                 Descubre las propiedades más exclusivas ingresadas esta semana.
               </p>
             </div>
             <Link
               href="/buscar"
-              className="text-sm font-semibold uppercase tracking-wider text-verde transition-colors hover:text-naranja"
+              className="shrink-0 text-sm font-semibold uppercase tracking-wider text-verde transition-colors hover:text-naranja"
             >
               Ver todas →
             </Link>

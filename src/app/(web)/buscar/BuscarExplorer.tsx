@@ -103,7 +103,7 @@ export function BuscarExplorer({
       />
 
       <div className="flex w-full items-start">
-        <div className="w-full p-6 lg:w-1/2 xl:w-[60%]">
+        <div className="w-full min-w-0 p-4 sm:p-6 lg:w-1/2 xl:w-[60%]">
           <header className="mb-8">
             <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">
               {propiedades.length}{' '}
@@ -119,9 +119,9 @@ export function BuscarExplorer({
               No hay resultados para esta búsqueda. Probá otras palabras o filtros.
             </p>
           ) : (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2">
               {propiedades.map((p) => (
-                <div key={p.id} data-buscar-card-id={p.id} className="scroll-mt-6">
+                <div key={p.id} data-buscar-card-id={p.id} className="scroll-mt-6 w-full min-w-0">
                   <PropertyCardPublic propiedad={p} />
                 </div>
               ))}

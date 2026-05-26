@@ -4,7 +4,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 
 import ReactLenis from '@studio-freight/react-lenis';
 import { SessionProvider } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useClientMounted } from '@/hooks/use-client-mounted';
 
 type LenisChild = Exclude<
   ComponentPropsWithoutRef<typeof ReactLenis>['children'],
@@ -17,11 +17,7 @@ function lenisClamp(children: React.ReactNode): LenisChild {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [lenisReady, setLenisReady] = useState(false);
-
-  useEffect(() => {
-    setLenisReady(true);
-  }, []);
+  const lenisReady = useClientMounted();
 
   return (
     <SessionProvider>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import type { PanelLeadEstado, PanelLeadRow } from '@/types/panel';
 
@@ -50,17 +50,24 @@ function EstadoBadge({ estado }: { estado: PanelLeadEstado }) {
 }
 
 export function LeadsTable({ leads: initialLeads }: Props) {
+  const leadsKey = initialLeads.map((l) => l.id).join('\0');
   const [leads, setLeads] = useState(initialLeads);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [syncedLeadsKey, setSyncedLeadsKey] = useState(leadsKey);
 
-  useEffect(() => {
+  if (syncedLeadsKey !== leadsKey) {
+    setSyncedLeadsKey(leadsKey);
     setLeads(initialLeads);
-  }, [initialLeads]);
+  }
 
   const openLead = leads.find((l) => l.id === openId) ?? null;
 
   const onLeadUpdated = useCallback((id: string, estado: PanelLeadEstado) => {
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, estado } : l)));
+  }, []);
+
+  const onLeadVisitasUpdated = useCallback((id: string, visitasFisicas: number) => {
+    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, visitasFisicas } : l)));
   }, []);
 
   if (initialLeads.length === 0 && leads.length === 0) {
@@ -148,7 +155,12 @@ export function LeadsTable({ leads: initialLeads }: Props) {
       </div>
 
       {openLead ? (
-        <LeadQuickView lead={openLead} onClose={() => setOpenId(null)} onLeadUpdated={onLeadUpdated} />
+        <LeadQuickView
+          lead={openLead}
+          onClose={() => setOpenId(null)}
+          onLeadUpdated={onLeadUpdated}
+          onVisitasUpdated={onLeadVisitasUpdated}
+        />
       ) : null}
     </>
   );

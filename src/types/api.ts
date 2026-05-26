@@ -11,7 +11,7 @@ export type RegisterPayload = {
 export type ContactoPayload = {
   nombre: string;
   email: string;
-  telefono?: string | null;
+  telefono: string;
   mensaje: string;
   propiedadId: string;
 };
@@ -45,6 +45,7 @@ export type CreatePropiedadPayload = {
   expensas?: number | null;
   caracteristicas: string[];
   imagenes: PropiedadImagenItem[];
+  planoUrl?: string | null;
   titulo: string;
   descripcion: string;
 };

@@ -18,14 +18,10 @@ function validarPayload(body: unknown): { ok: true; data: ContactoPayload } | { 
     return { ok: false, error: 'El email no tiene un formato valido.' };
   }
 
-  let telefonoNorm: string | null = null;
-  if (telefono !== undefined && telefono !== null) {
-    if (typeof telefono !== 'string') {
-      return { ok: false, error: 'El telefono debe ser texto.' };
-    }
-    const t = telefono.trim();
-    telefonoNorm = t.length > 0 ? t : null;
+  if (typeof telefono !== 'string' || telefono.trim().length < 6) {
+    return { ok: false, error: 'El teléfono es obligatorio (mínimo 6 caracteres).' };
   }
+  const telefonoNorm = telefono.trim();
 
   if (typeof mensaje !== 'string' || mensaje.trim().length < 10) {
     return { ok: false, error: 'El mensaje es obligatorio y debe tener al menos 10 caracteres.' };
@@ -95,7 +91,7 @@ export async function POST(request: Request) {
         data: {
           nombre: payload.data.nombre,
           email: payload.data.email,
-          telefono: payload.data.telefono ?? null,
+          telefono: payload.data.telefono,
           mensaje: payload.data.mensaje,
           propiedadId: payload.data.propiedadId,
         },

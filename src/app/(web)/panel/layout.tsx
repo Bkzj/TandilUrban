@@ -18,9 +18,11 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-text-primary via-verde-dark to-naranja-dark text-white">
-      <PanelHeader />
-      <div className="pt-4">{children}</div>
+    <div className="min-h-screen bg-gradient-to-br from-text-primary via-verde-dark to-naranja-dark text-white print:bg-white print:text-gray-900">
+      <div className="print:hidden">
+        <PanelHeader />
+      </div>
+      {children}
     </div>
   );
 }

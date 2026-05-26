@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
@@ -64,7 +65,13 @@ export default function PropertyCard({
           {esSustentable && (
             <div className="absolute right-4 top-4 z-10 rounded-full bg-verde-hover px-3 py-1 text-xs font-bold text-surface shadow-md">🌱 Sustentable</div>
           )}
-          <img src={imagenUrl} alt={titulo} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" />
+          <Image
+            src={imagenUrl}
+            alt={titulo}
+            fill
+            sizes="(max-width: 768px) 100vw, 400px"
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
         </div>
 
         <div className="p-6 flex flex-col flex-grow">

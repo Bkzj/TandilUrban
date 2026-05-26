@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -54,6 +55,8 @@ model User {
 
   verificationTokens VerificationToken[]
   propiedadesComoAgente Propiedad[] @relation("PropiedadAgente")
+  favoritos             Propiedad[] @relation("UsuarioFavoritos")
+  visitasFisicasRegistradas VisitaFisicaEvento[] @relation("VisitaFisicaRegistradaPor")
 
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
@@ -66,7 +69,13 @@ model Inmobiliaria {
   userId        String  @unique
   user          User    @relation("PerfilInmobiliaria", fields: [userId], references: [id], onDelete: Cascade)
   nombreAgencia String
+  /** Logo público B2B (vidriera, fichas). Si falta, puede usarse `logoAgencia` legacy. */
+  logoUrl       String?
   logoAgencia   String?
+  /** Texto corto para el directorio público de inmobiliarias. */
+  bio           String?  @db.Text
+  /** Aparece en el carrusel / bloque destacado del directorio. */
+  destacada     Boolean  @default(false)
   cuit          String  @unique
   direccion     String
 
@@ -105,13 +114,17 @@ model Propiedad {
   caracteristicas String[]
   /** Fotos: `{ url, public_id?, categoria? }[]` persistido como JSONB */
   imagenes          Json              @default("[]")
+  /** Plano / croquis (URL Cloudinary u otra entrega HTTPS). */
+  planoUrl          String?
 
   visitas    Int @default(0)
   consultas Int @default(0)
 
-  contactos Contacto[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  contactos            Contacto[]
+  visitasFisicasEventos VisitaFisicaEvento[]
+  favoritadosPor       User[]     @relation("UsuarioFavoritos")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   @@index([inmobiliariaId])
   @@index([estado])
@@ -125,15 +138,37 @@ model Contacto {
   id          String         @id @default(cuid())
   nombre      String
   email       String
-  telefono    String?
-  mensaje     String         @db.Text
-  propiedadId String
-  propiedad   Propiedad      @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
-  estado      EstadoContacto @default(NUEVO)
-  createdAt   DateTime       @default(now())
+  telefono         String?
+  mensaje          String         @db.Text
+  propiedadId      String
+  propiedad        Propiedad      @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  estado           EstadoContacto @default(NUEVO)
+  /** Visitas presenciales coordinadas para este lead. */
+  visitasFisicas   Int            @default(0)
+  createdAt        DateTime       @default(now())
+
+  visitasFisicasEventos VisitaFisicaEvento[]
 
   @@index([propiedadId])
   @@index([estado])
+}
+
+/** Registro de cada visita presencial (+1 / -1) para historial y métricas. */
+model VisitaFisicaEvento {
+  id              String   @id @default(cuid())
+  contactoId      String
+  contacto        Contacto @relation(fields: [contactoId], references: [id], onDelete: Cascade)
+  propiedadId     String
+  propiedad       Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  registradoPorId String
+  registradoPor   User     @relation("VisitaFisicaRegistradaPor", fields: [registradoPorId], references: [id], onDelete: Cascade)
+  /** +1 al sumar visita, -1 al restar. */
+  delta           Int
+  createdAt       DateTime @default(now())
+
+  @@index([contactoId])
+  @@index([propiedadId])
+  @@index([registradoPorId])
 }
 
 model PuntoInteres {

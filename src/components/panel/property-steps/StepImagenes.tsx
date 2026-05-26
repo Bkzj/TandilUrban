@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Award, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 import type { PropiedadImagenItem, StepProps } from '@/types/panel';
 
@@ -12,6 +12,7 @@ import { useBlobImageFilesContext } from './BlobImageFilesContext';
 import { StepHeading, UploadCard } from './step-ui';
 
 const MAX_BYTES = 10 * 1024 * 1024;
+const MAX_PLANO_BYTES = 12 * 1024 * 1024;
 /** Máximo de fotos por propiedad (lujo / payload fragmentado por lotes). */
 export const MAX_PROP_IMAGES = 80;
 const BATCH_SIZE = 15;
@@ -89,6 +90,36 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
       blobFiles?.unregisterBlob(item.url);
       URL.revokeObjectURL(item.url);
     }
+  }
+
+  function onPlanoFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    const okType =
+      file.type.startsWith('image/') ||
+      file.type === 'application/pdf' ||
+      file.name.toLowerCase().endsWith('.pdf');
+    if (!okType || file.size > MAX_PLANO_BYTES) return;
+
+    const prev = data.planoUrl;
+    if (prev.startsWith('blob:')) {
+      blobFiles?.unregisterBlob(prev);
+      URL.revokeObjectURL(prev);
+    }
+
+    const url = URL.createObjectURL(file);
+    blobFiles?.registerBlob(url, file);
+    update('planoUrl', url);
+  }
+
+  function removePlano() {
+    const prev = data.planoUrl;
+    if (prev.startsWith('blob:')) {
+      blobFiles?.unregisterBlob(prev);
+      URL.revokeObjectURL(prev);
+    }
+    update('planoUrl', '');
   }
 
   function moveImage(index: number, direction: number) {
@@ -186,6 +217,52 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
           ? 'Organizá, sumá o eliminá imágenes'
           : 'Subí las mejores fotos de la propiedad'}
       </StepHeading>
+
+      <section className="mt-6 rounded-2xl border border-naranja/25 bg-naranja/5 p-4 md:p-5">
+        <div className="flex gap-3">
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-naranja/20 text-naranja"
+            aria-hidden
+          >
+            <Award className="h-5 w-5" strokeWidth={2.25} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold leading-snug text-surface">
+              Subir el plano de la propiedad aumenta un 40% las consultas. ¡Destacá tu publicación!
+            </p>
+            <p className="mt-1 text-xs text-surface/55">JPG, PNG o PDF · hasta 12 MB</p>
+          </div>
+        </div>
+
+        {data.planoUrl ? (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface/15 bg-black/25 px-4 py-3">
+            <p className="truncate text-sm text-surface/85">
+              {data.planoUrl.startsWith('blob:') ? 'Plano listo para subir' : 'Plano cargado'}
+            </p>
+            <button
+              type="button"
+              onClick={removePlano}
+              disabled={isProcessing}
+              className="inline-flex items-center gap-1 rounded-lg border border-surface/20 px-3 py-1.5 text-xs font-semibold text-surface/80 transition hover:border-naranja/40 hover:text-naranja-light"
+            >
+              <X className="h-3.5 w-3.5" aria-hidden />
+              Quitar
+            </button>
+          </div>
+        ) : (
+          <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-naranja/35 bg-black/20 px-4 py-6 text-center transition hover:border-naranja/60 hover:bg-naranja/10">
+            <span className="text-sm font-semibold text-naranja-light">Adjuntar plano</span>
+            <span className="mt-1 text-xs text-surface/50">Tocá para elegir archivo</span>
+            <input
+              type="file"
+              accept="image/*,application/pdf,.pdf"
+              className="sr-only"
+              disabled={isProcessing}
+              onChange={onPlanoFile}
+            />
+          </label>
+        )}
+      </section>
 
       <label className="mt-4 block">
         <span className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-surface/55">

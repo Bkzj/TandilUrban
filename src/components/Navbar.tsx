@@ -4,16 +4,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Heart, Menu, User, X } from 'lucide-react';
 
 import { roleCanAccessPanel } from '@/lib/rbac';
 import type { SessionUserAugmented } from '@/types/auth';
 
 const NAV_LINKS = [
-  { href: '/#oportunidades', label: 'Propiedades' },
-  { href: '#', label: 'Destacados' },
-  { href: '#', label: 'Servicios' },
-  { href: '#', label: 'Nosotros' },
+  { href: '/buscar', label: 'Propiedades' },
+  { href: '/destacados', label: 'Destacados' },
+  { href: '/servicios', label: 'Servicios' },
+  { href: '/nosotros', label: 'Nosotros' },
 ] as const;
 
 export default function Navbar() {
@@ -67,6 +67,13 @@ export default function Navbar() {
   const showPanelLink = Boolean(session && roleCanAccessPanel(sessionRole));
 
   const closeMobileNav = () => setMobileNavOpen(false);
+  const isAuthenticated = Boolean(session);
+
+  const favoritesLinkClass =
+    'flex h-10 w-10 items-center justify-center rounded-xl border border-surface/25 bg-surface/10 text-surface transition hover:bg-surface/20 hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-naranja-light';
+
+  const menuItemClass =
+    'flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition hover:bg-verde-light hover:text-verde-dark';
 
   return (
     <nav className="relative z-50 w-full bg-verde text-surface shadow-lg">
@@ -74,9 +81,10 @@ export default function Navbar() {
         <Link
           href="/"
           onClick={closeMobileNav}
+          aria-label="Propea Group — inicio"
           className="shrink-0 cursor-pointer text-xl font-serif font-bold uppercase tracking-widest drop-shadow-md sm:text-2xl md:text-3xl"
         >
-          Pietra Miliare
+          Propea Group
         </Link>
 
         {/* Enlaces — desktop */}
@@ -129,7 +137,16 @@ export default function Navbar() {
                 </Link>
               </>
             ) : (
-              <div className="relative" ref={userMenuRef}>
+              <>
+                <Link
+                  href="/perfil/favoritos"
+                  className={favoritesLinkClass}
+                  aria-label="Mis favoritos"
+                  title="Mis favoritos"
+                >
+                  <Heart className="h-5 w-5" aria-hidden />
+                </Link>
+                <div className="relative" ref={userMenuRef}>
                 <button
                   type="button"
                   onClick={() => setUserMenuOpen((open) => !open)}
@@ -172,20 +189,29 @@ export default function Navbar() {
                           role="menuitem"
                           href="/panel"
                           onClick={() => setUserMenuOpen(false)}
-                          className="block px-4 py-2.5 text-sm font-medium transition hover:bg-verde-light hover:text-verde-dark"
+                          className={menuItemClass}
                         >
                           Panel
                         </Link>
-                      ) : (
-                        <Link
-                          role="menuitem"
-                          href="/perfil"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="block px-4 py-2.5 text-sm font-medium transition hover:bg-verde-light hover:text-verde-dark"
-                        >
-                          Mi perfil
-                        </Link>
-                      )}
+                      ) : null}
+                      <Link
+                        role="menuitem"
+                        href="/perfil"
+                        onClick={() => setUserMenuOpen(false)}
+                        className={menuItemClass}
+                      >
+                        <User className="h-4 w-4 shrink-0" aria-hidden />
+                        Mi Perfil
+                      </Link>
+                      <Link
+                        role="menuitem"
+                        href="/perfil/favoritos"
+                        onClick={() => setUserMenuOpen(false)}
+                        className={menuItemClass}
+                      >
+                        <Heart className="h-4 w-4 shrink-0 text-red-500" aria-hidden />
+                        Favoritos
+                      </Link>
                       <button
                         type="button"
                         role="menuitem"
@@ -201,8 +227,20 @@ export default function Navbar() {
                   ) : null}
                 </AnimatePresence>
               </div>
+              </>
             )}
           </div>
+
+          {isAuthenticated ? (
+            <Link
+              href="/perfil/favoritos"
+              className={`${favoritesLinkClass} md:hidden`}
+              aria-label="Mis favoritos"
+              title="Mis favoritos"
+            >
+              <Heart className="h-5 w-5" aria-hidden />
+            </Link>
+          ) : null}
 
           {/* Menú hamburguesa — móvil */}
           <button
@@ -267,19 +305,27 @@ export default function Navbar() {
                     <Link
                       href="/panel"
                       onClick={closeMobileNav}
-                      className="block rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-surface/10"
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-surface/10"
                     >
                       Panel
                     </Link>
-                  ) : (
-                    <Link
-                      href="/perfil"
-                      onClick={closeMobileNav}
-                      className="block rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-surface/10"
-                    >
-                      Mi perfil
-                    </Link>
-                  )}
+                  ) : null}
+                  <Link
+                    href="/perfil"
+                    onClick={closeMobileNav}
+                    className="flex items-center gap-2.5 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-surface/10"
+                  >
+                    <User className="h-4 w-4 shrink-0" aria-hidden />
+                    Mi Perfil
+                  </Link>
+                  <Link
+                    href="/perfil/favoritos"
+                    onClick={closeMobileNav}
+                    className="flex items-center gap-2.5 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-surface/10"
+                  >
+                    <Heart className="h-4 w-4 shrink-0 text-red-400" aria-hidden />
+                    Favoritos
+                  </Link>
                   <button
                     type="button"
                     onClick={() => {

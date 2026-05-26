@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 /** Remite todos los mails de Auth (aligned con RESEND_FROM_EMAIL del proyecto). */
 export const AUTH_FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || 'Tandil Urban <onboarding@resend.dev>';
+  process.env.RESEND_FROM_EMAIL || 'Propea Group <onboarding@resend.dev>';
 
 function isDev(): boolean {
   return process.env.NODE_ENV !== 'production';
@@ -96,10 +96,10 @@ export async function sendVerificationEmail(
   const link = buildAuthVerificationLink(token);
   return sendWithResendOrDevFallback({
     to: email,
-    subject: 'Verifica tu cuenta en TandilUrban',
+    subject: 'Verifica tu cuenta en Propea Group',
     html: `
       <p>Hola,</p>
-      <p>Para verificar tu cuenta en TandilUrban, usá este enlace:</p>
+      <p>Para verificar tu cuenta en Propea Group, usá este enlace:</p>
       <p><a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a></p>
       <p>Si no solicitaste este registro, podés ignorar este correo.</p>
     `,
@@ -119,7 +119,7 @@ export async function sendPasswordResetEmail(
   const link = buildAuthPasswordResetLink(token);
   return sendWithResendOrDevFallback({
     to: email,
-    subject: 'Restablecé tu contraseña — TandilUrban',
+    subject: 'Restablecé tu contraseña — Propea Group',
     html: `
       <p>Hola,</p>
       <p>Recibimos una solicitud para restablecer tu contraseña. Usá este enlace:</p>

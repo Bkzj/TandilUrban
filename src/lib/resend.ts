@@ -10,7 +10,7 @@ function escapeHtml(text: string): string {
 }
 
 /** Remitente (dominio verificado en producción). Resend trial: onboarding@resend.dev */
-const defaultFrom = 'Tandil Urban <onboarding@resend.dev>';
+const defaultFrom = 'Propea Group <onboarding@resend.dev>';
 
 /**
  * Si está definida, todos los correos se envían solo a esta bandeja (útil en desarrollo /
@@ -88,7 +88,7 @@ export async function enviarMailNotificacionLead(
     <p>Nuestro equipo la revisará y se pondrá en contacto a la brevedad.</p>
     <p>Tu mensaje:</p>
     <blockquote style="border-left:4px solid #e5e7eb;padding-left:12px;margin:12px 0;">${mensaje.replace(/\n/g, '<br/>')}</blockquote>
-    <p>Gracias por confiar en Tandil Urban.</p>
+    <p>Gracias por confiar en Propea Group.</p>
   `.trim();
 
   const htmlInterno = `

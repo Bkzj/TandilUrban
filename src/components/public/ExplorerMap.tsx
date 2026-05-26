@@ -6,6 +6,14 @@ import { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
+import { flyMapToPositions, runWhenMapReady } from '@/lib/map-coords-leaflet';
+import {
+  isValidMapLatLng,
+  sanitizeLatLngPairs,
+  TANDIL_CENTER,
+  toValidLatLngPairs,
+} from '@/lib/map-coords';
+
 export type ExplorerMapPoint = {
   id: string;
   lat: number;
@@ -23,37 +31,42 @@ const pinIcon = L.divIcon({
   iconAnchor: [18, 36],
 });
 
-const TANDIL: [number, number] = [-37.32167, -59.13316];
+function normalizePoints(points: ExplorerMapPoint[]): ExplorerMapPoint[] {
+  const out: ExplorerMapPoint[] = [];
+  for (const p of points) {
+    const pair = toValidLatLngPairs([{ lat: p.lat, lng: p.lng }]);
+    if (pair.length === 1) {
+      out.push({ ...p, lat: pair[0][0], lng: pair[0][1] });
+    }
+  }
+  return out;
+}
 
 function FlyToVisibleBounds({ points }: { points: ExplorerMapPoint[] }) {
   const map = useMap();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pointsKey = useMemo(
+    () =>
+      points
+        .map((p) => `${p.id}:${p.lat}:${p.lng}`)
+        .join('|'),
+    [points],
+  );
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(() => {
-      const positions = points.map((p) => [p.lat, p.lng] as [number, number]);
-      if (positions.length === 0) {
-        map.flyTo(TANDIL, 13, { duration: 1.2 });
-        return;
-      }
-      if (positions.length === 1) {
-        map.flyTo(positions[0], 15, { duration: 1.5 });
-        return;
-      }
-      const bounds = L.latLngBounds(positions);
-      map.flyToBounds(bounds, {
-        padding: [50, 50],
-        duration: 1.5,
-        maxZoom: 16,
+      const positions = sanitizeLatLngPairs(toValidLatLngPairs(points));
+      runWhenMapReady(map, () => {
+        requestAnimationFrame(() => flyMapToPositions(map, positions));
       });
     }, 420);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [map, points]);
+  }, [map, pointsKey, points]);
 
   return null;
 }
@@ -64,10 +77,16 @@ type ExplorerMapProps = {
 };
 
 export function ExplorerMap({ visibleProperties }: ExplorerMapProps) {
+  const validProperties = useMemo(
+    () => normalizePoints(visibleProperties),
+    [visibleProperties],
+  );
+
   const center = useMemo((): [number, number] => {
-    if (visibleProperties.length === 0) return TANDIL;
-    return [visibleProperties[0].lat, visibleProperties[0].lng];
-  }, [visibleProperties]);
+    const first = validProperties[0];
+    if (!first || !isValidMapLatLng(first.lat, first.lng)) return TANDIL_CENTER;
+    return [first.lat, first.lng];
+  }, [validProperties]);
 
   const icon = useMemo(() => pinIcon, []);
 
@@ -84,8 +103,8 @@ export function ExplorerMap({ visibleProperties }: ExplorerMapProps) {
           attribution="&copy; OpenStreetMap"
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
-        <FlyToVisibleBounds points={visibleProperties} />
-        {visibleProperties.map((p) => (
+        <FlyToVisibleBounds points={validProperties} />
+        {validProperties.map((p) => (
           <Marker key={p.id} position={[p.lat, p.lng]} icon={icon} title={p.titulo} />
         ))}
       </MapContainer>

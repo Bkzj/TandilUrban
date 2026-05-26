@@ -1,19 +1,37 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@/generated/prisma';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 const connectionString = process.env.DATABASE_URL!;
 
-// 2. Creamos un "Pool" (un gestor que mantiene vivas las conexiones a PostgreSQL)
 const pool = new Pool({ connectionString });
-
-// 3. Le pasamos ese gestor al adaptador oficial de Prisma
 const adapter = new PrismaPg(pool);
 
-// 4. Inicializamos Prisma, pero ahora le pasamos el adaptador (el requisito de Prisma 7)
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const globalForPrisma = global as unknown as { prisma: PrismaClient | undefined };
 
-export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
+/** Delegates que deben existir; si faltan, el singleton quedó de antes de `prisma generate`. */
+const REQUIRED_DELEGATES = ['visitaFisicaEvento'] as const;
 
-/** En dev el singleton puede quedar desfasado tras `prisma generate` o cambios de schema: reiniciá el servidor. */
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+function createPrismaClient(): PrismaClient {
+  return new PrismaClient({ adapter });
+}
+
+function isStaleClient(client: PrismaClient): boolean {
+  const record = client as PrismaClient & Record<string, unknown>;
+  return REQUIRED_DELEGATES.some((key) => typeof record[key] === 'undefined');
+}
+
+function getPrismaClient(): PrismaClient {
+  const cached = globalForPrisma.prisma;
+  if (cached && !isStaleClient(cached)) {
+    return cached;
+  }
+
+  const client = createPrismaClient();
+  if (process.env.NODE_ENV !== 'production') {
+    globalForPrisma.prisma = client;
+  }
+  return client;
+}
+
+export const prisma = getPrismaClient();

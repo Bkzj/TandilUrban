@@ -1,11 +1,18 @@
 import { redirect } from 'next/navigation';
 
-import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/auth';
-import type { CurrentUser } from '@/types/auth';
+import { AnalyticsFunnel } from '@/components/panel/AnalyticsFunnel';
+import { PricePerSqmChart } from '@/components/panel/PricePerSqmChart';
+import { StatCards } from '@/components/panel/StatCards';
+import { TopProperties } from '@/components/panel/TopProperties';
 import PanelTabs from '@/components/panel/PanelTabs';
-import MetricCard from '@/components/panel/MetricCard';
+import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/auth';
+import { getPanelAnalytics } from '@/lib/panel-analytics';
+import type { CurrentUser } from '@/types/auth';
 
 export const dynamic = 'force-dynamic';
+
+const GLASS_CARD =
+  'rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md sm:p-8';
 
 type PanelPageProps = {
   searchParams?:
@@ -27,51 +34,83 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
   const rolDisplay = canManageTeam ? 'Administrador' : isAgente ? 'Cuenta' : user.rol;
   const nombre = user.nombre.split(' ')[0];
 
-  const labelActivas = canManageTeam ? 'Propiedades activas' : 'Mis propiedades activas';
-  const labelConsultas = canManageTeam ? 'Consultas nuevas' : 'Mis consultas nuevas';
-  const detailActivas = 'DISPONIBLE en la red pública · ▲ +3';
-  const detailConsultas = 'Últimos 7 días · ▲ +2';
-  const detailVisitas = 'Mes en curso · ▲ +14%';
-  const detailConversion = 'Consultas / vistas · ▼ −0.3%';
+  const analytics = await getPanelAnalytics(user);
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-6 py-12 md:px-8">
+    <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <PanelTabs showEquipo={canManageTeam} />
 
       {justPublished ? (
-        <div className="mt-6 rounded-2xl border border-naranja/40 !bg-black/30 p-4 text-sm font-medium !text-white" role="status">
+        <div
+          className="mt-6 rounded-2xl border border-naranja/40 bg-black/25 p-4 text-sm font-medium text-white backdrop-blur-md"
+          role="status"
+        >
           Propiedad publicada con éxito.
         </div>
       ) : null}
 
       <header className="mt-8 flex flex-col">
-        <p className="mb-2 text-xs font-bold uppercase tracking-widest !text-naranja-light/80">
+        <p className="mb-2 text-xs font-bold uppercase tracking-widest text-naranja-light/80">
           Agencia · {rolDisplay}
         </p>
-        <h1 className="text-5xl font-semibold tracking-tight !text-white">Hola, {nombre}</h1>
-        <p className="mt-2 text-lg font-light !text-white">Estado actual de la inmobiliaria...</p>
+        <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+          Hola, {nombre}
+        </h1>
+        <p className="mt-2 text-lg font-light text-white/75">
+          Métricas y rendimiento de tu cartera en tiempo real.
+        </p>
       </header>
 
-      <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label={labelActivas} value="12" detail={detailActivas} />
-        <MetricCard label={labelConsultas} value="5" detail={detailConsultas} />
-        <MetricCard label="Visitas al perfil" value="340" detail={detailVisitas} />
-        <MetricCard label="Conversion rate" value="4.2%" detail={detailConversion} />
-      </div>
+      {analytics ? (
+        <div className="mt-12 flex flex-col gap-6 lg:gap-8">
+          <StatCards stats={analytics.stats} />
 
-      <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+          <section className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+            <div className={`${GLASS_CARD} lg:col-span-2`}>
+              <div className="mb-6 border-b border-white/10 pb-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">
+                  Analytics
+                </p>
+                <h2 className="mt-1 text-xl font-semibold text-white sm:text-2xl">
+                  Embudo de conversión
+                </h2>
+                <p className="mt-1 text-sm text-gray-400">
+                  Impresiones estimadas en listados, visitas a fichas y consultas recibidas.
+                </p>
+              </div>
+              <AnalyticsFunnel data={analytics.funnel} />
+            </div>
+
+            <PricePerSqmChart data={analytics.precioM2PorZona} />
+          </section>
+
+          <section className="grid grid-cols-1 lg:grid-cols-3">
+            <TopProperties topPropiedades={analytics.topPropiedades} />
+          </section>
+        </div>
+      ) : (
+        <div className={`mt-12 text-center ${GLASS_CARD}`}>
+          <p className="text-sm text-gray-400">
+            Vinculá tu cuenta a una inmobiliaria para ver estadísticas de la agencia.
+          </p>
+        </div>
+      )}
+
+      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
         <a
           href="/panel/propiedades/nueva"
-          className="group flex flex-col justify-between rounded-2xl border border-surface/10 !bg-black/20 p-7 backdrop-blur-md transition-all duration-300 !hover:border-naranja/40 !hover:bg-black/30"
+          className={`group flex flex-col justify-between ${GLASS_CARD} p-7 transition-all hover:border-naranja/40 hover:bg-white/10`}
         >
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest !text-naranja-light/80">Onboarding</p>
-            <h2 className="mt-3 text-2xl font-semibold !text-white">Publicar propiedad</h2>
-            <p className="mt-2 text-sm !text-white/80">
+            <p className="text-xs font-bold uppercase tracking-widest text-naranja-light/90">
+              Onboarding
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Publicar propiedad</h2>
+            <p className="mt-2 text-sm text-gray-400">
               Flujo lineal y guiado para subir una nueva propiedad en pocos pasos.
             </p>
           </div>
-          <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold !text-white transition-transform group-hover:translate-x-0.5">
+          <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 transition-transform group-hover:translate-x-0.5">
             Empezar →
           </span>
         </a>
@@ -79,33 +118,38 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
         {canManageTeam ? (
           <a
             href="/panel/equipo"
-            className="group flex flex-col justify-between rounded-2xl border border-surface/10 !bg-black/20 p-7 backdrop-blur-md transition-all duration-300 !hover:border-naranja/40 !hover:bg-black/30"
+            className={`group flex flex-col justify-between ${GLASS_CARD} p-7 transition-all hover:border-naranja/40 hover:bg-white/10`}
           >
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest !text-naranja-light/80">B2B</p>
-              <h2 className="mt-3 text-2xl font-semibold !text-white">Mi equipo</h2>
-              <p className="mt-2 text-sm !text-white/80">
+              <p className="text-xs font-bold uppercase tracking-widest text-naranja-light/90">B2B</p>
+              <h2 className="mt-3 text-2xl font-semibold text-white">Mi equipo</h2>
+              <p className="mt-2 text-sm text-gray-400">
                 Sumá agentes para que carguen propiedades en nombre de tu inmobiliaria.
               </p>
             </div>
-            <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold !text-white transition-transform group-hover:translate-x-0.5">
+            <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 transition-transform group-hover:translate-x-0.5">
               Gestionar agentes →
             </span>
           </a>
-        ) : null}
-
-        <div className="flex flex-col justify-between rounded-2xl border border-dashed border-surface/10 !bg-black/20 p-7 backdrop-blur-md !text-surface/60">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest !text-surface/50">Próximamente</p>
-            <h2 className="mt-3 text-2xl font-semibold !text-white">Leads · Mensajes</h2>
-            <p className="mt-2 text-sm !text-surface/50">
-              Bandeja unificada de consultas, asignación a agentes y métricas de respuesta.
-            </p>
-          </div>
-          <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-surface/45">
-            En desarrollo
-          </span>
-        </div>
+        ) : (
+          <a
+            href="/panel/mensajes"
+            className={`group flex flex-col justify-between ${GLASS_CARD} p-7 transition-all hover:border-naranja/40 hover:bg-white/10`}
+          >
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-naranja-light/90">
+                Leads
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold text-white">Mensajes</h2>
+              <p className="mt-2 text-sm text-gray-400">
+                Bandeja de consultas y seguimiento con interesados.
+              </p>
+            </div>
+            <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 transition-transform group-hover:translate-x-0.5">
+              Ver bandeja →
+            </span>
+          </a>
+        )}
       </div>
     </main>
   );

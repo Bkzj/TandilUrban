@@ -11,7 +11,7 @@ import type { PropertyFormData } from '@/types/panel';
 import LinearPropertyForm from '@/components/panel/LinearPropertyForm';
 
 export const metadata = {
-  title: 'Editar propiedad | TandilUrban',
+  title: 'Editar propiedad | Propea Group',
 };
 
 export const dynamic = 'force-dynamic';
@@ -36,6 +36,7 @@ function mapToFormData(
     expensas: number | null;
     caracteristicas: string[];
     imagenes: unknown;
+    planoUrl: string | null;
     titulo: string;
     descripcion: string;
   }
@@ -76,6 +77,7 @@ function mapToFormData(
     expensas: prop.expensas != null ? String(prop.expensas) : '',
     caracteristicas: [...prop.caracteristicas],
     imagenes: normalizePropiedadImagenesDb(prop.imagenes),
+    planoUrl: prop.planoUrl ?? '',
     titulo: prop.titulo,
     descripcion: prop.descripcion,
   };
@@ -126,11 +128,11 @@ export default async function EditarPropiedadPage({ params }: { params: Promise<
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 py-4">
           <Link
             href="/panel"
-            className="inline-flex items-center gap-2 rounded-lg border border-naranja px-4 py-2 text-sm font-semibold text-naranja transition-colors hover:border-verde/60 hover:bg-verde/15 hover:text-white"
+            className="inline-flex items-center gap-2 rounded-lg border border-naranja/50 bg-naranja/10 px-4 py-2 text-sm font-semibold text-naranja transition-colors hover:bg-naranja/20"
           >
             ← Volver al panel
           </Link>
-          <span className="rounded-md bg-verde px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          <span className="rounded-md bg-naranja px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-surface">
             Modo Edición
           </span>
         </div>

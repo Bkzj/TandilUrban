@@ -30,7 +30,7 @@ export async function GET(
         : null;
 
     return NextResponse.json({ ...propiedad, agente });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Error al buscar la propiedad" }, { status: 500 });
   }
 }

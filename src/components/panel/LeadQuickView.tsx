@@ -5,10 +5,13 @@ import { Mail, Phone, X } from 'lucide-react';
 
 import type { PanelLeadEstado, PanelLeadRow } from '@/types/panel';
 
+import { LeadSeguimientoLoader } from './LeadSeguimientoLoader';
+
 type Props = {
   lead: PanelLeadRow;
   onClose: () => void;
   onLeadUpdated: (id: string, estado: PanelLeadEstado) => void;
+  onVisitasUpdated: (id: string, visitasFisicas: number) => void;
 };
 
 function fmtDate(iso: string): string {
@@ -22,7 +25,7 @@ function fmtDate(iso: string): string {
   }
 }
 
-export function LeadQuickView({ lead, onClose, onLeadUpdated }: Props) {
+export function LeadQuickView({ lead, onClose, onLeadUpdated, onVisitasUpdated }: Props) {
   const readAttempted = useRef(false);
   const [markingResponded, setMarkingResponded] = useState(false);
 
@@ -122,6 +125,15 @@ export function LeadQuickView({ lead, onClose, onLeadUpdated }: Props) {
             <p className="mt-2 text-sm font-medium leading-snug text-white">{lead.propiedad.titulo}</p>
           </section>
 
+          <LeadSeguimientoLoader
+            contactoId={lead.id}
+            visitanteNombre={lead.nombre}
+            initialVisitasLead={lead.visitasFisicas ?? 0}
+            visitasWeb={lead.propiedad.visitas ?? 0}
+            consultas={lead.propiedad.consultas ?? 0}
+            onVisitasLeadChange={(n) => onVisitasUpdated(lead.id, n)}
+          />
+
           <section>
             <h3 className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-naranja-light/90">
               Mensaje
@@ -137,7 +149,7 @@ export function LeadQuickView({ lead, onClose, onLeadUpdated }: Props) {
             {tel ? (
               <a
                 href={`tel:${tel}`}
-                className="inline-flex flex-1 min-w-[7rem] items-center justify-center gap-2 rounded-xl border border-verde/50 bg-verde/20 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-verde/30"
+                className="inline-flex flex-1 min-w-[7rem] items-center justify-center gap-2 rounded-xl border border-naranja/50 bg-naranja/20 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-naranja/30"
               >
                 <Phone className="h-4 w-4" aria-hidden />
                 Llamar
@@ -160,7 +172,7 @@ export function LeadQuickView({ lead, onClose, onLeadUpdated }: Props) {
             type="button"
             disabled={markingResponded || lead.estado === 'RESPONDIDO'}
             onClick={() => void markRespondido()}
-            className="mt-3 w-full rounded-xl bg-verde px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-verde-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-3 w-full rounded-xl bg-naranja px-4 py-3 text-sm font-semibold text-surface shadow-md shadow-naranja/25 transition hover:bg-naranja-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             {lead.estado === 'RESPONDIDO' ? 'Marcado como respondido' : markingResponded ? 'Guardando…' : 'Marcar como respondido'}
           </button>

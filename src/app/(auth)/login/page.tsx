@@ -48,7 +48,7 @@ function LoginForm() {
           transition={{ duration: 0.55, ease: 'easeOut' }}
           className="w-full max-w-md rounded-2xl border border-border-light/40 bg-surface/95 p-8 shadow-2xl backdrop-blur"
         >
-          <p className="text-sm font-semibold uppercase tracking-wide text-verde">TandilUrban</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-verde">Propea Group</p>
           <h1 className="mt-2 text-3xl font-bold text-text-primary">Iniciar sesion</h1>
           <p className="mt-2 text-sm text-text-secondary">Accede al panel con tus credenciales.</p>
 

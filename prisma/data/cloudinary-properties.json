@@ -1,0 +1,1073 @@
+{
+  "generatedAt": "2026-05-21T03:48:13.356Z",
+  "properties": [
+    {
+      "folderSlug": "alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000",
+      "titulo": "Alquiler casa 2 dorm amueblada c/ — jardín y parrilla ud 1000",
+      "descripcion": "Alquiler casa 2 dorm amueblada c/ — jardín y parrilla ud 1000. Publicación restaurada desde Cloudinary con fotos originales.",
+      "operacion": "Alquiler",
+      "tipo": "Casa",
+      "precio": 1000,
+      "moneda": "USD",
+      "m2Total": 120,
+      "m2Cubiertos": 102,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "direccion": "Tandil — Centro",
+      "barrio": "Centro",
+      "latitud": -37.3219,
+      "longitud": -59.1339,
+      "expensas": null,
+      "caracteristicas": [
+        "Quincho",
+        "Jardín",
+        "Cochera"
+      ],
+      "imagenes": [
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/0314a40f-2682-4c05-b0c6-03665fcbd028_jpeg-1778879883573-6",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/0314a40f-2682-4c05-b0c6-03665fcbd028_jpeg-1778879883573-6",
+          "categoria": "Portada"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/1276b2f8-e29c-40d1-89f5-be545e599eb5_jpeg-1778879883573-8",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/1276b2f8-e29c-40d1-89f5-be545e599eb5_jpeg-1778879883573-8",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/1e315dce-db1b-4c0c-b23e-c115f5d8ac36_jpeg-1778879883573-0",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/1e315dce-db1b-4c0c-b23e-c115f5d8ac36_jpeg-1778879883573-0",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/2535b009-ac06-4021-b70b-b590aa8852f1_jpeg-1778879883573-9",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/2535b009-ac06-4021-b70b-b590aa8852f1_jpeg-1778879883573-9",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/2d279dea-f706-412c-96b2-b1ddc63e184f_jpeg-1778879883573-1",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/2d279dea-f706-412c-96b2-b1ddc63e184f_jpeg-1778879883573-1",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/4cef724d-45ed-43c0-998e-4466938a6277_jpeg-1778879883573-2",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/4cef724d-45ed-43c0-998e-4466938a6277_jpeg-1778879883573-2",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/518da36a-5543-427c-8572-18774bc7803d_jpeg-1778879883573-7",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/518da36a-5543-427c-8572-18774bc7803d_jpeg-1778879883573-7",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/53565050-9b06-460d-b71b-5d0e44464906_jpeg-1778879883573-11",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/53565050-9b06-460d-b71b-5d0e44464906_jpeg-1778879883573-11",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/72f9030f-c251-4252-b0f4-3a8d93e49d7e_jpeg-1778879883573-4",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/72f9030f-c251-4252-b0f4-3a8d93e49d7e_jpeg-1778879883573-4",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/79fa0efd-2bbc-4ac6-9fd2-edc75dfbd6ee_jpeg-1778879883573-5",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/79fa0efd-2bbc-4ac6-9fd2-edc75dfbd6ee_jpeg-1778879883573-5",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/98640b1f-24bf-41c3-9131-576a135d5637_jpeg-1778879883573-10",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/98640b1f-24bf-41c3-9131-576a135d5637_jpeg-1778879883573-10",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/9ab77ccf-b692-436c-a9f1-f833e549c886_jpeg-1778879883573-3",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/9ab77ccf-b692-436c-a9f1-f833e549c886_jpeg-1778879883573-3",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/ad2c6381-4302-45e6-b40a-3c9fbb41a0be_jpeg-1778879883573-12",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/ad2c6381-4302-45e6-b40a-3c9fbb41a0be_jpeg-1778879883573-12",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/b99cd4a6-d374-43f1-a584-99e674edf7ff_jpeg-1778879883573-13",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/b99cd4a6-d374-43f1-a584-99e674edf7ff_jpeg-1778879883573-13",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/ba69f900-256c-45fe-b7dc-aeb5c58726a7_jpeg-1778879883573-14",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/ba69f900-256c-45fe-b7dc-aeb5c58726a7_jpeg-1778879883573-14",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/bb16c4da-297c-4537-ac0e-f588f4980c8b_jpeg-1778879883573-15",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/bb16c4da-297c-4537-ac0e-f588f4980c8b_jpeg-1778879883573-15",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/c046b2db-9317-4359-abad-d62910787a92_jpeg-1778879883573-17",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/c046b2db-9317-4359-abad-d62910787a92_jpeg-1778879883573-17",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/c2b2bd59-1b03-42f1-917b-dec11c7c6c1a_jpeg-1778879883573-16",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/c2b2bd59-1b03-42f1-917b-dec11c7c6c1a_jpeg-1778879883573-16",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/d8dbde13-ce4b-4305-8109-33600560e4f4_jpeg-1778879883573-18",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/d8dbde13-ce4b-4305-8109-33600560e4f4_jpeg-1778879883573-18",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/db3bdaf6-06b9-4ed5-995a-3171b70566bb_jpeg-1778879883573-19",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/db3bdaf6-06b9-4ed5-995a-3171b70566bb_jpeg-1778879883573-19",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/edb5e52e-a890-4ff1-ab62-19aa0f86b06a_jpeg-1778879883573-20",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/edb5e52e-a890-4ff1-ab62-19aa0f86b06a_jpeg-1778879883573-20",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/f4a66852-df12-40ff-95fb-37449d59c06a_jpeg-1778879883573-21",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/f4a66852-df12-40ff-95fb-37449d59c06a_jpeg-1778879883573-21",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/fe0211ef-c84a-4173-a088-2dd7cc437afb_jpeg-1778879883573-22",
+          "public_id": "tandilurban/propiedades/alquiler-casa-2-dorm-amueblada-c/-jardn-y-parrilla-ud-1000/fe0211ef-c84a-4173-a088-2dd7cc437afb_jpeg-1778879883573-22",
+          "categoria": "Sin clasificar"
+        }
+      ]
+    },
+    {
+      "folderSlug": "alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs",
+      "titulo": "Alquiler dpto 4 amb c/ — cochera jardín y seguridad 24hs",
+      "descripcion": "Alquiler dpto 4 amb c/ — cochera jardín y seguridad 24hs. Publicación restaurada desde Cloudinary con fotos originales.",
+      "operacion": "Alquiler",
+      "tipo": "Departamento",
+      "precio": 450000,
+      "moneda": "ARS",
+      "m2Total": 120,
+      "m2Cubiertos": 102,
+      "ambientes": 4,
+      "dormitorios": 3,
+      "direccion": "Tandil — El Dique",
+      "barrio": "El Dique",
+      "latitud": -37.2984,
+      "longitud": -59.1182,
+      "expensas": 85000,
+      "caracteristicas": [
+        "Quincho",
+        "Jardín",
+        "Cochera",
+        "Parrilla"
+      ],
+      "imagenes": [
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9417-1779138973980-4",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9417-1779138973980-4",
+          "categoria": "Portada"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9418-1779138973980-1",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9418-1779138973980-1",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9419-1779138973980-0",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9419-1779138973980-0",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9420-1779138973980-2",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9420-1779138973980-2",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9421-1779138973980-3",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9421-1779138973980-3",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9422-1779138973980-5",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9422-1779138973980-5",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9423-1779138973980-6",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9423-1779138973980-6",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9424-1779138973980-7",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9424-1779138973980-7",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9425-1779138973980-8",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9425-1779138973980-8",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9426-1779138973980-9",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9426-1779138973980-9",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9427-1779138973980-10",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9427-1779138973980-10",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9428-1779138973980-11",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9428-1779138973980-11",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9429-1779138973980-12",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9429-1779138973980-12",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9430-1779138973980-13",
+          "public_id": "tandilurban/propiedades/alquiler-dpto-4-amb-c/-cochera-jardn-y-seguridad-24hs/IMG_9430-1779138973980-13",
+          "categoria": "Sin clasificar"
+        }
+      ]
+    },
+    {
+      "folderSlug": "casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar",
+      "titulo": "Casa amueblada con quincho y jardín lista para disfrutar",
+      "descripcion": "Casa amueblada con quincho y jardín lista para disfrutar. Publicación restaurada desde Cloudinary con fotos originales.",
+      "operacion": "Venta",
+      "tipo": "Casa",
+      "precio": 150000,
+      "moneda": "USD",
+      "m2Total": 120,
+      "m2Cubiertos": 102,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "direccion": "Tandil — Altos del Valle",
+      "barrio": "Altos del Valle",
+      "latitud": -37.3112,
+      "longitud": -59.1521,
+      "expensas": null,
+      "caracteristicas": [
+        "Quincho",
+        "Jardín",
+        "Cochera"
+      ],
+      "imagenes": [
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/083d6342-5123-4525-918c-b99f389a00df_jpeg-1778797722150-7",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/083d6342-5123-4525-918c-b99f389a00df_jpeg-1778797722150-7",
+          "categoria": "Portada"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/0b7d818a-d10f-42fc-9601-6464e3dd09eb_jpeg-1778797722150-0",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/0b7d818a-d10f-42fc-9601-6464e3dd09eb_jpeg-1778797722150-0",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/1aa1f116-098f-420f-8798-c21c9aaaacdc_jpeg-1778797722150-1",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/1aa1f116-098f-420f-8798-c21c9aaaacdc_jpeg-1778797722150-1",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/23bd0a55-50e6-4fb5-bdc7-89699d940143_jpeg-1778797722150-5",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/23bd0a55-50e6-4fb5-bdc7-89699d940143_jpeg-1778797722150-5",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/27574187-c22c-43cc-881e-5504e2b87468_jpeg-1778797722150-16",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/27574187-c22c-43cc-881e-5504e2b87468_jpeg-1778797722150-16",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/3227e1ac-ed31-4b28-b9ac-ad944fb1e310_jpeg-1778797722150-12",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/3227e1ac-ed31-4b28-b9ac-ad944fb1e310_jpeg-1778797722150-12",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/3227e529-2854-473d-959e-7e15a8ad0881_jpeg-1778797722150-13",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/3227e529-2854-473d-959e-7e15a8ad0881_jpeg-1778797722150-13",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/41b594fe-1cbb-454b-b853-294651bf56f6_jpeg-1778797722150-6",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/41b594fe-1cbb-454b-b853-294651bf56f6_jpeg-1778797722150-6",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/515fd91f-1c33-4df4-8c64-48d7ebeef8af_jpeg-1778797722150-9",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/515fd91f-1c33-4df4-8c64-48d7ebeef8af_jpeg-1778797722150-9",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/663db9ab-1e38-4645-81b8-5b4df8fef778_jpeg-1778797722150-10",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/663db9ab-1e38-4645-81b8-5b4df8fef778_jpeg-1778797722150-10",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/6806a2f9-fc80-4ebf-9a6c-5693d82d0ee4_jpeg-1778797722150-14",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/6806a2f9-fc80-4ebf-9a6c-5693d82d0ee4_jpeg-1778797722150-14",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/6ee70009-80ca-4680-a054-3d33c605c796_jpeg-1778797722150-2",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/6ee70009-80ca-4680-a054-3d33c605c796_jpeg-1778797722150-2",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/7d64e59c-c447-4ddb-b4cd-df92242d59d0_jpeg-1778797722150-3",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/7d64e59c-c447-4ddb-b4cd-df92242d59d0_jpeg-1778797722150-3",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/864cf15c-6bf9-48d2-9996-c884d786d75e_jpeg-1778797722150-11",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/864cf15c-6bf9-48d2-9996-c884d786d75e_jpeg-1778797722150-11",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/87e9a3ba-e3b4-438b-ba00-46e3b9d24d80_jpeg-1778797722150-8",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/87e9a3ba-e3b4-438b-ba00-46e3b9d24d80_jpeg-1778797722150-8",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/957347f0-4235-4f08-9a2f-3f23a6ae425f_jpeg-1778797722150-15",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/957347f0-4235-4f08-9a2f-3f23a6ae425f_jpeg-1778797722150-15",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/9c9e8430-cc01-4468-bbcb-fef052b77ed9_jpeg-1778797722150-4",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/9c9e8430-cc01-4468-bbcb-fef052b77ed9_jpeg-1778797722150-4",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/a61c90a6-0989-46ae-8801-d8f3b8bdc5e9_jpeg-1778797722150-17",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/a61c90a6-0989-46ae-8801-d8f3b8bdc5e9_jpeg-1778797722150-17",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/abb0e4fe-7806-430d-a2a3-c99e4346ea89_jpeg-1778797722150-18",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/abb0e4fe-7806-430d-a2a3-c99e4346ea89_jpeg-1778797722150-18",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/ade27b4d-d8d5-4417-8e3a-23958508c6e0_jpeg-1778797722150-19",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/ade27b4d-d8d5-4417-8e3a-23958508c6e0_jpeg-1778797722150-19",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/aff200c4-657c-40a6-a734-aeea3f1c582f_jpeg-1778797722150-20",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/aff200c4-657c-40a6-a734-aeea3f1c582f_jpeg-1778797722150-20",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/b11c83a3-2abd-4004-83e2-0e95cb1e57e5_jpeg-1778797722150-21",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/b11c83a3-2abd-4004-83e2-0e95cb1e57e5_jpeg-1778797722150-21",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/b233d0a9-971e-40e9-9d09-a2dd505ff6b0_jpeg-1778797722150-22",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/b233d0a9-971e-40e9-9d09-a2dd505ff6b0_jpeg-1778797722150-22",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/c2b75f21-df3b-494e-ba76-6ee03353e503_jpeg-1778797722150-23",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/c2b75f21-df3b-494e-ba76-6ee03353e503_jpeg-1778797722150-23",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/e0e410f0-08c7-4a07-bee5-16a0d4c4b7c7_jpeg-1778797722150-24",
+          "public_id": "tandilurban/propiedades/casa-amueblada-con-quincho-y-jardn-lista-para-disfrutar/e0e410f0-08c7-4a07-bee5-16a0d4c4b7c7_jpeg-1778797722150-24",
+          "categoria": "Sin clasificar"
+        }
+      ]
+    },
+    {
+      "folderSlug": "casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio",
+      "titulo": "Casa en venta con jardín parrilla y balcón — gran precio",
+      "descripcion": "Casa en venta con jardín parrilla y balcón — gran precio. Publicación restaurada desde Cloudinary con fotos originales.",
+      "operacion": "Venta",
+      "tipo": "Casa",
+      "precio": 150000,
+      "moneda": "USD",
+      "m2Total": 120,
+      "m2Cubiertos": 102,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "direccion": "Tandil — Las Delicias",
+      "barrio": "Las Delicias",
+      "latitud": -37.3562,
+      "longitud": -59.0684,
+      "expensas": null,
+      "caracteristicas": [
+        "Quincho",
+        "Jardín",
+        "Cochera",
+        "Parrilla"
+      ],
+      "imagenes": [
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/0330b070-1e06-4d56-b5be-6406e872d9c3_jpeg-1779207091064-0",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/0330b070-1e06-4d56-b5be-6406e872d9c3_jpeg-1779207091064-0",
+          "categoria": "Portada"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/111e88fe-5855-4daf-90bb-cf341bd26662_jpeg-1779207091064-10",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/111e88fe-5855-4daf-90bb-cf341bd26662_jpeg-1779207091064-10",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/137cd3c8-8921-4e13-9550-cdfc3bac22df_jpeg-1779207091064-11",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/137cd3c8-8921-4e13-9550-cdfc3bac22df_jpeg-1779207091064-11",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/20e614f1-3730-4973-b4d7-3fdbd39e8ecc_jpeg-1779207091064-7",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/20e614f1-3730-4973-b4d7-3fdbd39e8ecc_jpeg-1779207091064-7",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/237ae603-a6c1-4ef2-87d7-8705e559f3b7_jpeg-1779207091064-12",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/237ae603-a6c1-4ef2-87d7-8705e559f3b7_jpeg-1779207091064-12",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/303bef46-00c1-47f8-9251-17229e2eb431_jpeg-1779207091064-13",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/303bef46-00c1-47f8-9251-17229e2eb431_jpeg-1779207091064-13",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/35258699-be6c-40b5-9959-ceaeda97deac_png-1779207091064-20",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/35258699-be6c-40b5-9959-ceaeda97deac_png-1779207091064-20",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/4731f3c5-6dc6-45ad-847f-e8d72d989e7e_jpeg-1779207091064-16",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/4731f3c5-6dc6-45ad-847f-e8d72d989e7e_jpeg-1779207091064-16",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/480b04ba-76dc-4ce8-b10f-6f191548dffe_jpeg-1779207091064-14",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/480b04ba-76dc-4ce8-b10f-6f191548dffe_jpeg-1779207091064-14",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/63a7cf2f-faf3-4acb-b482-fa27deb55cfa_png-1779207091064-8",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/63a7cf2f-faf3-4acb-b482-fa27deb55cfa_png-1779207091064-8",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/6719da95-1a4e-491d-b165-d30cc38eadcc_jpeg-1779207091064-17",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/6719da95-1a4e-491d-b165-d30cc38eadcc_jpeg-1779207091064-17",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/6a049b9e-e70a-46af-8cdf-eededbc8b418_jpeg-1779207091064-1",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/6a049b9e-e70a-46af-8cdf-eededbc8b418_jpeg-1779207091064-1",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/6e1c71e7-7cae-4aa8-b4a9-3fef59636b7f_jpeg-1779207091064-2",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/6e1c71e7-7cae-4aa8-b4a9-3fef59636b7f_jpeg-1779207091064-2",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/6e396d28-2bd3-451a-96c6-3e9dbb0b3a6d_jpeg-1779207091064-3",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/6e396d28-2bd3-451a-96c6-3e9dbb0b3a6d_jpeg-1779207091064-3",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/7208ee12-3b62-401f-94da-f9331b0b0694_jpeg-1779207091064-18",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/7208ee12-3b62-401f-94da-f9331b0b0694_jpeg-1779207091064-18",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/7800c0d3-342e-4b74-9f4e-dba534b37ac2_jpeg-1779207091064-19",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/7800c0d3-342e-4b74-9f4e-dba534b37ac2_jpeg-1779207091064-19",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/7c0d74bd-295f-4e5c-89cd-273b12513a92_png-1779207091064-4",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/7c0d74bd-295f-4e5c-89cd-273b12513a92_png-1779207091064-4",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/842f6a73-810f-4b28-bb2a-087e4660f7c8_jpeg-1779207091064-15",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/842f6a73-810f-4b28-bb2a-087e4660f7c8_jpeg-1779207091064-15",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/85f385fb-e359-499e-8b63-b13ae3a08b4b_jpeg-1779207091064-9",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/85f385fb-e359-499e-8b63-b13ae3a08b4b_jpeg-1779207091064-9",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/8b8e3898-1a12-43de-a77e-5694f2147af0_jpeg-1779207091064-5",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/8b8e3898-1a12-43de-a77e-5694f2147af0_jpeg-1779207091064-5",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/9eec981a-cb97-4997-acf5-a9e5354f1004_jpeg-1779207091064-6",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/9eec981a-cb97-4997-acf5-a9e5354f1004_jpeg-1779207091064-6",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/c6b2b1cb-2490-473f-8b84-aec2b35ae4ef_jpeg-1779207091064-21",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/c6b2b1cb-2490-473f-8b84-aec2b35ae4ef_jpeg-1779207091064-21",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/d6068ca9-c5e4-4502-a5f0-92d36c050997_jpeg-1779207091064-22",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/d6068ca9-c5e4-4502-a5f0-92d36c050997_jpeg-1779207091064-22",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/dcd71722-ad30-4b17-845a-847b2eead2c1_jpeg-1779207091064-23",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/dcd71722-ad30-4b17-845a-847b2eead2c1_jpeg-1779207091064-23",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/e6564779-bbc2-4963-9b28-8cf598d94fd6_jpeg-1779207091064-24",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/e6564779-bbc2-4963-9b28-8cf598d94fd6_jpeg-1779207091064-24",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/edff9c69-222a-4fac-be10-1fd936ce43f0_jpeg-1779207091064-25",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/edff9c69-222a-4fac-be10-1fd936ce43f0_jpeg-1779207091064-25",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/fb794475-89c4-4d16-b7bd-282499f713e0_jpeg-1779207091064-26",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-parrilla-y-balcn---gran-precio/fb794475-89c4-4d16-b7bd-282499f713e0_jpeg-1779207091064-26",
+          "categoria": "Sin clasificar"
+        }
+      ]
+    },
+    {
+      "folderSlug": "casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2",
+      "titulo": "Casa en venta con jardín quincho y vista panorámica — 400m2",
+      "descripcion": "Casa en venta con jardín quincho y vista panorámica — 400m2. Publicación restaurada desde Cloudinary con fotos originales.",
+      "operacion": "Venta",
+      "tipo": "Casa",
+      "precio": 150000,
+      "moneda": "USD",
+      "m2Total": 400,
+      "m2Cubiertos": 340,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "direccion": "Tandil — Universidad",
+      "barrio": "Universidad",
+      "latitud": -37.3195,
+      "longitud": -59.1298,
+      "expensas": null,
+      "caracteristicas": [
+        "Quincho",
+        "Jardín",
+        "Cochera"
+      ],
+      "imagenes": [
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/01d99a68-b5ef-4c18-8e3a-7b154a18e99b_jpeg-1778887729494-5",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/01d99a68-b5ef-4c18-8e3a-7b154a18e99b_jpeg-1778887729494-5",
+          "categoria": "Portada"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/05d5d9a6-7224-4878-ad91-4954d928a61a_jpeg-1778887729494-15",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/05d5d9a6-7224-4878-ad91-4954d928a61a_jpeg-1778887729494-15",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0ca2a6e0-4599-41c9-bf58-006b9dddcd01_jpeg-1778887729494-0",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0ca2a6e0-4599-41c9-bf58-006b9dddcd01_jpeg-1778887729494-0",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0d28c472-9607-49fe-b5ac-894f58af6137_jpeg-1778887729494-2",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0d28c472-9607-49fe-b5ac-894f58af6137_jpeg-1778887729494-2",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0d9f2560-a8d3-4d8e-8118-449bb03daed7_jpeg-1778887729494-1",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0d9f2560-a8d3-4d8e-8118-449bb03daed7_jpeg-1778887729494-1",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0da6aa51-eac5-4abb-9f92-1c08a24143ac_jpeg-1778887729494-3",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0da6aa51-eac5-4abb-9f92-1c08a24143ac_jpeg-1778887729494-3",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0ddb42c5-a308-446f-a079-48b12b36708b_jpeg-1778887729494-4",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/0ddb42c5-a308-446f-a079-48b12b36708b_jpeg-1778887729494-4",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/120c00ce-c416-477a-9802-f5e4d9da5295_jpeg-1778887729494-28",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/120c00ce-c416-477a-9802-f5e4d9da5295_jpeg-1778887729494-28",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/13ffa972-6837-450c-9820-f7d0fbfcb2e2_jpeg-1778887729494-23",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/13ffa972-6837-450c-9820-f7d0fbfcb2e2_jpeg-1778887729494-23",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/1773c806-1bc1-4cb7-82c5-e06aa89e0d93_jpeg-1778887729494-34",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/1773c806-1bc1-4cb7-82c5-e06aa89e0d93_jpeg-1778887729494-34",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/1956ed3e-ecee-4bf1-86c4-b5af8f383116_jpeg-1778887729494-35",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/1956ed3e-ecee-4bf1-86c4-b5af8f383116_jpeg-1778887729494-35",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/265f5b0b-4be4-42d0-8404-be5f993940d3_jpeg-1778887729494-29",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/265f5b0b-4be4-42d0-8404-be5f993940d3_jpeg-1778887729494-29",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/2b657116-af8a-4998-8937-97c3360477f5_jpeg-1778887729494-6",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/2b657116-af8a-4998-8937-97c3360477f5_jpeg-1778887729494-6",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/2ceb8f45-06db-456d-a4de-4f633dd87a90_jpeg-1778887729494-7",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/2ceb8f45-06db-456d-a4de-4f633dd87a90_jpeg-1778887729494-7",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/2fbe8bd1-809f-412d-b979-131f6c662d5e_jpeg-1778887729494-8",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/2fbe8bd1-809f-412d-b979-131f6c662d5e_jpeg-1778887729494-8",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/313ed866-53a7-41a8-a64c-0b6cb47ad5fa_jpeg-1778887729494-30",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/313ed866-53a7-41a8-a64c-0b6cb47ad5fa_jpeg-1778887729494-30",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/34d99e4f-ea13-4c06-970f-f2991bb9e3e1_jpeg-1778887729494-24",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/34d99e4f-ea13-4c06-970f-f2991bb9e3e1_jpeg-1778887729494-24",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/3598400e-621b-499b-ac33-346b49ce5ea9_jpeg-1778887729494-43",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/3598400e-621b-499b-ac33-346b49ce5ea9_jpeg-1778887729494-43",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/390cc43a-bf4f-42bf-9363-ca6a8609e1ed_jpeg-1778887729494-31",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/390cc43a-bf4f-42bf-9363-ca6a8609e1ed_jpeg-1778887729494-31",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/3bf1639b-fb0a-445f-bb75-ec1422d1f794_jpeg-1778887729494-9",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/3bf1639b-fb0a-445f-bb75-ec1422d1f794_jpeg-1778887729494-9",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/3c9904d3-ddde-42be-a102-f9a7ac3ba9c7_jpeg-1778887729494-10",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/3c9904d3-ddde-42be-a102-f9a7ac3ba9c7_jpeg-1778887729494-10",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/3e9dc2ea-e98a-4ef0-b279-5213fb962413_jpeg-1778887729494-11",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/3e9dc2ea-e98a-4ef0-b279-5213fb962413_jpeg-1778887729494-11",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/49419156-ee3a-4ef2-b8cd-4961ba03cf18_jpeg-1778887729494-44",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/49419156-ee3a-4ef2-b8cd-4961ba03cf18_jpeg-1778887729494-44",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/4dffc2df-ef6f-45da-81de-8d73ad68f8b0_jpeg-1778887729494-12",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/4dffc2df-ef6f-45da-81de-8d73ad68f8b0_jpeg-1778887729494-12",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/5201a939-2e40-4a1b-b503-7196ecc9b7e3_jpeg-1778887729494-36",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/5201a939-2e40-4a1b-b503-7196ecc9b7e3_jpeg-1778887729494-36",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/55351db4-2566-4e65-ba51-db431f5799c7_jpeg-1778887729494-38",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/55351db4-2566-4e65-ba51-db431f5799c7_jpeg-1778887729494-38",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/55938e28-8225-4fc6-9118-e2e4e33b71fe_jpeg-1778887729494-39",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/55938e28-8225-4fc6-9118-e2e4e33b71fe_jpeg-1778887729494-39",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/5a7c8905-3cc4-491c-aa72-0e3187d4ff64_jpeg-1778887729494-13",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/5a7c8905-3cc4-491c-aa72-0e3187d4ff64_jpeg-1778887729494-13",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/5b0d6226-40b7-4b6d-91e4-88a0080e7be5_jpeg-1778887729494-14",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/5b0d6226-40b7-4b6d-91e4-88a0080e7be5_jpeg-1778887729494-14",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/5db15a6a-29aa-439a-ae27-a6f979c3bedd_jpeg-1778887729494-16",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/5db15a6a-29aa-439a-ae27-a6f979c3bedd_jpeg-1778887729494-16",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/63e84955-e36d-4e55-b492-157bd4f81418_jpeg-1778887729494-25",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/63e84955-e36d-4e55-b492-157bd4f81418_jpeg-1778887729494-25",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/64509d6c-de1d-4efb-9f37-077bb03d8402_jpeg-1778887729494-40",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/64509d6c-de1d-4efb-9f37-077bb03d8402_jpeg-1778887729494-40",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/65715321-519b-4c23-9657-3efd93c78f47_jpeg-1778887729494-45",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/65715321-519b-4c23-9657-3efd93c78f47_jpeg-1778887729494-45",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/66bab79c-f67f-4d17-b08f-6e41eff57c83_jpeg-1778887729494-26",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/66bab79c-f67f-4d17-b08f-6e41eff57c83_jpeg-1778887729494-26",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/6b565290-f1d7-43db-a3ab-c8ff8fe805d8_jpeg-1778887729494-17",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/6b565290-f1d7-43db-a3ab-c8ff8fe805d8_jpeg-1778887729494-17",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/6dba9298-c46f-4e89-a68f-52b327f1c4a1_jpeg-1778887729494-18",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/6dba9298-c46f-4e89-a68f-52b327f1c4a1_jpeg-1778887729494-18",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/6f4d09ba-e415-4d96-aaa5-3c09653c7aad_jpeg-1778887729494-19",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/6f4d09ba-e415-4d96-aaa5-3c09653c7aad_jpeg-1778887729494-19",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/75253c6f-c390-4489-ad21-229257c6e106_jpeg-1778887729494-41",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/75253c6f-c390-4489-ad21-229257c6e106_jpeg-1778887729494-41",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/768ce262-b4ca-4bf8-9d0f-7ce41e0b7ed2_jpeg-1778887729494-32",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/768ce262-b4ca-4bf8-9d0f-7ce41e0b7ed2_jpeg-1778887729494-32",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/7ad94d58-6c5b-4dc4-b6d0-810a5468e603_jpeg-1778887729494-20",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/7ad94d58-6c5b-4dc4-b6d0-810a5468e603_jpeg-1778887729494-20",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/7b0844d4-0b31-45f9-8134-acf6baf0a610_jpeg-1778887729494-21",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/7b0844d4-0b31-45f9-8134-acf6baf0a610_jpeg-1778887729494-21",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/82857282-242e-4877-8fd5-d109d3aead7b_jpeg-1778887729494-46",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/82857282-242e-4877-8fd5-d109d3aead7b_jpeg-1778887729494-46",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/8372f9c6-4447-4df3-84fc-221da1906f64_jpeg-1778887729494-37",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/8372f9c6-4447-4df3-84fc-221da1906f64_jpeg-1778887729494-37",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/889d16f1-6cad-40b8-b19c-359e9b82e721_jpeg-1778887729494-33",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/889d16f1-6cad-40b8-b19c-359e9b82e721_jpeg-1778887729494-33",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/8ea4334e-21a9-474e-9622-0f3ccc2c8978_jpeg-1778887729494-22",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/8ea4334e-21a9-474e-9622-0f3ccc2c8978_jpeg-1778887729494-22",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/90152d99-232a-4631-97df-e20c9c72296f_jpeg-1778887729494-42",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/90152d99-232a-4631-97df-e20c9c72296f_jpeg-1778887729494-42",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/99d619bb-05e9-40f7-b4f4-b2b4ddc75d2f_jpeg-1778887729494-27",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/99d619bb-05e9-40f7-b4f4-b2b4ddc75d2f_jpeg-1778887729494-27",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/a0548cd6-ee2e-4ab6-a4b0-5a93bb652f75_jpeg-1778887729494-49",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/a0548cd6-ee2e-4ab6-a4b0-5a93bb652f75_jpeg-1778887729494-49",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/a0947035-9d1c-42a4-b0c9-645553c40255_jpeg-1778887729494-50",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/a0947035-9d1c-42a4-b0c9-645553c40255_jpeg-1778887729494-50",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/a11f955f-093b-4bf3-b20b-1018be32027f_jpeg-1778887729494-48",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/a11f955f-093b-4bf3-b20b-1018be32027f_jpeg-1778887729494-48",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/a3f4aa54-6684-43c9-88f3-a3f9491052b6_jpeg-1778887729494-47",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/a3f4aa54-6684-43c9-88f3-a3f9491052b6_jpeg-1778887729494-47",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/ad9937cf-62c1-4297-951f-6befef229d81_jpeg-1778887729494-51",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/ad9937cf-62c1-4297-951f-6befef229d81_jpeg-1778887729494-51",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/aee2bbd2-f48a-4d9a-bfe1-17adf5d76b1f_jpeg-1778887729494-52",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/aee2bbd2-f48a-4d9a-bfe1-17adf5d76b1f_jpeg-1778887729494-52",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/b748b341-6dcf-4a47-9b61-eaef99436dab_jpeg-1778887729494-53",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/b748b341-6dcf-4a47-9b61-eaef99436dab_jpeg-1778887729494-53",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/bf3687ae-8a74-422d-8739-b15d4a38d825_jpeg-1778887729494-54",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/bf3687ae-8a74-422d-8739-b15d4a38d825_jpeg-1778887729494-54",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/c6f4877a-93f9-4497-8d38-cb84dbb55a5b_jpeg-1778887729494-55",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/c6f4877a-93f9-4497-8d38-cb84dbb55a5b_jpeg-1778887729494-55",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/cee676f9-4a00-4f68-b5ae-ef9ce769cb0d_jpeg-1778887729494-56",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/cee676f9-4a00-4f68-b5ae-ef9ce769cb0d_jpeg-1778887729494-56",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/d0d12f0b-282d-43ae-b023-b81ab80e354f_jpeg-1778887729494-57",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/d0d12f0b-282d-43ae-b023-b81ab80e354f_jpeg-1778887729494-57",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/d564ad62-88da-4f0c-a09d-63e8ff7cb4cd_jpeg-1778887729494-59",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/d564ad62-88da-4f0c-a09d-63e8ff7cb4cd_jpeg-1778887729494-59",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/d56fa954-6389-4564-b393-e1b0441426e3_jpeg-1778887729494-58",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/d56fa954-6389-4564-b393-e1b0441426e3_jpeg-1778887729494-58",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/ddbb4258-0ecc-4625-89ba-190587558793_jpeg-1778887729494-60",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/ddbb4258-0ecc-4625-89ba-190587558793_jpeg-1778887729494-60",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/ddbfc8e9-09f9-4547-a3bd-0ce4f28ce936_jpeg-1778887729494-61",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/ddbfc8e9-09f9-4547-a3bd-0ce4f28ce936_jpeg-1778887729494-61",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/def2c738-8677-42fc-b842-a1f14a54fe90_jpeg-1778887729494-62",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/def2c738-8677-42fc-b842-a1f14a54fe90_jpeg-1778887729494-62",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/e6580c7d-b30b-4253-a4f6-9cd6067876d2_jpeg-1778887729494-64",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/e6580c7d-b30b-4253-a4f6-9cd6067876d2_jpeg-1778887729494-64",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/e689e88c-07e0-46ba-9dcd-56d87b0eee6c_jpeg-1778887729494-63",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/e689e88c-07e0-46ba-9dcd-56d87b0eee6c_jpeg-1778887729494-63",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/ecdcc56a-20ba-4202-a053-f053b9ca7f8d_jpeg-1778887729494-65",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/ecdcc56a-20ba-4202-a053-f053b9ca7f8d_jpeg-1778887729494-65",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/f59c4572-eb6e-4a29-8095-c836673e2b7a_jpeg-1778887729494-67",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/f59c4572-eb6e-4a29-8095-c836673e2b7a_jpeg-1778887729494-67",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/f8a84b88-fc92-40e1-8f51-4212f211dcac_jpeg-1778887729494-66",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/f8a84b88-fc92-40e1-8f51-4212f211dcac_jpeg-1778887729494-66",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/faae7d47-c0a7-47d0-b9f9-6975b911e468_jpeg-1778887729494-68",
+          "public_id": "tandilurban/propiedades/casa-en-venta-con-jardn-quincho-y-vista-panormica---400m2/faae7d47-c0a7-47d0-b9f9-6975b911e468_jpeg-1778887729494-68",
+          "categoria": "Sin clasificar"
+        }
+      ]
+    },
+    {
+      "folderSlug": "dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k",
+      "titulo": "Dpto 300m nico amueblado quincho cochera venta usd 180k",
+      "descripcion": "Dpto 300m nico amueblado quincho cochera venta usd 180k. Publicación restaurada desde Cloudinary con fotos originales.",
+      "operacion": "Venta",
+      "tipo": "Departamento",
+      "precio": 180000,
+      "moneda": "USD",
+      "m2Total": 300,
+      "m2Cubiertos": 255,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "direccion": "Tandil — Parque Independencia",
+      "barrio": "Parque Independencia",
+      "latitud": -37.3254,
+      "longitud": -59.1357,
+      "expensas": null,
+      "caracteristicas": [
+        "Quincho",
+        "Jardín",
+        "Cochera",
+        "Parrilla"
+      ],
+      "imagenes": [
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/083d6342-5123-4525-918c-b99f389a00df_jpeg-1779244403006-7",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/083d6342-5123-4525-918c-b99f389a00df_jpeg-1779244403006-7",
+          "categoria": "Portada"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/0b7d818a-d10f-42fc-9601-6464e3dd09eb_jpeg-1779244403006-1",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/0b7d818a-d10f-42fc-9601-6464e3dd09eb_jpeg-1779244403006-1",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/1aa1f116-098f-420f-8798-c21c9aaaacdc_jpeg-1779244403006-2",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/1aa1f116-098f-420f-8798-c21c9aaaacdc_jpeg-1779244403006-2",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/23bd0a55-50e6-4fb5-bdc7-89699d940143_jpeg-1779244403006-5",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/23bd0a55-50e6-4fb5-bdc7-89699d940143_jpeg-1779244403006-5",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/27574187-c22c-43cc-881e-5504e2b87468_jpeg-1779244403006-16",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/27574187-c22c-43cc-881e-5504e2b87468_jpeg-1779244403006-16",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/3227e1ac-ed31-4b28-b9ac-ad944fb1e310_jpeg-1779244403006-12",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/3227e1ac-ed31-4b28-b9ac-ad944fb1e310_jpeg-1779244403006-12",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/3227e529-2854-473d-959e-7e15a8ad0881_jpeg-1779244403006-13",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/3227e529-2854-473d-959e-7e15a8ad0881_jpeg-1779244403006-13",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/41b594fe-1cbb-454b-b853-294651bf56f6_jpeg-1779244403006-6",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/41b594fe-1cbb-454b-b853-294651bf56f6_jpeg-1779244403006-6",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/515fd91f-1c33-4df4-8c64-48d7ebeef8af_jpeg-1779244403006-9",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/515fd91f-1c33-4df4-8c64-48d7ebeef8af_jpeg-1779244403006-9",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/663db9ab-1e38-4645-81b8-5b4df8fef778_jpeg-1779244403006-10",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/663db9ab-1e38-4645-81b8-5b4df8fef778_jpeg-1779244403006-10",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/6806a2f9-fc80-4ebf-9a6c-5693d82d0ee4_jpeg-1779244403006-14",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/6806a2f9-fc80-4ebf-9a6c-5693d82d0ee4_jpeg-1779244403006-14",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/6ee70009-80ca-4680-a054-3d33c605c796_jpeg-1779244403006-0",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/6ee70009-80ca-4680-a054-3d33c605c796_jpeg-1779244403006-0",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/7d64e59c-c447-4ddb-b4cd-df92242d59d0_jpeg-1779244403006-3",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/7d64e59c-c447-4ddb-b4cd-df92242d59d0_jpeg-1779244403006-3",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/864cf15c-6bf9-48d2-9996-c884d786d75e_jpeg-1779244403006-11",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/864cf15c-6bf9-48d2-9996-c884d786d75e_jpeg-1779244403006-11",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/87e9a3ba-e3b4-438b-ba00-46e3b9d24d80_jpeg-1779244403006-8",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/87e9a3ba-e3b4-438b-ba00-46e3b9d24d80_jpeg-1779244403006-8",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/957347f0-4235-4f08-9a2f-3f23a6ae425f_jpeg-1779244403006-15",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/957347f0-4235-4f08-9a2f-3f23a6ae425f_jpeg-1779244403006-15",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/9c9e8430-cc01-4468-bbcb-fef052b77ed9_jpeg-1779244403006-4",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/9c9e8430-cc01-4468-bbcb-fef052b77ed9_jpeg-1779244403006-4",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/a61c90a6-0989-46ae-8801-d8f3b8bdc5e9_jpeg-1779244403006-17",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/a61c90a6-0989-46ae-8801-d8f3b8bdc5e9_jpeg-1779244403006-17",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/abb0e4fe-7806-430d-a2a3-c99e4346ea89_jpeg-1779244403006-18",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/abb0e4fe-7806-430d-a2a3-c99e4346ea89_jpeg-1779244403006-18",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/ade27b4d-d8d5-4417-8e3a-23958508c6e0_jpeg-1779244403006-19",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/ade27b4d-d8d5-4417-8e3a-23958508c6e0_jpeg-1779244403006-19",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/aff200c4-657c-40a6-a734-aeea3f1c582f_jpeg-1779244403006-20",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/aff200c4-657c-40a6-a734-aeea3f1c582f_jpeg-1779244403006-20",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/b11c83a3-2abd-4004-83e2-0e95cb1e57e5_jpeg-1779244403006-21",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/b11c83a3-2abd-4004-83e2-0e95cb1e57e5_jpeg-1779244403006-21",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/b233d0a9-971e-40e9-9d09-a2dd505ff6b0_jpeg-1779244403006-22",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/b233d0a9-971e-40e9-9d09-a2dd505ff6b0_jpeg-1779244403006-22",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/c2b75f21-df3b-494e-ba76-6ee03353e503_jpeg-1779244403006-23",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/c2b75f21-df3b-494e-ba76-6ee03353e503_jpeg-1779244403006-23",
+          "categoria": "Sin clasificar"
+        },
+        {
+          "url": "https://res.cloudinary.com/dijzh5isu/image/upload/f_jpg,q_auto:good/tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/e0e410f0-08c7-4a07-bee5-16a0d4c4b7c7_jpeg-1779244403006-24",
+          "public_id": "tandilurban/propiedades/dpto-300m-nico-amueblado-quincho-cochera-venta-usd-180k/e0e410f0-08c7-4a07-bee5-16a0d4c4b7c7_jpeg-1779244403006-24",
+          "categoria": "Sin clasificar"
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import LinearPropertyForm from '@/components/panel/LinearPropertyForm';
 
 export const metadata = {
-  title: 'Nueva propiedad | TandilUrban',
+  title: 'Nueva propiedad | Propea Group',
 };
 
 export default function NuevaPropiedadPage() {

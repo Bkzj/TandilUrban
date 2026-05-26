@@ -1,13 +1,18 @@
 import { EstadoPropiedad, type Prisma } from '@prisma/client';
 
+import { getServerAuthSession } from '@/lib/auth';
+import { getFavoritePropiedadIds } from '@/lib/favoritos';
 import { prisma } from '@/lib/prisma';
-import type { PublicPropiedadListItem } from '@/types/public-search';
-import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
+import {
+  mapRowsToPublicPropiedadList,
+  PUBLIC_LISTING_SELECT,
+} from '@/lib/public-propiedad-list';
+import type { SessionUserAugmented } from '@/types/auth';
 
 import { BuscarExplorer } from './BuscarExplorer';
 
 export const metadata = {
-  title: 'Buscar propiedades | TandilUrban',
+  title: 'Buscar propiedades | Propea Group',
   description: 'Explorá propiedades en mapa y listado.',
 };
 
@@ -88,54 +93,23 @@ export default async function BuscarPage({ searchParams }: PageProps) {
 
   const where: Prisma.PropiedadWhereInput = { AND: clauses };
 
+  const session = await getServerAuthSession();
+  const userId = (session?.user as SessionUserAugmented | undefined)?.id;
+  const favoritoIds = userId ? await getFavoritePropiedadIds(userId) : new Set<string>();
+
   const rows = await prisma.propiedad.findMany({
     where,
     orderBy: { createdAt: 'desc' },
     take: 120,
-    select: {
-      id: true,
-      titulo: true,
-      direccion: true,
-      barrio: true,
-      precio: true,
-      moneda: true,
-      operacion: true,
-      tipo: true,
-      ambientes: true,
-      dormitorios: true,
-      banos: true,
-      m2Total: true,
-      latitud: true,
-      longitud: true,
-      imagenes: true,
-      visitas: true,
-      consultas: true,
-    },
+    select: PUBLIC_LISTING_SELECT,
   });
 
-  const propiedades: PublicPropiedadListItem[] = rows.map((p) => ({
-    id: p.id,
-    titulo: p.titulo,
-    direccion: p.direccion,
-    barrio: p.barrio,
-    precio: p.precio,
-    moneda: p.moneda,
-    operacion: p.operacion,
-    tipo: p.tipo,
-    ambientes: p.ambientes,
-    dormitorios: p.dormitorios,
-    banos: p.banos,
-    m2Total: p.m2Total,
-    latitud: p.latitud,
-    longitud: p.longitud,
-    imagenes: imagenesItemsToUrls(normalizePropiedadImagenesDb(p.imagenes)),
-    visitas: p.visitas,
-    consultas: p.consultas,
-  }));
+  const propiedades = mapRowsToPublicPropiedadList(rows);
 
   return (
     <BuscarExplorer
       propiedades={propiedades}
+      favoritoIds={favoritoIds}
       initialQuery={queryRaw}
       initialOperacionUrl={operacionRaw}
       initialTipoUrl={tipoRaw}

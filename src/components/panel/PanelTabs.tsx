@@ -63,10 +63,10 @@ export default function PanelTabs({ showEquipo }: Props) {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
+              className={`rounded-xl border-l-4 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
                 isActive
-                  ? 'bg-naranja text-surface shadow-sm shadow-naranja/30'
-                  : 'text-surface/70 hover:bg-surface/10 hover:text-surface'
+                  ? 'border-naranja bg-naranja/10 text-naranja shadow-sm shadow-naranja/20'
+                  : 'border-transparent text-surface/70 hover:border-naranja/30 hover:bg-naranja/5 hover:text-surface'
               }`}
             >
               {tab.label}

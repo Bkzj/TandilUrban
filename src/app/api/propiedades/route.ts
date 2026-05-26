@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
     const operacion = searchParams.get('operacion');
     const barrio = searchParams.get('barrio'); // Leemos el nuevo parámetro
 
-    const filtros: any = {};
+    const filtros: Prisma.PropiedadWhereInput = {};
     
     if (tipo && tipo !== 'Todos') filtros.tipo = tipo;
     if (operacion && operacion !== 'Todos') filtros.operacion = operacion;

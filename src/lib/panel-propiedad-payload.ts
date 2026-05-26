@@ -106,6 +106,11 @@ export function validarPropiedadPayload(
     ? b.caracteristicas.filter((c): c is string => typeof c === 'string')
     : [];
 
+  let planoUrl: string | null = null;
+  if (typeof b.planoUrl === 'string' && b.planoUrl.trim() !== '') {
+    planoUrl = b.planoUrl.trim();
+  }
+
   return {
     ok: true,
     data: {
@@ -126,6 +131,7 @@ export function validarPropiedadPayload(
       expensas,
       caracteristicas,
       imagenes: imagenesParsed,
+      planoUrl,
       titulo: b.titulo.trim(),
       descripcion: b.descripcion.trim(),
     },

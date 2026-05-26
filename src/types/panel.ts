@@ -5,6 +5,9 @@ export type PropiedadImagenItem = {
   categoria?: string | null;
 };
 
+/** Estado serializado desde Prisma `EstadoPropiedad`. */
+export type PanelPropiedadEstado = 'DISPONIBLE' | 'RESERVADA' | 'VENDIDA' | 'PAUSADA';
+
 /** Fila de propiedad en el panel administrador (serializable para client components). */
 export type PanelPropiedadTableRow = {
   id: string;
@@ -16,6 +19,7 @@ export type PanelPropiedadTableRow = {
   moneda: string;
   visitas: number;
   consultas: number;
+  estado: PanelPropiedadEstado;
   createdAt: string;
 };
 
@@ -30,11 +34,14 @@ export type PanelLeadRow = {
   telefono: string | null;
   mensaje: string;
   estado: PanelLeadEstado;
+  visitasFisicas: number;
   createdAt: string;
   propiedad: {
     id: string;
     titulo: string;
     imagenes: PropiedadImagenItem[];
+    visitas: number;
+    consultas: number;
   };
 };
 
@@ -69,6 +76,8 @@ export type PropertyFormData = {
   expensas: string;
   caracteristicas: string[];
   imagenes: PropiedadImagenItem[];
+  /** URL del plano (Cloudinary) o blob: pendiente de subida. */
+  planoUrl: string;
   layoutContext: string;
   titulo: string;
   descripcion: string;
@@ -76,7 +85,7 @@ export type PropertyFormData = {
 
 export type StepProps = {
   data: PropertyFormData;
-  update: (key: keyof PropertyFormData, value: any) => void;
+  update: <K extends keyof PropertyFormData>(key: K, value: PropertyFormData[K]) => void;
   onNext: () => void;
   isEditMode?: boolean;
 };

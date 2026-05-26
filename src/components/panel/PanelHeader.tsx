@@ -33,7 +33,7 @@ export default function PanelHeader() {
           </span>
           <span className="flex flex-col leading-tight">
             <span className="font-serif text-lg font-bold uppercase tracking-[0.2em] text-surface">
-              TandilUrban
+              Propea Group
             </span>
             <span className="text-[0.65rem] font-medium uppercase tracking-[0.32em] text-naranja-light">
               Backoffice

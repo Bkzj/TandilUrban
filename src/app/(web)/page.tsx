@@ -1,6 +1,8 @@
 import { EstadoPropiedad, type Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import HomeClient, { type HomePropiedadListItem } from '@/components/HomeClient';
+import { HomeHeroBlock } from '@/components/HomeHeroBlock';
+import { HomeListings, type HomePropiedadListItem } from '@/components/HomeListings';
+import { OportunidadesIntro } from '@/components/public/OportunidadesIntro';
 import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 
 function firstParam(value: string | string[] | undefined): string | undefined {
@@ -47,24 +49,31 @@ export default async function Home({ searchParams }: HomePageProps) {
     };
   }
 
-  const rows = await prisma.propiedad.findMany({
-    where,
-    orderBy: { precio: 'asc' },
-    select: {
-      id: true,
-      titulo: true,
-      precio: true,
-      moneda: true,
-      operacion: true,
-      ambientes: true,
-      m2Total: true,
-      latitud: true,
-      longitud: true,
-      tipo: true,
-      imagenes: true,
-      caracteristicas: true,
-    },
-  });
+  const [rows, barriosRows] = await Promise.all([
+    prisma.propiedad.findMany({
+      where,
+      orderBy: { precio: 'asc' },
+      select: {
+        id: true,
+        titulo: true,
+        precio: true,
+        moneda: true,
+        operacion: true,
+        ambientes: true,
+        m2Total: true,
+        latitud: true,
+        longitud: true,
+        tipo: true,
+        imagenes: true,
+        caracteristicas: true,
+      },
+    }),
+    prisma.propiedad.findMany({
+      where: { estado: EstadoPropiedad.DISPONIBLE, barrio: { not: null } },
+      select: { barrio: true },
+      distinct: ['barrio'],
+    }),
+  ]);
 
   const propiedades: HomePropiedadListItem[] = rows.map((p) => ({
     id: p.id,
@@ -81,11 +90,6 @@ export default async function Home({ searchParams }: HomePageProps) {
     esSustentable: propiedadEsSustentable(p.caracteristicas),
   }));
 
-  const barriosRows = await prisma.propiedad.findMany({
-    where: { estado: EstadoPropiedad.DISPONIBLE, barrio: { not: null } },
-    select: { barrio: true },
-    distinct: ['barrio'],
-  });
   const barrios = barriosRows
     .map((r) => r.barrio)
     .filter((b): b is string => typeof b === 'string' && b.trim() !== '')
@@ -93,7 +97,9 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   return (
     <main className="flex min-h-screen flex-col bg-background">
-      <HomeClient propiedades={propiedades} barrios={barrios} />
+      <HomeHeroBlock barrios={barrios} />
+      <OportunidadesIntro />
+      <HomeListings propiedades={propiedades} />
     </main>
   );
 }

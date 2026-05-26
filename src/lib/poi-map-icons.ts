@@ -2,7 +2,7 @@ import L from 'leaflet';
 
 import type { CercaniasCategoryKey } from '@/types/cercanias';
 
-/** Verde principal de marca TandilUrban */
+/** Verde principal de marca Propea Group */
 const VERDE = '#1C5E3C';
 
 const SVG: Record<CercaniasCategoryKey, string> = {

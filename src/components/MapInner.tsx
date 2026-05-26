@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+
+import { useClientMounted } from '@/hooks/use-client-mounted';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-/** Pin TandilUrban (misma piedra que en el panel). */
+/** Pin Propea Group (misma piedra que en el panel). */
 const tandilIcon = L.divIcon({
   className: 'custom-tandil-pin',
   html: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -59,15 +61,10 @@ export default function UniversalMap({
   filtros,
   filtrosActivosIniciales = [],
 }: MapProps) {
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useClientMounted();
   const [filtrosActivos, setFiltrosActivos] = useState<string[]>(filtrosActivosIniciales);
 
   const pinFijo = useMemo(() => tandilIcon, []);
-
-  useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
 
   const toggleFiltro = (id: string) => {
     setFiltrosActivos((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));

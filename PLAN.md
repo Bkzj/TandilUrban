@@ -36,12 +36,47 @@ SaaS B2B inmobiliario de alto impacto con integración de IA multimodal e inteli
   - Prompt multimodal para agrupar fotos por ambiente (Cocina, Baño, etc.) automáticamente.
   - Renderizado agrupado al estilo Airbnb en el frontend.
 - [ ] **Fase 14 - Inteligencia Geoespacial & Datos Urbanísticos:** - Incorporar FOS y FOT en el panel para propiedades tipo Lote/Casa vieja.
-  - Parsear el KML de la Municipalidad (Establecimientos educativos) e inyectarlo en el mapa de propiedades para calcular cercanías.
+  - Parsear el KML de la Municipalidad (Establecimientos educativos) e inyectarlo en el  de propiedades para calcular cercanías.
 - [ ] **Fase 15 - Dashboards Analíticos B2B:** - Integrar Tremor/Recharts en el Panel de Resumen.
-  - Gráficos de Embudo: Impresiones -> Visitas -> Consultas.
+  - Gráficos de Embudo: Impresiones -> Visitas -> Consultas.mapa
 
-### 🏁 Fases de Lanzamiento
-- [ ] **Fase 16 - Motor de Sugerencias:**
-  - Sección de "Propiedades similares" basadas en la navegación por cookies.
-- [ ] **Fase 17 - Cierre Institucional:** - Footer corporativo (Legales, Redes).
-  - Landing page para captación B2B ("Uní tu Inmobiliaria").
+🗺️ El Masterplan de TandilUrban (Fases 15 a 18)
+Sprint 1: El Gancho B2B (Camino 1) 📍 (Lo que hacemos hoy)
+
+Creación de la ruta dinámica /inmobiliarias/[slug].
+
+Vidriera personalizada para cada agencia/agente (Logo, Portada, Contacto).
+
+Grilla exclusiva con el inventario de esa agencia.
+
+Sprint 2: Conversión y UX en la Ficha 💬 * Botón de "Compartir" nativo (aprovechando el SEO que hicimos).
+
+Píldoras de recomendaciones en el formulario ("¿Aceptan mascotas?", "¿Tiene cochera?").
+
+Sección "Vistos Última Vez" (usando LocalStorage).
+
+Sprint 3: Retención de Usuarios (Camino 2) ❤️
+
+Sistema de "Favoritos" (Botón de corazón en las tarjetas).
+
+Creación del Panel de Usuario (/perfil): Editar datos, cambiar contraseña, ver propiedades guardadas.
+
+Sprint 4: Inteligencia y Sugerencias (Fase 16) 🧠
+
+Sección "Propiedades Similares" en la parte inferior de la ficha.
+
+Sprint 5: Dashboards B2B (Fase 15) 📊
+
+Integración de Tremor y Recharts en el Panel de Administración.
+
+Gráficos de embudo (Vistas de tarjeta -> Clics -> Consultas).
+
+Sprint 6: Cierre Institucional (Fase 17) 🏢
+
+Landing Page B2B ("Uní tu Inmobiliaria a TandilUrban").
+
+Footer corporativo (Legales, Redes, Contacto).
+
+Sprint 7: El As bajo la Manga (Camino 3 - IA) 🤖
+
+Conectar la base de datos a un agente Gemini (aprovechando tu experiencia con Bunker-404) para un chatbot inteligente o calificador de leads.

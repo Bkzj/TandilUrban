@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
+
+import { useClientMounted } from '@/hooks/use-client-mounted';
 import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -69,6 +71,9 @@ function flattenPointPois(
   return markers;
 }
 
+/** Zoom base del listado; +2 niveles para ver la calle al abrir la ficha. */
+const PROPERTY_DETAIL_MAP_ZOOM = 16;
+
 export default function PropiedadUbicacionMapInner({
   titulo,
   latitud,
@@ -76,14 +81,9 @@ export default function PropiedadUbicacionMapInner({
   pois,
   activeCategorias = [],
 }: Props) {
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useClientMounted();
   const pinFijo = useMemo(() => tandilIcon, []);
   const activeSet = useMemo(() => new Set(activeCategorias), [activeCategorias]);
-
-  useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
 
   const centro = useMemo<[number, number]>(() => {
     const lat = Number.isFinite(latitud) ? latitud : -37.3217;
@@ -99,7 +99,7 @@ export default function PropiedadUbicacionMapInner({
   const activeBusLines = useMemo(() => {
     if (!pois?.transporte?.length) return [];
     return pois.transporte.filter((line) => activeSet.has(line.id));
-  }, [pois?.transporte, activeSet]);
+  }, [pois, activeSet]);
 
   if (!isMounted) {
     return (
@@ -110,7 +110,12 @@ export default function PropiedadUbicacionMapInner({
   }
 
   return (
-    <MapContainer center={centro} zoom={14} scrollWheelZoom={false} className="z-0 h-full w-full">
+    <MapContainer
+      center={centro}
+      zoom={PROPERTY_DETAIL_MAP_ZOOM}
+      scrollWheelZoom={false}
+      className="z-0 h-full w-full"
+    >
       <TileLayer
         attribution="&copy; OpenStreetMap"
         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"

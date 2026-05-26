@@ -12,7 +12,7 @@ import PanelTabs from '@/components/panel/PanelTabs';
 import { LeadsTable } from '@/components/panel/LeadsTable';
 
 export const metadata = {
-  title: 'Mensajes · Panel | TandilUrban',
+  title: 'Mensajes · Panel | Propea Group',
 };
 
 export const dynamic = 'force-dynamic';
@@ -63,12 +63,15 @@ export default async function PanelMensajesPage() {
       telefono: true,
       mensaje: true,
       estado: true,
+      visitasFisicas: true,
       createdAt: true,
       propiedad: {
         select: {
           id: true,
           titulo: true,
           imagenes: true,
+          visitas: true,
+          consultas: true,
         },
       },
     },
@@ -81,11 +84,14 @@ export default async function PanelMensajesPage() {
     telefono: r.telefono,
     mensaje: r.mensaje,
     estado: r.estado as PanelLeadEstado,
+    visitasFisicas: r.visitasFisicas,
     createdAt: r.createdAt.toISOString(),
     propiedad: {
       id: r.propiedad.id,
       titulo: r.propiedad.titulo,
       imagenes: normalizePropiedadImagenesDb(r.propiedad.imagenes),
+      visitas: r.propiedad.visitas,
+      consultas: r.propiedad.consultas,
     },
   }));
 

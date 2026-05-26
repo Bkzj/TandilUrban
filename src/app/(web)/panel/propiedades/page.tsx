@@ -12,7 +12,7 @@ import PanelTabs from '@/components/panel/PanelTabs';
 import { PropertiesClientTable } from '@/components/panel/PropertiesClientTable';
 
 export const metadata = {
-  title: 'Administrar propiedades · Panel | TandilUrban',
+  title: 'Administrar propiedades · Panel | Propea Group',
 };
 
 export const dynamic = 'force-dynamic';
@@ -67,6 +67,7 @@ export default async function PanelPropiedadesPage() {
       moneda: true,
       visitas: true,
       consultas: true,
+      estado: true,
       createdAt: true,
     },
   });
@@ -81,6 +82,7 @@ export default async function PanelPropiedadesPage() {
     moneda: p.moneda,
     visitas: p.visitas,
     consultas: p.consultas,
+    estado: p.estado,
     createdAt: p.createdAt.toISOString(),
   }));
 
@@ -88,18 +90,27 @@ export default async function PanelPropiedadesPage() {
     <main className="mx-auto w-full max-w-7xl px-6 py-12 md:px-8">
       <PanelTabs showEquipo={canManageTeam} />
 
-      <header className="mt-8 flex flex-col">
-        <p className="mb-2 text-xs font-bold uppercase tracking-widest !text-naranja-light/80">
-          Inventario · Publicaciones
-        </p>
-        <h1 className="text-4xl font-semibold tracking-tight !text-white md:text-5xl">
-          Administrar Propiedades
-        </h1>
-        <p className="mt-2 text-lg font-light !text-white/85">
-          {canManageTeam
-            ? 'Listado de la agencia con visitas, consultas y conversión.'
-            : 'Tus publicaciones y métricas.'}
-        </p>
+      <header className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase tracking-widest !text-naranja-light/80">
+            Inventario · Publicaciones
+          </p>
+          <h1 className="text-4xl font-semibold tracking-tight !text-white md:text-5xl">
+            Administrar Propiedades
+          </h1>
+          <p className="mt-2 text-lg font-light !text-white/85">
+            {canManageTeam
+              ? 'Listado de la agencia con visitas, consultas y conversión.'
+              : 'Tus publicaciones y métricas.'}
+          </p>
+        </div>
+        <Link
+          href="/panel/propiedades/nueva"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-naranja px-5 py-3 text-sm font-semibold text-surface shadow-lg shadow-naranja/30 transition hover:bg-naranja-hover"
+        >
+          <span aria-hidden>+</span>
+          Nueva propiedad
+        </Link>
       </header>
 
       <PropertiesClientTable propiedades={propiedades} />

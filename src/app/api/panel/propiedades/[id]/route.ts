@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { Prisma } from '@prisma/client';
+import { EstadoPropiedad, Prisma } from '@prisma/client';
+
+import { onPropiedadPublicada } from '@/lib/match-engine';
 
 import {
   configureCloudinary,
@@ -18,6 +20,67 @@ function handleAuthError(error: unknown): NextResponse | null {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
   return null;
+}
+
+const ESTADOS_VALIDOS = Object.values(EstadoPropiedad) as string[];
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Tenés que iniciar sesión.' }, { status: 401 });
+    }
+
+    assertNotPublicPortalUser(user);
+
+    const { id } = await params;
+    const body = (await request.json()) as { estado?: unknown };
+    if (typeof body.estado !== 'string' || !ESTADOS_VALIDOS.includes(body.estado)) {
+      return NextResponse.json({ error: 'Estado inválido.' }, { status: 400 });
+    }
+
+    const nuevoEstado = body.estado as EstadoPropiedad;
+
+    const propiedad = await prisma.propiedad.findUnique({
+      where: { id },
+      select: { id: true, inmobiliariaId: true, agenteId: true, estado: true },
+    });
+
+    if (!propiedad) {
+      return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
+    }
+
+    if (!userCanModifyPropiedad(user, propiedad)) {
+      return NextResponse.json(
+        { error: 'No tenés permiso para modificar esta propiedad.' },
+        { status: 403 }
+      );
+    }
+
+    const estadoAnterior = propiedad.estado;
+
+    await prisma.propiedad.update({
+      where: { id: propiedad.id },
+      data: { estado: nuevoEstado },
+    });
+
+    if (
+      nuevoEstado === EstadoPropiedad.DISPONIBLE &&
+      estadoAnterior !== EstadoPropiedad.DISPONIBLE
+    ) {
+      void onPropiedadPublicada(propiedad.id).catch(console.error);
+    }
+
+    return NextResponse.json({ ok: true, estado: nuevoEstado }, { status: 200 });
+  } catch (error) {
+    const handled = handleAuthError(error);
+    if (handled) return handled;
+    console.error('[PATCH /api/panel/propiedades/[id]]', error);
+    return NextResponse.json({ error: 'No se pudo actualizar el estado.' }, { status: 500 });
+  }
 }
 
 export async function PUT(
@@ -80,6 +143,7 @@ export async function PUT(
         cocheras: esLote ? 0 : data.cocheras,
         caracteristicas: data.caracteristicas,
         imagenes: data.imagenes,
+        planoUrl: data.planoUrl,
       },
     });
 

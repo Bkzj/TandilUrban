@@ -12,7 +12,7 @@ const INPUT_FILE = path.join(GEO_DIR, 'datos educacion final.txt');
 const OUTPUT_FILE = path.join(GEO_DIR, 'educacion-geocoded.json');
 
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
-const USER_AGENT = 'TandilUrban-App/1.0 (contacto@tandilurban.com.ar)';
+const USER_AGENT = 'PropeaGroup-App/1.0 (contacto@propeagroup.com)';
 const DELAY_MS = 1200;
 
 const SECTION_HEADER =

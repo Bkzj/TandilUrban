@@ -57,19 +57,19 @@ export function StepUbicacion({ data, update, isEditMode }: StepProps) {
   const lng = data.lng ?? DEFAULT_CENTER.lng;
   const center = useMemo<[number, number]>(() => [lat, lng], [lat, lng]);
 
+  const queryTrimmed = query.trim();
+  const canSearch = queryTrimmed.length >= 3;
+  const visibleSuggestions = canSearch ? suggestions : [];
+  const visibleSearching = canSearch && isSearching;
+
   useEffect(() => {
-    const text = query.trim();
-    if (text.length < 3) {
-      setSuggestions([]);
-      setIsSearching(false);
-      return;
-    }
+    if (!canSearch) return;
 
     const timeoutId = window.setTimeout(() => {
       void (async () => {
         setIsSearching(true);
         try {
-          const searchQuery = buildTandilSearchQuery(text);
+          const searchQuery = buildTandilSearchQuery(queryTrimmed);
           const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`;
           const res = await fetch(url, { headers: { Accept: 'application/json' } });
           if (!res.ok) {
@@ -87,7 +87,7 @@ export function StepUbicacion({ data, update, isEditMode }: StepProps) {
     }, 500);
 
     return () => window.clearTimeout(timeoutId);
-  }, [query]);
+  }, [canSearch, queryTrimmed]);
 
   async function handleSearch() {
     const q = query.trim();
@@ -185,10 +185,9 @@ export function StepUbicacion({ data, update, isEditMode }: StepProps) {
             disabled={searching}
             autoFocus
             autoComplete="off"
-            aria-expanded={showSuggestionList}
             aria-haspopup="listbox"
           />
-          {isSearching ? (
+          {visibleSearching ? (
             <p className="absolute right-3 top-1/2 -translate-y-1/2 text-xs !text-surface/60">
               Buscando…
             </p>
@@ -202,6 +201,7 @@ export function StepUbicacion({ data, update, isEditMode }: StepProps) {
               <li
                 key="manual-suggestion"
                 role="option"
+                aria-selected={false}
                 tabIndex={0}
                 className="cursor-pointer rounded-xl p-3 transition-colors hover:bg-white/10"
                 onClick={() => void pickManualOption()}
@@ -214,10 +214,11 @@ export function StepUbicacion({ data, update, isEditMode }: StepProps) {
               >
                 {`📍 Dirección no encontrada. Usar "${query}" y ubicar pin manualmente`}
               </li>
-              {suggestions.map((item, index) => (
+              {visibleSuggestions.map((item, index) => (
                 <li
                   key={`${item.lat}-${item.lon}-${index}`}
                   role="option"
+                  aria-selected={false}
                   tabIndex={0}
                   className="cursor-pointer rounded-xl p-3 transition-colors hover:bg-white/10"
                   onClick={() => pickSuggestion(item)}

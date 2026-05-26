@@ -7,6 +7,13 @@ type PropertyContactFormProps = {
   propiedadId: string;
 };
 
+const QUICK_SUGGESTIONS = [
+  '¿Sigue disponible?',
+  'Quiero coordinar una visita',
+  '¿Aceptan mascotas?',
+  '¿Tiene cochera?',
+] as const;
+
 const fieldClass =
   'w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none placeholder:text-gray-400 focus:border-naranja focus:ring-2 focus:ring-naranja';
 
@@ -18,8 +25,18 @@ export function PropertyContactForm({ propiedadId }: PropertyContactFormProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
+  function applySuggestion(text: string) {
+    setMensaje(text);
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    const telefonoNorm = telefono.trim();
+    if (telefonoNorm.length < 6) {
+      setErrorMsg('El teléfono es obligatorio (mínimo 6 caracteres).');
+      setStatus('error');
+      return;
+    }
     setStatus('loading');
     setErrorMsg('');
     try {
@@ -29,7 +46,7 @@ export function PropertyContactForm({ propiedadId }: PropertyContactFormProps) {
         body: JSON.stringify({
           nombre,
           email,
-          telefono: telefono.trim() || null,
+          telefono: telefonoNorm,
           mensaje,
           propiedadId,
         }),
@@ -95,15 +112,35 @@ export function PropertyContactForm({ propiedadId }: PropertyContactFormProps) {
           onChange={(ev) => setEmail(ev.target.value)}
           className={fieldClass}
         />
-        <input
-          type="tel"
-          name="telefono"
-          placeholder="Teléfono (opcional)"
-          autoComplete="tel"
-          value={telefono}
-          onChange={(ev) => setTelefono(ev.target.value)}
-          className={fieldClass}
-        />
+        <div>
+          <input
+            type="tel"
+            name="telefono"
+            required
+            minLength={6}
+            placeholder="Teléfono (Solo para contactarte por WhatsApp, sin spam)"
+            autoComplete="tel"
+            value={telefono}
+            onChange={(ev) => setTelefono(ev.target.value)}
+            className={fieldClass}
+            aria-describedby="contacto-telefono-ayuda"
+          />
+          <p id="contacto-telefono-ayuda" className="mt-1.5 text-xs text-gray-500">
+            Solo para contactarte por WhatsApp, sin spam.
+          </p>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+          {QUICK_SUGGESTIONS.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              onClick={() => applySuggestion(suggestion)}
+              className="shrink-0 rounded-full border border-transparent bg-gray-100 px-3 py-1.5 text-xs text-gray-600 transition-all hover:border-naranja hover:bg-naranja hover:text-white"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
         <textarea
           name="mensaje"
           required
@@ -117,7 +154,7 @@ export function PropertyContactForm({ propiedadId }: PropertyContactFormProps) {
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="w-full rounded-xl bg-naranja py-3.5 text-sm font-semibold text-white transition-colors hover:bg-naranja/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-naranja focus-visible:ring-offset-2 disabled:opacity-60"
+          className="w-full rounded-xl bg-verde py-3.5 text-sm font-semibold text-white transition-colors hover:bg-verde/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-verde focus-visible:ring-offset-2 disabled:opacity-60"
         >
           {status === 'loading' ? 'Enviando...' : 'Enviar consulta'}
         </button>

@@ -5,7 +5,11 @@ import type { StepProps } from '@/types/panel';
 import { CARACTERISTICAS } from './constants';
 import { StepHeading } from './step-ui';
 
-export function StepCaracteristicas({ data, update, onNext: _onNext, isEditMode }: StepProps) {
+export function StepCaracteristicas({
+  data,
+  update,
+  isEditMode,
+}: Omit<StepProps, 'onNext'>) {
   return (
     <>
       <StepHeading>

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
 
+import { FavoriteButton } from '@/components/public/FavoriteButton';
+import { isPropiedadDestacada } from '@/lib/propiedad-destacada';
 import type { PublicPropiedadListItem } from '@/types/public-search';
 
 const PLACEHOLDER =
@@ -11,17 +11,19 @@ const PLACEHOLDER =
 
 type Props = {
   propiedad: PublicPropiedadListItem;
+  isFavoritoInicial?: boolean;
+  /** Fuerza estilo y badge de destacada (p. ej. en /destacados). */
+  variant?: 'default' | 'featured';
 };
 
-/** Hasta no existir `isDestacada` en Prisma: destacamos listings con buen engagement. */
-function isDestacadaSimulada(p: PublicPropiedadListItem): boolean {
-  return p.visitas >= 25 || p.consultas >= 8;
-}
-
-export function PropertyCardPublic({ propiedad }: Props) {
-  const [fav, setFav] = useState(false);
+export function PropertyCardPublic({
+  propiedad,
+  isFavoritoInicial = false,
+  variant = 'default',
+}: Props) {
   const img = propiedad.imagenes[0]?.trim() || PLACEHOLDER;
-  const destacada = isDestacadaSimulada(propiedad);
+  const destacada = variant === 'featured' || isPropiedadDestacada(propiedad);
+  const featuredCard = variant === 'featured';
   const direccionLine = [propiedad.direccion, propiedad.barrio].filter(Boolean).join(' · ');
   const precioFmt = `${propiedad.moneda} ${propiedad.precio.toLocaleString('es-AR')}`;
 
@@ -29,7 +31,13 @@ export function PropertyCardPublic({ propiedad }: Props) {
     <article className="group relative">
       <div className="relative">
         <Link href={`/propiedades/${propiedad.id}`} className="block">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 shadow-sm ring-1 ring-black/5 transition-shadow group-hover:shadow-md">
+          <div
+            className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 shadow-sm transition-shadow group-hover:shadow-md ${
+              featuredCard
+                ? 'ring-2 ring-naranja/35 shadow-md shadow-naranja/10'
+                : 'ring-1 ring-black/5'
+            }`}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={img}
@@ -37,7 +45,13 @@ export function PropertyCardPublic({ propiedad }: Props) {
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
             {destacada ? (
-              <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-naranja shadow-sm backdrop-blur-sm">
+              <span
+                className={`absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm ${
+                  featuredCard
+                    ? 'bg-naranja text-white'
+                    : 'bg-white/90 text-naranja'
+                }`}
+              >
                 Destacada
               </span>
             ) : null}
@@ -54,17 +68,11 @@ export function PropertyCardPublic({ propiedad }: Props) {
             <p className="line-clamp-2 text-sm text-text-secondary">{direccionLine}</p>
           </div>
         </Link>
-        <button
-          type="button"
-          aria-label={fav ? 'Quitar de favoritos' : 'Guardar en favoritos'}
-          className="absolute right-3 top-3 z-[2] flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-gray-800 shadow-md backdrop-blur-sm transition hover:bg-white"
-          onClick={() => setFav((v) => !v)}
-        >
-          <Heart
-            className={`h-5 w-5 ${fav ? 'fill-naranja text-naranja' : 'text-gray-600'}`}
-            aria-hidden
-          />
-        </button>
+        <FavoriteButton
+          propiedadId={propiedad.id}
+          isFavoritoInicial={isFavoritoInicial}
+          className="absolute right-3 top-3 z-20"
+        />
       </div>
     </article>
   );

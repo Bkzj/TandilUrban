@@ -158,6 +158,38 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
         setSyncingFiles(false);
       }
 
+      let planoUrlPayload: string | null =
+        formData.planoUrl.trim() !== '' ? formData.planoUrl.trim() : null;
+
+      if (planoUrlPayload?.startsWith('blob:')) {
+        const tituloSeg =
+          formData.titulo.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9/-]/g, '') ||
+          'propiedad';
+        const folderPath = `tandilurban/propiedades/${tituloSeg}`;
+        const dataUrl = await blobUrlToDataUrl(planoUrlPayload);
+        const file = blobFiles?.getFileForBlob(planoUrlPayload);
+        const up = await fetch('/api/upload', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            file: dataUrl,
+            folderPath,
+            publicId: `plano-${Date.now()}`,
+          }),
+        });
+        if (!up.ok) {
+          const j = (await up.json().catch(() => ({}))) as { error?: string };
+          throw new Error(
+            typeof j.error === 'string' ? j.error : 'Falló la subida del plano a la nube.',
+          );
+        }
+        const json = (await up.json()) as { url: string };
+        planoUrlPayload = json.url;
+        blobFiles?.unregisterBlob(formData.planoUrl);
+        URL.revokeObjectURL(formData.planoUrl);
+      }
+
       const lat = formData.lat ?? DEFAULT_CENTER.lat;
       const lng = formData.lng ?? DEFAULT_CENTER.lng;
 
@@ -179,6 +211,7 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
         expensas: formData.expensas ? Number(formData.expensas) : null,
         caracteristicas: formData.caracteristicas,
         imagenes: imagenesPayload,
+        planoUrl: planoUrlPayload,
         titulo: formData.titulo,
         descripcion: formData.descripcion,
       };
@@ -226,7 +259,9 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
       );
       setSubmitting(false);
     }
-  }, [blobFiles, formData, initialData?.id, router]);
+    // submitting: guard de reentrada; no debe recrear el callback en cada toggle
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ver comentario arriba
+  }, [blobFiles, formData, initialData, router]);
 
   return (
     <div className="relative mx-auto flex h-full min-h-0 w-full max-w-7xl flex-1 flex-col px-6 py-10 text-surface md:px-8">
@@ -277,7 +312,6 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
                     <StepCaracteristicas
                       data={formData}
                       update={update}
-                      onNext={goNext}
                       isEditMode={isEditMode}
                     />
                   )}
@@ -285,7 +319,7 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
                     <StepImagenes data={formData} update={update} onNext={goNext} isEditMode={isEditMode} />
                   )}
                   {STEPS[currentStep] === 'textos' && (
-                    <StepTextos data={formData} update={update} onNext={goNext} isEditMode={isEditMode} />
+                    <StepTextos data={formData} update={update} isEditMode={isEditMode} />
                   )}
                 </StepShell>
               </AnimatePresence>
@@ -302,7 +336,6 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
 
       <Footer
         currentStep={currentStep}
-        totalSteps={TOTAL_STEPS}
         canContinue={canContinue}
         onBack={goPrev}
         onContinue={goNext}
@@ -356,7 +389,6 @@ function Progress({ current, total }: { current: number; total: number }) {
 
 function Footer({
   currentStep,
-  totalSteps: _totalSteps,
   canContinue,
   onBack,
   onContinue,
@@ -367,7 +399,6 @@ function Footer({
   isEditMode,
 }: {
   currentStep: number;
-  totalSteps: number;
   canContinue: boolean;
   onBack: () => void;
   onContinue: () => void;

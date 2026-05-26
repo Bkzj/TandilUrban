@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
-import type { PanelPropiedadTableRow } from '@/types/panel';
+import type { PanelPropiedadEstado, PanelPropiedadTableRow } from '@/types/panel';
 
+import { EstadoSelector } from './EstadoSelector';
 import { PropertyQuickView } from './PropertyQuickView';
 
 const PLACEHOLDER_THUMB =
@@ -22,8 +24,18 @@ type Props = {
   propiedades: PanelPropiedadTableRow[];
 };
 
-export function PropertiesClientTable({ propiedades }: Props) {
+export function PropertiesClientTable({ propiedades: initialPropiedades }: Props) {
+  const [propiedades, setPropiedades] = useState(initialPropiedades);
   const [selectedProp, setSelectedProp] = useState<PanelPropiedadTableRow | null>(null);
+
+  const onEstadoChange = useCallback((id: string, estado: PanelPropiedadEstado) => {
+    setPropiedades((prev) => prev.map((p) => (p.id === id ? { ...p, estado } : p)));
+    setSelectedProp((prev) => (prev?.id === id ? { ...prev, estado } : prev));
+  }, []);
+
+  useEffect(() => {
+    setPropiedades(initialPropiedades);
+  }, [initialPropiedades]);
 
   return (
     <>
@@ -36,12 +48,13 @@ export function PropertiesClientTable({ propiedades }: Props) {
                 <th className="hidden px-4 py-3 font-semibold sm:table-cell">Operación / Tipo</th>
                 <th className="px-4 py-3 font-semibold">Precio</th>
                 <th className="hidden px-4 py-3 font-semibold md:table-cell">Métricas</th>
+                <th className="px-4 py-3 font-semibold">Estado</th>
               </tr>
             </thead>
             <tbody>
               {propiedades.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center !text-white/60">
+                  <td colSpan={5} className="px-4 py-10 text-center !text-white/60">
                     No hay propiedades para mostrar.{' '}
                     <Link
                       href="/panel/propiedades/nueva"
@@ -66,11 +79,22 @@ export function PropertiesClientTable({ propiedades }: Props) {
                     >
                       <td className="max-w-[14rem] px-4 py-3 align-middle">
                         <div className="flex items-center gap-3">
-                          <img
-                            src={thumb || PLACEHOLDER_THUMB}
-                            alt=""
-                            className="h-11 w-11 shrink-0 rounded-lg object-cover"
-                          />
+                          {thumb && !thumb.startsWith('data:') ? (
+                            <Image
+                              src={thumb}
+                              alt=""
+                              width={44}
+                              height={44}
+                              className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                            />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element -- placeholder SVG data URI
+                            <img
+                              src={PLACEHOLDER_THUMB}
+                              alt=""
+                              className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                            />
+                          )}
                           <span className="line-clamp-2 font-medium !text-white">{prop.titulo}</span>
                         </div>
                       </td>
@@ -87,6 +111,16 @@ export function PropertiesClientTable({ propiedades }: Props) {
                         <span className="font-medium !text-white">
                           {visitas} · {consultas} · {conv}
                         </span>
+                      </td>
+                      <td
+                        className="px-4 py-3 align-middle"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <EstadoSelector
+                          propiedadId={prop.id}
+                          estadoActual={prop.estado}
+                          onEstadoChange={(estado) => onEstadoChange(prop.id, estado)}
+                        />
                       </td>
                     </tr>
                   );

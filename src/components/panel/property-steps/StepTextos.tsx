@@ -21,7 +21,7 @@ async function blobToBase64(blobUrl: string): Promise<string | null> {
   }
 }
 
-export function StepTextos({ data, update, onNext: _onNext, isEditMode }: StepProps) {
+export function StepTextos({ data, update, isEditMode }: Omit<StepProps, 'onNext'>) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [notasIA, setNotasIA] = useState('');
 

@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import HeroSearch from '@/components/public/HeroSearch';
 import { PropertyCardPublic } from '@/components/public/PropertyCardPublic';
 
+import { isValidMapLatLng } from '@/lib/map-coords';
 import type { PublicPropiedadListItem } from '@/types/public-search';
 
 const ExplorerMap = dynamic(
@@ -22,37 +23,43 @@ const ExplorerMap = dynamic(
 
 type BuscarExplorerProps = {
   propiedades: PublicPropiedadListItem[];
+  favoritoIds?: ReadonlySet<string>;
   initialQuery: string;
   initialOperacionUrl: string;
   initialTipoUrl: string;
 };
 
 function toMapPoints(list: PublicPropiedadListItem[]) {
-  return list.map((p) => ({
-    id: p.id,
-    lat: p.latitud,
-    lng: p.longitud,
-    titulo: p.titulo,
-  }));
+  return list
+    .filter((p) => isValidMapLatLng(p.latitud, p.longitud))
+    .map((p) => ({
+      id: p.id,
+      lat: Number(p.latitud),
+      lng: Number(p.longitud),
+      titulo: p.titulo,
+    }))
+    .filter((p) => isValidMapLatLng(p.lat, p.lng));
 }
 
 export function BuscarExplorer({
   propiedades,
+  favoritoIds,
   initialQuery,
   initialOperacionUrl,
   initialTipoUrl,
 }: BuscarExplorerProps) {
-  const [visiblePropertyIds, setVisiblePropertyIds] = useState<string[]>(() =>
-    propiedades.map((p) => p.id)
-  );
-  const [debouncedVisibleIds, setDebouncedVisibleIds] = useState<string[]>(() =>
-    propiedades.map((p) => p.id)
-  );
+  const propiedadIds = useMemo(() => propiedades.map((p) => p.id), [propiedades]);
+  const propiedadIdsKey = propiedadIds.join('\0');
 
-  useEffect(() => {
-    setVisiblePropertyIds(propiedades.map((p) => p.id));
-    setDebouncedVisibleIds(propiedades.map((p) => p.id));
-  }, [propiedades]);
+  const [visiblePropertyIds, setVisiblePropertyIds] = useState(propiedadIds);
+  const [debouncedVisibleIds, setDebouncedVisibleIds] = useState(propiedadIds);
+  const [syncedPropiedadIdsKey, setSyncedPropiedadIdsKey] = useState(propiedadIdsKey);
+
+  if (syncedPropiedadIdsKey !== propiedadIdsKey) {
+    setSyncedPropiedadIdsKey(propiedadIdsKey);
+    setVisiblePropertyIds(propiedadIds);
+    setDebouncedVisibleIds(propiedadIds);
+  }
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -122,7 +129,10 @@ export function BuscarExplorer({
             <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2">
               {propiedades.map((p) => (
                 <div key={p.id} data-buscar-card-id={p.id} className="scroll-mt-6 w-full min-w-0">
-                  <PropertyCardPublic propiedad={p} />
+                  <PropertyCardPublic
+                    propiedad={p}
+                    isFavoritoInicial={favoritoIds?.has(p.id) ?? false}
+                  />
                 </div>
               ))}
             </div>

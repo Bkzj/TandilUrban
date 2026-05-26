@@ -9,7 +9,7 @@ import type { CurrentUser } from '@/types/auth';
 import PanelTabs from '@/components/panel/PanelTabs';
 
 export const metadata = {
-  title: 'Mi equipo · Panel | TandilUrban',
+  title: 'Mi equipo · Panel | Propea Group',
 };
 
 export const dynamic = 'force-dynamic';

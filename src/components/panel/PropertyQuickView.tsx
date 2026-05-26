@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 
 import type { PanelPropiedadTableRow } from '@/types/panel';
 
 import { DeletePropertyButton } from './DeletePropertyButton';
+import { PropiedadSeguimientoSection } from './PropiedadSeguimientoSection';
 
 type Props = {
   propiedad: PanelPropiedadTableRow;
@@ -98,7 +100,12 @@ export function PropertyQuickView({ propiedad, onClose }: Props) {
         </div>
 
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden border-b border-black/10">
-          <img src={thumb} alt="" className="h-full w-full object-cover" />
+          {thumb && !thumb.startsWith('data:') ? (
+            <Image src={thumb} alt="" fill sizes="400px" className="object-cover" />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element -- placeholder SVG data URI
+            <img src={thumb} alt="" className="h-full w-full object-cover" />
+          )}
         </div>
 
         <div className="p-5">
@@ -141,13 +148,27 @@ export function PropertyQuickView({ propiedad, onClose }: Props) {
               {term.label}
             </span>
           </div>
+
+          <PropiedadSeguimientoSection
+            propiedadId={propiedad.id}
+            visitasWeb={visitas}
+            consultas={consultas}
+          />
         </div>
 
         <footer className="mt-auto shrink-0 border-t border-black/10 p-4">
           <div className="flex flex-col gap-3">
             <Link
+              href={`/panel/propiedades/${propiedad.id}/informe`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center rounded-xl border border-naranja/50 bg-naranja/10 py-3 text-center text-sm font-semibold text-naranja-light transition-colors hover:bg-naranja/20"
+            >
+              Informe de valoración (PDF)
+            </Link>
+            <Link
               href={`/panel/propiedades/editar/${propiedad.id}`}
-              className="flex w-full items-center justify-center rounded-xl bg-verde py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-verde/80"
+              className="flex w-full items-center justify-center rounded-xl bg-naranja py-3 text-center text-sm font-semibold text-surface shadow-md shadow-naranja/25 transition-colors hover:bg-naranja-hover"
             >
               Editar propiedad
             </Link>

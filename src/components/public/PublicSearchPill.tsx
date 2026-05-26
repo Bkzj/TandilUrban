@@ -58,11 +58,20 @@ export function PublicSearchPill({
   barrios,
 }: PublicSearchPillProps) {
   const router = useRouter();
+  const defaultsKey = `${defaultQuery}\0${defaultOperacion}\0${defaultTipo}`;
   const [query, setQuery] = useState(defaultQuery);
   const [operacion, setOperacion] = useState(() => operacionFromUrl(defaultOperacion));
   const [tipo, setTipo] = useState(() => tipoFromUrl(defaultTipo));
+  const [syncedDefaultsKey, setSyncedDefaultsKey] = useState(defaultsKey);
   const [suggestOpen, setSuggestOpen] = useState(false);
   const blurCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  if (syncedDefaultsKey !== defaultsKey) {
+    setSyncedDefaultsKey(defaultsKey);
+    setQuery(defaultQuery);
+    setOperacion(operacionFromUrl(defaultOperacion));
+    setTipo(tipoFromUrl(defaultTipo));
+  }
 
   const hasBarrios = Boolean(barrios && barrios.length > 0);
 
@@ -74,12 +83,6 @@ export function PublicSearchPill({
       : barrios;
     return list.slice(0, SUGGEST_MAX);
   }, [barrios, query]);
-
-  useEffect(() => {
-    setQuery(defaultQuery);
-    setOperacion(operacionFromUrl(defaultOperacion));
-    setTipo(tipoFromUrl(defaultTipo));
-  }, [defaultQuery, defaultOperacion, defaultTipo]);
 
   const clearBlurTimer = useCallback(() => {
     if (blurCloseTimer.current !== null) {
@@ -139,7 +142,6 @@ export function PublicSearchPill({
             className="w-full min-w-0 border-0 bg-transparent py-0 text-sm text-text-primary outline-none placeholder:text-text-secondary"
             autoComplete="off"
             aria-label="Buscar ubicación"
-            aria-expanded={hasBarrios ? suggestOpen : undefined}
             aria-controls={hasBarrios ? 'hero-barrios-suggestions' : undefined}
             aria-autocomplete={hasBarrios ? 'list' : undefined}
           />
@@ -158,6 +160,7 @@ export function PublicSearchPill({
                     <button
                       type="button"
                       role="option"
+                      aria-selected={query === b}
                       className="w-full px-4 py-2.5 text-left text-sm text-text-primary transition-colors hover:bg-white/25"
                       onMouseDown={(e) => {
                         e.preventDefault();

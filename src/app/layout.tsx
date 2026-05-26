@@ -3,7 +3,7 @@ import "./(web)/globals.css";
 import { Providers } from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "TandilUrban | Inmobiliaria Exclusiva",
+  title: "Propea Group | Inmobiliaria Exclusiva",
   description: "Encuentra tu próximo hogar en las sierras de Tandil.",
 };
 

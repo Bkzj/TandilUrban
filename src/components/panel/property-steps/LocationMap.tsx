@@ -11,7 +11,7 @@ type LocationMapProps = {
   onMarkerDrag: (lat: number, lng: number) => void;
 };
 
-/** Pin de marca TandilUrban (piedra / pin inmobiliario). */
+/** Pin de marca Propea Group (piedra / pin inmobiliario). */
 const tandilIcon = L.divIcon({
   className: 'custom-tandil-pin',
   html: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 
+import { onPropiedadPublicada } from '@/lib/match-engine';
 import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
 import { requireAgencyPublishingContext } from '@/lib/panel-agency-publish';
 import { prisma } from '@/lib/prisma';
@@ -57,9 +58,14 @@ export async function POST(request: NextRequest) {
         agenteId: user.id,
         caracteristicas: data.caracteristicas,
         imagenes: data.imagenes,
+        planoUrl: data.planoUrl,
       },
-      select: { id: true, titulo: true },
+      select: { id: true, titulo: true, estado: true },
     });
+
+    if (propiedad.estado === 'DISPONIBLE') {
+      void onPropiedadPublicada(propiedad.id).catch(console.error);
+    }
 
     return NextResponse.json({ propiedad }, { status: 201 });
   } catch (error) {

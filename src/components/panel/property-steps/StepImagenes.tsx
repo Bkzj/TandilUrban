@@ -155,7 +155,7 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
         chunks.push(bases.slice(i, i + BATCH_SIZE));
       }
 
-      const mergedByIndex = new Map<number, string>();
+      let reordered = [...data.imagenes];
       let offset = 0;
       let batchIndex = 0;
 
@@ -174,7 +174,7 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
         });
 
         const json = (await res.json().catch(() => ({}))) as {
-          clasificaciones?: { index: number; categoria: string }[];
+          clasificaciones?: { index: number; categoria: string; orden_sugerido?: number }[];
           error?: string;
         };
 
@@ -187,21 +187,21 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
           throw new Error('Respuesta inválida del servidor.');
         }
 
-        for (const row of list) {
-          const absolute = offset + row.index;
-          mergedByIndex.set(absolute, row.categoria.trim());
-        }
+        const sortedSlice = list.map((row) => ({
+          ...reordered[offset + row.index]!,
+          categoria: row.categoria.trim(),
+        }));
+
+        reordered = [
+          ...reordered.slice(0, offset),
+          ...sortedSlice,
+          ...reordered.slice(offset + chunk.length),
+        ];
 
         offset += chunk.length;
       }
 
-      update(
-        'imagenes',
-        data.imagenes.map((img, idx) => ({
-          ...img,
-          categoria: mergedByIndex.get(idx) ?? img.categoria ?? 'Sin clasificar',
-        }))
-      );
+      update('imagenes', reordered);
     } catch (e) {
       setIaError(e instanceof Error ? e.message : 'Algo salió mal con la IA.');
     } finally {

@@ -1,4 +1,4 @@
-# Arquitectura — TandilUrban
+# Arquitectura — Propea Group
 
 Documento orientado a **decisiones técnicas** y a **cómo encajan** el portal público, el backoffice SaaS y la infraestructura local. Para puesta en marcha rápida, ver [README.md](./README.md).
 
@@ -101,8 +101,8 @@ Definido en `docker-compose.yml`:
 
 | Servicio | Imagen | Puerto | Notas |
 |----------|--------|--------|--------|
-| **db** | `postgres:16-alpine` | `5432` | Datos en volumen nombrado `postgres_data` (persisten al detener contenedores). |
-| **adminer** | `adminer:4` | `8080` | UI liviana para inspeccionar tablas e índices en desarrollo. Conectar al host **`db`** dentro de la red de Compose. |
+| **db** (`propea-db`) | `postgres:16-alpine` | `5432` | Base `propea_group`, volumen `propea_pg_data`, red `propea-network`. |
+| **adminer** (`propea-adminer`) | `adminer:4` | `8080` | UI liviana para inspeccionar tablas. Servidor **`db`**, credenciales del Compose. |
 
 El `DATABASE_URL` de la aplicación debe apuntar al host **localhost** (desde el proceso Node en tu máquina), no al nombre `db` (ese hostname solo resuelve **entre contenedores**).
 

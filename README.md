@@ -1,101 +1,114 @@
-# TandilUrban
+# Propea Group - Portal & CRM Inmobiliario
 
-**TandilUrban** es una plataforma inmobiliaria para la ciudad de Tandil que combina:
-
-- **Portal público**: listado y detalle de propiedades, mapa, contacto y experiencia de marca.
-- **SaaS inmobiliario (backoffice)**: panel para inmobiliarias y agentes, alta guiada de propiedades (onboarding lineal) y gestión de equipo con control de acceso por roles (RBAC).
-
-El objetivo del proyecto es ofrecer un producto **profesional, escalable y mantenible**, con stack moderno y documentación explícita de arquitectura y operación local.
+**Propea Group** es una plataforma integral PropTech que conecta un **portal público de alta conversión** con un **backoffice B2B (SaaS)** para la gestión inmobiliaria: publicación de propiedades, leads, equipos de agentes y herramientas asistidas por IA.
 
 ---
 
-## Tech stack
+## Características principales
 
-| Área | Tecnología |
+- **Portal público** — Búsqueda, mapa, fichas con galería avanzada, favoritos, directorio de inmobiliarias, destacados y contacto por propiedad.
+- **Motor de Match** — Alertas automáticas cuando una nueva publicación coincide con las preferencias guardadas por los usuarios (email vía Resend).
+- **IA Copywriter** — Integración con **Google Gemini** para generar títulos y descripciones comerciales, y para clasificar/ordenar fotos como director de arte inmobiliario.
+- **Generación de informes PDF** — Informes imprimibles por propiedad desde el panel (seguimiento comercial y presentación).
+- **CRM integrado** — Gestión de leads, mensajes, funnel de conversión, seguimiento de visitas físicas y analytics en el panel de la inmobiliaria.
+- **RBAC multi-tenant** — Roles Admin, Inmobiliaria (Main), Agente y Usuario del portal, con aislamiento por agencia.
+
+---
+
+## Stack tecnológico
+
+| Capa | Tecnología |
 |------|------------|
-| Framework | [Next.js](https://nextjs.org/) (App Router) |
-| ORM / datos | [Prisma](https://www.prisma.io/) + [PostgreSQL](https://www.postgresql.org/) |
-| Conexión DB (dev) | [Docker](https://docs.docker.com/compose/) (`docker-compose.yml`) |
-| Autenticación | [NextAuth.js](https://next-auth.js.org/) (Credentials + JWT, adaptador Prisma) |
-| UI / motion | [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer-motion.com/) |
-| Email (opcional) | [Resend](https://resend.com/) para verificación de registro |
+| Framework | **Next.js 16** (App Router) |
+| UI | **React 19**, **Tailwind CSS 4**, Framer Motion |
+| Datos | **Prisma 7**, **PostgreSQL 16** |
+| Auth | NextAuth.js (Credentials + JWT, adaptador Prisma) |
+| Medios | **Cloudinary** |
+| Email | **Resend** |
+| IA | **@google/generative-ai** (Gemini) |
+| Mapas | Leaflet / react-leaflet |
 
-El esquema de Prisma vive en `database/schema.prisma` (configurado vía `prisma.config.ts`).
+El esquema de Prisma vive en `database/schema.prisma` (configuración en `prisma.config.ts`).
 
 ---
 
-## Guía de inicio
+## Getting Started
 
-### Requisitos previos
+### Requisitos
 
-- Node.js **20+** (recomendado, alineado con el ecosistema Next.js actual).
-- Docker Desktop (o Docker Engine + Compose) para levantar PostgreSQL y Adminer.
+- **Node.js 20+**
+- **Docker** (Desktop o Engine + Compose) para PostgreSQL y Adminer
 
-### Variables de entorno
+### 1. Clonar el repositorio
 
-Creá un archivo `.env` en la raíz del proyecto (no se versiona). Como mínimo:
-
-```env
-DATABASE_URL="postgresql://admin:password123@localhost:5432/tandilurban"
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="generá-un-secreto-largo-y-estable"
+```bash
+git clone <url-del-repo>
+cd tandil-urban
 ```
 
-Ajustá `DATABASE_URL` si cambiás usuario, contraseña o nombre de base en `docker-compose.yml`. Para correo de verificación (opcional): `RESEND_API_KEY`, `RESEND_FROM`, `APP_URL`.
+### 2. Variables de entorno
 
-### Pasos
+```bash
+cp .env.example .env
+```
 
-1. **Instalar dependencias**
+Editá `.env` con valores reales. Variables clave:
 
-   ```bash
-   npm install
-   ```
+| Variable | Uso |
+|----------|-----|
+| `DATABASE_URL` | Conexión PostgreSQL (local: ver `.env.example`) |
+| `NEXTAUTH_URL` / `NEXTAUTH_SECRET` | Sesión y auth |
+| `GEMINI_API_KEY` | Textos y orden de fotos con IA |
+| `CLOUDINARY_*` | Subida de imágenes en panel |
+| `RESEND_API_KEY` / `RESEND_FROM` | Emails (verificación, match alerts) |
+| `APP_URL` | URLs absolutas en correos |
 
-2. **Levantar la base de datos (y Adminer)**
+### 3. Infraestructura local
 
-   ```bash
-   docker compose up -d
-   ```
+```bash
+docker compose up -d
+```
 
-   - PostgreSQL: puerto **5432** (volumen persistente `postgres_data`).
-   - **Adminer**: [http://localhost:8080](http://localhost:8080) — sistema **PostgreSQL**, servidor **`db`**, mismas credenciales que definiste en Compose.
+| Servicio | Detalle |
+|----------|---------|
+| **PostgreSQL 16** | Contenedor `propea-db`, puerto **5432**, base `propea_group` |
+| **Adminer** | [http://localhost:8080](http://localhost:8080) — motor **PostgreSQL**, servidor **`db`**, usuario/contraseña según `docker-compose.yml` |
 
-3. **Aplicar el esquema a la base**
+Red Docker: `propea-network`. Volumen persistente: `propea_pg_data`.
 
-   ```bash
-   npx prisma db push
-   ```
+> Si migrás desde una base local antigua (`tandilurban`), recreá el volumen o exportá/importá datos: `docker compose down -v` (borra datos) y volvé a levantar.
 
-4. **Cargar datos de prueba (seed)**
+### 4. Dependencias y base de datos
 
-   ```bash
-   npx prisma db seed
-   ```
+```bash
+npm install
+npm run db:push
+npm run db:seed
+```
 
-   (Equivalente: `npm run db:seed`.)
+Opcional: `npm run db:studio` (Prisma Studio), `npm run db:migrate` (flujo de migraciones).
 
-5. **Arrancar la app en desarrollo**
+### 5. Desarrollo
 
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
 
-   Abrí [http://localhost:3000](http://localhost:3000).
+Abrí [http://localhost:3000](http://localhost:3000).
 
 ---
 
 ## Credenciales de prueba (seed)
 
-El script `prisma/seed.ts` **limpia** tablas clave y recrea un entorno mínimo: inmobiliaria de demostración, propiedades y puntos de interés. Las cuentas con contraseña fija creadas por el seed son las siguientes.
+El seed (`prisma/seed.ts`) recrea un entorno demo con inmobiliaria, propiedades y usuarios de prueba.
 
-| Rol | Nombre | Email | Contraseña | Notas |
-|-----|--------|-------|------------|--------|
-| **ADMIN** | Administrador | `admin@tandilurban.local` | `Admin123!` | Rol global de plataforma. |
-| **INMOBILIARIA** (Main) | Laura Martínez | `inmobiliaria@tandilurban.local` | `Immo123!` | Usuario **principal** de la inmobiliaria; perfil 1:1 con agencia **Tandil Premium Propiedades**. Accede al panel y a **Mi equipo**. |
-| **AGENTE** | — | — | — | **No** se inserta en el seed actual. Los agentes se crean desde el panel (**Mi equipo**) con el usuario Main. |
-| **USUARIO_NORMAL** | — | — | — | **No** se inserta en el seed. Alta pública en `/register` (el API fuerza rol `USUARIO_NORMAL`). |
+| Rol | Email | Contraseña |
+|-----|-------|------------|
+| **ADMIN** | `admin@tandilurban.local` | `Admin123!` |
+| **INMOBILIARIA (Main)** | `inmobiliaria@tandilurban.local` | `Immo123!` |
+| **AGENTE** | `agente@tandilurban.local` | `Immo123!` |
 
-Tras el seed, el login del backoffice para probar el flujo “inmobiliaria” es `inmobiliaria@tandilurban.local` / `Immo123!`.
+> Los dominios `@tandilurban.local` son identificadores legacy del entorno demo; el producto y la marca son **Propea Group**.
 
 ---
 
@@ -103,20 +116,24 @@ Tras el seed, el login del backoffice para probar el flujo “inmobiliaria” es
 
 | Comando | Descripción |
 |---------|-------------|
-| `npm run dev` | Servidor de desarrollo Next.js. |
-| `npm run build` / `npm run start` | Build y servidor de producción. |
-| `npm run lint` | ESLint. |
-| `npm run db:seed` | Ejecuta el seed de Prisma. |
-| `npm run db:migrate` | Migraciones en modo desarrollo (`prisma migrate dev`). |
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` / `npm run start` | Producción |
+| `npm run lint` | ESLint |
+| `npm run db:push` | Sincroniza esquema Prisma → DB |
+| `npm run db:seed` | Datos de prueba |
+| `npm run db:studio` | Prisma Studio |
+| `npm run db:migrate` | Migraciones en desarrollo |
+| `npm run db:restore-cloudinary` | Restaura fichas desde JSON + Cloudinary |
 
 ---
 
 ## Documentación adicional
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — RBAC, onboarding lineal del panel, decisiones de UI/Tailwind e infraestructura Docker.
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — RBAC, onboarding del panel, decisiones de UI e infraestructura.
+- **[RESUMEN.md](./RESUMEN.md)** — Estado funcional del producto y roadmap.
 
 ---
 
 ## Licencia
 
-Proyecto privado (`"private": true` en `package.json`). Ajustá la licencia cuando definas distribución pública.
+Proyecto privado (`"private": true`). Definir licencia pública cuando corresponda.

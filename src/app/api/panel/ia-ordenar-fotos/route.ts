@@ -36,7 +36,30 @@ function responseTextSafe(result: GenerateContentResult): string {
   }
 }
 
-function parseClasificaciones(raw: string, expectedCount: number): { index: number; categoria: string }[] {
+const ORDEN_FALLBACK_FINAL = 99;
+
+type ClasificacionFila = {
+  index: number;
+  categoria: string;
+  orden_sugerido: number;
+};
+
+function parseOrdenSugerido(value: unknown, indexFallback: number): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const orden = Math.round(value);
+    if (orden >= 1) return orden;
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
+    const n = Number(value);
+    if (Number.isFinite(n)) {
+      const orden = Math.round(n);
+      if (orden >= 1) return orden;
+    }
+  }
+  return ORDEN_FALLBACK_FINAL + indexFallback;
+}
+
+function parseClasificaciones(raw: string, expectedCount: number): ClasificacionFila[] {
   let text = raw.trim();
   const fence = text.match(/^```(?:json)?\s*([\s\S]*?)```$/m);
   if (fence) text = fence[1].trim();
@@ -46,7 +69,7 @@ function parseClasificaciones(raw: string, expectedCount: number): { index: numb
     throw new Error('La IA no devolvió un arreglo JSON.');
   }
 
-  const map = new Map<number, string>();
+  const map = new Map<number, { categoria: string; orden_sugerido: number }>();
   for (const row of parsed) {
     if (!row || typeof row !== 'object') continue;
     const o = row as Record<string, unknown>;
@@ -54,12 +77,36 @@ function parseClasificaciones(raw: string, expectedCount: number): { index: numb
     const categoria =
       typeof o.categoria === 'string' ? o.categoria.trim() : String(o.categoria ?? '').trim();
     if (index === null || index < 0 || index >= expectedCount || !categoria) continue;
-    map.set(index, categoria);
+
+    const tieneOrdenValido =
+      (typeof o.orden_sugerido === 'number' && Number.isFinite(o.orden_sugerido)) ||
+      (typeof o.orden_sugerido === 'string' && o.orden_sugerido.trim() !== '');
+
+    map.set(index, {
+      categoria,
+      orden_sugerido: tieneOrdenValido
+        ? parseOrdenSugerido(o.orden_sugerido, index)
+        : ORDEN_FALLBACK_FINAL + index,
+    });
   }
 
-  const out: { index: number; categoria: string }[] = [];
+  const out: ClasificacionFila[] = [];
   for (let i = 0; i < expectedCount; i++) {
-    out.push({ index: i, categoria: map.get(i) ?? 'Sin clasificar' });
+    const entry = map.get(i);
+    out.push({
+      index: i,
+      categoria: entry?.categoria ?? 'Sin clasificar',
+      orden_sugerido: entry?.orden_sugerido ?? ORDEN_FALLBACK_FINAL + i,
+    });
+  }
+
+  out.sort((a, b) => {
+    if (a.orden_sugerido !== b.orden_sugerido) return a.orden_sugerido - b.orden_sugerido;
+    return a.index - b.index;
+  });
+
+  if (out.length !== expectedCount) {
+    throw new Error('La clasificación no cubrió todas las fotos.');
   }
 
   return out;
@@ -70,18 +117,30 @@ function buildPrompt(layoutContext: string, imageCount: number): string {
     layoutContext.trim() ||
     '(No se indicó distribución detallada; inferí espacios habituales según las fotos.)';
 
-  return `Eres un tasador inmobiliario experto. Aquí tienes fotos de una propiedad que tiene esta distribución (texto del agente):
+  return `Sos un Director de Arte Inmobiliario de primer nivel. Tenés fotos de una propiedad con esta distribución (texto del agente):
 
 "${layout}"
 
-Tu tarea es asignar una categoría breve y útil a cada foto. El orden de las fotos es EXACTAMENTE el orden en que te las paso: la primera imagen después de este texto es índice 0, la segunda índice 1, y así hasta ${imageCount - 1}.
+Tu misión es doble para CADA foto:
+1) Asignar una categoría breve en español (Fachada, Living, Comedor, Cocina, Habitación principal, Habitación 2, Baño, Pasillo, Lavadero, Patio, Quincho, Cochera, Plano, Detalle, Otro, etc.).
+2) Asignar orden_sugerido: un número entero del 1 al ${imageCount} que define la jerarquía visual ideal para un aviso premium (1 = portada, ${imageCount} = última).
+
+Evaluá cada imagen por iluminación, amplitud del encuadre, limpieza visual y atractivo comercial. Aplicá esta jerarquía estricta al numerar:
+
+- Orden 1 (portada): la foto más espectacular — fachada impecable, living/comedor muy luminoso o el mejor "wow" del lote.
+- Orden medio: ambientes principales (Living, Cocina, habitación principal), del más al menos atractivo.
+- Orden bajo: ambientes secundarios (baños, pasillos, lavaderos, depósitos).
+- Orden final: planos arquitectónicos, fotos oscuras, baja calidad o detalles menores (termotanque, medidores, etc.).
+
+El orden en que recibís las imágenes es fijo: la primera imagen después de este texto es índice 0, la segunda índice 1, hasta ${imageCount - 1}. No confundas índice con orden_sugerido: index identifica la foto original; orden_sugerido es tu ranking de publicación.
 
 Devolvé ÚNICAMENTE un JSON array (sin texto adicional) con este formato estricto:
-[{"index":0,"categoria":"Living"},{"index":1,"categoria":"Cocina"}]
+[{"index":0,"categoria":"Plano","orden_sugerido":15},{"index":1,"categoria":"Living","orden_sugerido":1}]
 
-Usá categorías lógicas en español como: Fachada, Living, Comedor, Cocina, Habitación 1, Habitación 2, Baño 1, Baño 2, Pasillo, Patio, Quincho, Cochera, Depósito, Vista exterior, Detalle, Otro.
-
-Hay exactamente ${imageCount} fotos: incluí una entrada por cada índice de 0 a ${imageCount - 1}.`;
+Reglas del JSON:
+- Una entrada por cada índice de 0 a ${imageCount - 1} (exactamente ${imageCount} objetos).
+- orden_sugerido: enteros únicos entre 1 y ${imageCount}, sin repetir.
+- Ordená mentalmente de mejor a peor; la portada siempre lleva orden_sugerido: 1.`;
 }
 
 export async function POST(request: NextRequest) {

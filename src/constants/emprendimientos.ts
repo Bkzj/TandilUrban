@@ -1,4 +1,4 @@
-import type { EmprendimientoEditorial } from '@/types/emprendimientos';
+çimport type { EmprendimientoEditorial } from '@/types/emprendimientos';
 
 /** Contenido editorial curado hasta existir un modelo dedicado en Prisma. */
 export const EMPRENDIMIENTOS_EDITORIALES: EmprendimientoEditorial[] = [

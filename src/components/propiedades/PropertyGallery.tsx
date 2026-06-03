@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutGrid, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid, X } from 'lucide-react';
 
 import { normalizePropiedadImagenesDb } from '@/lib/normalize-propiedad-imagenes';
 
@@ -16,8 +16,19 @@ type Props = {
   imagenes: unknown;
 };
 
+type GridLayout = 'empty' | 'one' | 'two' | 'three' | 'four' | 'fivePlus';
+
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop';
+
+function resolveLayout(count: number): GridLayout {
+  if (count <= 0) return 'empty';
+  if (count === 1) return 'one';
+  if (count === 2) return 'two';
+  if (count === 3) return 'three';
+  if (count === 4) return 'four';
+  return 'fivePlus';
+}
 
 function PlaceholderCover() {
   return (
@@ -28,7 +39,7 @@ function PlaceholderCover() {
   );
 }
 
-/** Vista pública: categorías vacías o «Sin clasificar» → «Otras». Parse Json/string vía `normalizePropiedadImagenesDb`. */
+/** Vista pública: categorías vacías o «Sin clasificar» → «Otras». */
 export function normalizeGalleryImages(raw: unknown): PublicGalleryImage[] {
   const fromDb = normalizePropiedadImagenesDb(raw);
   return fromDb.map((img) => {
@@ -50,19 +61,225 @@ function groupGalleryImages(imagenes: PublicGalleryImage[]): Record<string, Publ
   );
 }
 
+function mosaicGridClass(count: number): string {
+  if (count === 1) return 'grid max-w-3xl grid-cols-1 gap-3 mx-auto';
+  if (count === 2) return 'grid grid-cols-2 gap-3';
+  if (count === 3) return 'grid grid-cols-2 gap-3 md:grid-cols-3';
+  return 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4';
+}
+
+function mosaicItemClass(count: number, index: number): string {
+  if (count === 3 && index === 0) return 'col-span-2 row-span-2 md:col-span-2 md:row-span-1 aspect-[16/10] md:aspect-auto md:min-h-[220px]';
+  return 'aspect-[4/3] sm:aspect-[5/4]';
+}
+
+type GalleryTileProps = {
+  src: string;
+  alt: string;
+  onOpen: () => void;
+  className?: string;
+  overlay?: ReactNode;
+};
+
+function GalleryTile({ src, alt, onOpen, className = '', overlay }: GalleryTileProps) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={`group relative block h-full w-full min-h-0 overflow-hidden rounded-xl bg-gray-100 text-left ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-lg hover:ring-black/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-naranja sm:rounded-2xl ${className}`}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
+        aria-hidden
+      />
+      {overlay}
+    </button>
+  );
+}
+
+type LightboxProps = {
+  items: PublicGalleryImage[];
+  index: number;
+  onClose: () => void;
+  onIndexChange: (index: number) => void;
+};
+
+function GalleryLightbox({ items, index, onClose, onIndexChange }: LightboxProps) {
+  const total = items.length;
+  const current = items[index];
+
+  const goPrev = useCallback(() => {
+    onIndexChange((index - 1 + total) % total);
+  }, [index, onIndexChange, total]);
+
+  const goNext = useCallback(() => {
+    onIndexChange((index + 1) % total);
+  }, [index, onIndexChange, total]);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose, goPrev, goNext]);
+
+  if (!current?.url?.trim()) return null;
+
+  return (
+    <motion.div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Vista ampliada de fotos"
+      className="fixed inset-0 z-[60] flex flex-col bg-black/95"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+    >
+      <header
+        className="relative z-10 flex shrink-0 items-center justify-between px-4 py-3 sm:px-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span className="text-sm font-medium text-white/80">
+          {index + 1} / {total}
+          {current.categoria ? (
+            <span className="ml-2 text-white/50">· {current.categoria}</span>
+          ) : null}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+          aria-label="Cerrar vista ampliada"
+        >
+          <X className="h-5 w-5" aria-hidden />
+          <span className="hidden sm:inline">Cerrar</span>
+        </button>
+      </header>
+
+      <div className="relative flex min-h-0 flex-1 items-center justify-center px-14 py-4 sm:px-20">
+        {total > 1 ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goPrev();
+            }}
+            className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:left-4 sm:h-12 sm:w-12"
+            aria-label="Foto anterior"
+          >
+            <ChevronLeft className="h-7 w-7" aria-hidden />
+          </button>
+        ) : null}
+
+        <motion.div
+          key={index}
+          className="flex h-full w-full max-w-6xl items-center justify-center"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.22 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={current.url}
+            alt={`Foto ${index + 1}`}
+            className="max-h-[calc(100vh-8rem)] max-w-full object-contain"
+          />
+        </motion.div>
+
+        {total > 1 ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goNext();
+            }}
+            className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:right-4 sm:h-12 sm:w-12"
+            aria-label="Foto siguiente"
+          >
+            <ChevronRight className="h-7 w-7" aria-hidden />
+          </button>
+        ) : null}
+
+        {total > 1 ? (
+          <>
+            <button
+              type="button"
+              className="absolute left-0 top-0 z-[5] h-full w-[28%] cursor-w-resize sm:w-[22%]"
+              onClick={(e) => {
+                e.stopPropagation();
+                goPrev();
+              }}
+              aria-label="Foto anterior"
+            />
+            <button
+              type="button"
+              className="absolute right-0 top-0 z-[5] h-full w-[28%] cursor-e-resize sm:w-[22%]"
+              onClick={(e) => {
+                e.stopPropagation();
+                goNext();
+              }}
+              aria-label="Foto siguiente"
+            />
+          </>
+        ) : null}
+      </div>
+    </motion.div>
+  );
+}
+
+function ShowAllButton({ onClick, className = '' }: { onClick: () => void; className?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      className={`flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-md transition-colors hover:bg-gray-50 ${className}`}
+    >
+      <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden />
+      Mostrar todas las fotos
+    </button>
+  );
+}
+
 export function PropertyGallery({ imagenes }: Props) {
   const [showModal, setShowModal] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const items = useMemo(() => normalizeGalleryImages(imagenes), [imagenes]);
   const groupedImages = useMemo(() => groupGalleryImages(items), [items]);
+  const layout = resolveLayout(items.length);
 
-  const gridImages = items.slice(0, 5);
-  const coverSrc = gridImages[0]?.url?.trim();
+  const coverSrc = items[0]?.url?.trim();
   const hasAnyPhoto = items.some((u) => typeof u.url === 'string' && u.url.trim().length > 0);
   const displayCover = coverSrc || (hasAnyPhoto ? '' : PLACEHOLDER);
 
+  const openLightbox = useCallback((index: number) => {
+    if (index >= 0 && index < items.length) setLightboxIndex(index);
+  }, [items.length]);
+
+  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
+
   useEffect(() => {
-    if (!showModal) return;
+    if (!showModal || lightboxIndex !== null) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
@@ -73,101 +290,165 @@ export function PropertyGallery({ imagenes }: Props) {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', onKey);
     };
-  }, [showModal]);
+  }, [showModal, lightboxIndex]);
 
   function openModal() {
     setShowModal(true);
   }
 
-  const thumbSlots = [1, 2, 3, 4] as const;
+  const globalIndexByUrl = useMemo(() => {
+    const m = new Map<string, number>();
+    items.forEach((img, i) => m.set(img.url, i));
+    return m;
+  }, [items]);
+
+  const heroHeight =
+    'h-[42vh] min-h-[220px] sm:min-h-[260px] sm:h-[48vh] md:h-[56vh] lg:h-[58vh]';
+
+  function renderHeroGrid() {
+    if (layout === 'empty') {
+      return (
+        <div className={`relative w-full overflow-hidden rounded-xl sm:rounded-2xl ${heroHeight}`}>
+          <PlaceholderCover />
+        </div>
+      );
+    }
+
+    if (layout === 'one') {
+      const src = items[0]!.url.trim() || displayCover;
+      return (
+        <div className={`relative w-full overflow-hidden rounded-xl sm:rounded-2xl ${heroHeight}`}>
+          <GalleryTile
+            src={src}
+            alt="Portada"
+            onOpen={() => openLightbox(0)}
+            className="h-full rounded-xl sm:rounded-2xl"
+          />
+        </div>
+      );
+    }
+
+    if (layout === 'two') {
+      return (
+        <div className={`grid w-full grid-cols-2 gap-2 overflow-hidden rounded-xl sm:gap-2.5 sm:rounded-2xl ${heroHeight}`}>
+          {items.slice(0, 2).map((img, i) => (
+            <GalleryTile
+              key={`${img.url}-${i}`}
+              src={img.url.trim()}
+              alt={`Foto ${i + 1}`}
+              onOpen={() => openLightbox(i)}
+              className="rounded-xl sm:rounded-2xl"
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (layout === 'three') {
+      return (
+        <div
+          className={`grid w-full grid-cols-2 grid-rows-2 gap-2 overflow-hidden rounded-xl sm:gap-2.5 sm:rounded-2xl ${heroHeight}`}
+        >
+          <GalleryTile
+            src={items[0]!.url.trim()}
+            alt="Foto 1"
+            onOpen={() => openLightbox(0)}
+            className="row-span-2 rounded-xl sm:rounded-2xl"
+          />
+          {items.slice(1, 3).map((img, i) => (
+            <GalleryTile
+              key={`${img.url}-${i}`}
+              src={img.url.trim()}
+              alt={`Foto ${i + 2}`}
+              onOpen={() => openLightbox(i + 1)}
+              className="rounded-xl sm:rounded-2xl"
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (layout === 'four') {
+      return (
+        <div
+          className={`grid w-full grid-cols-2 grid-rows-2 gap-2 overflow-hidden rounded-xl sm:gap-2.5 sm:rounded-2xl ${heroHeight}`}
+        >
+          {items.slice(0, 4).map((img, i) => (
+            <GalleryTile
+              key={`${img.url}-${i}`}
+              src={img.url.trim()}
+              alt={`Foto ${i + 1}`}
+              onOpen={() => openLightbox(i)}
+              className="rounded-xl sm:rounded-2xl"
+              overlay={
+                i === 3 && items.length > 4 ? (
+                  <div className="pointer-events-none absolute inset-0 flex items-end justify-end p-3">
+                    <ShowAllButton onClick={openModal} />
+                  </div>
+                ) : null
+              }
+            />
+          ))}
+        </div>
+      );
+    }
+
+    /* fivePlus */
+    const thumbSlots = [1, 2, 3, 4] as const;
+    return (
+      <div
+        className={`relative grid w-full grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-xl sm:gap-2.5 sm:rounded-2xl ${heroHeight}`}
+      >
+        <GalleryTile
+          src={items[0]!.url.trim() || displayCover}
+          alt="Portada"
+          onOpen={() => openLightbox(0)}
+          className="col-span-4 row-span-2 md:col-span-2 md:row-span-2 rounded-xl sm:rounded-2xl"
+          overlay={
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-end p-3 md:hidden">
+              <ShowAllButton onClick={openModal} className="pointer-events-auto" />
+            </div>
+          }
+        />
+        {thumbSlots.map((slotIdx) => {
+          const img = items[slotIdx];
+          const url = img?.url?.trim() ?? '';
+          const isLastSlot = slotIdx === 4;
+          return (
+            <div key={slotIdx} className="relative hidden min-h-0 md:block md:col-span-1 md:row-span-1">
+              {url ? (
+                <GalleryTile
+                  src={url}
+                  alt={`Foto ${slotIdx + 1}`}
+                  onOpen={() => openLightbox(slotIdx)}
+                  className="h-full rounded-xl sm:rounded-2xl"
+                  overlay={
+                    isLastSlot ? (
+                      <div className="pointer-events-none absolute inset-0 flex items-end justify-end p-3">
+                        <ShowAllButton onClick={openModal} className="pointer-events-auto" />
+                      </div>
+                    ) : null
+                  }
+                />
+              ) : (
+                <PlaceholderCover />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <>
       <section className="relative mt-6 w-full min-w-0 sm:mt-10" aria-label="Galería de imágenes">
-        <div className="relative grid h-[42vh] min-h-[240px] w-full grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-xl sm:h-[50vh] sm:rounded-2xl md:h-[60vh]">
-          {/* Principal */}
-          <div
-            className="group relative col-span-4 row-span-2 min-h-0 cursor-pointer overflow-hidden md:col-span-2"
-            onClick={() => openModal()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                openModal();
-              }
-            }}
-            role="button"
-            tabIndex={0}
-          >
-            {displayCover ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={displayCover}
-                alt="Portada"
-                className="h-full w-full object-cover transition-opacity duration-300 hover:opacity-90"
-              />
-            ) : (
-              <PlaceholderCover />
-            )}
-            {/* Móvil: botón sobre la única foto visible */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-end p-3 md:hidden">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openModal();
-                }}
-                className="pointer-events-auto flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-md transition-colors hover:bg-gray-50"
-              >
-                <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden />
-                Mostrar todas las fotos
-              </button>
-            </div>
+        {renderHeroGrid()}
+        {items.length >= 2 && layout !== 'fivePlus' ? (
+          <div className="mt-3 flex justify-end">
+            <ShowAllButton onClick={openModal} />
           </div>
-
-          {thumbSlots.map((slotIdx) => {
-            const img = gridImages[slotIdx]?.url?.trim() ?? '';
-            const isLastSlot = slotIdx === 4;
-            return (
-              <div
-                key={slotIdx}
-                className="relative hidden min-h-0 cursor-pointer overflow-hidden md:block md:col-span-1 md:row-span-1"
-                onClick={() => openModal()}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    openModal();
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                {img ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={img}
-                    alt={`Foto ${slotIdx + 1}`}
-                    className="h-full w-full object-cover transition-opacity duration-300 hover:opacity-90"
-                  />
-                ) : (
-                  <PlaceholderCover />
-                )}
-                {isLastSlot ? (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal();
-                    }}
-                    className="absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-md transition-colors hover:bg-gray-50"
-                  >
-                    <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden />
-                    Mostrar todas las fotos
-                  </button>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
+        ) : null}
       </section>
 
       <AnimatePresence mode="wait">
@@ -184,7 +465,7 @@ export function PropertyGallery({ imagenes }: Props) {
             exit={{ opacity: 0, y: 28 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
-            <header className="sticky top-0 z-10 border-b border-gray-200 bg-white p-4 shadow-sm">
+            <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 p-4 shadow-sm backdrop-blur-md">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
@@ -196,7 +477,7 @@ export function PropertyGallery({ imagenes }: Props) {
               </button>
             </header>
 
-            <div className="mx-auto max-w-6xl px-4 pb-16 pt-4 sm:px-6">
+            <div className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6">
               {items.length === 0 ? (
                 <p className="py-16 text-center text-gray-500">No hay fotos disponibles.</p>
               ) : (
@@ -204,30 +485,43 @@ export function PropertyGallery({ imagenes }: Props) {
                   <section key={categoria} aria-labelledby={`cat-${categoria.replace(/\s+/g, '-')}`}>
                     <h2
                       id={`cat-${categoria.replace(/\s+/g, '-')}`}
-                      className="mt-12 mb-6 text-2xl font-semibold capitalize text-gray-900"
+                      className="mb-5 mt-10 text-xl font-semibold capitalize text-gray-900 first:mt-4 sm:text-2xl"
                     >
                       {categoria}
+                      <span className="ml-2 text-base font-normal text-gray-400">
+                        ({fotos.length})
+                      </span>
                     </h2>
-                    <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
-                      {fotos.map((photo, index) => (
-                        <div
-                          key={`${photo.url}-${index}`}
-                          className="break-inside-avoid relative w-full overflow-hidden rounded-xl"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
+                    <div className={mosaicGridClass(fotos.length)}>
+                      {fotos.map((photo, index) => {
+                        const globalIdx = globalIndexByUrl.get(photo.url) ?? 0;
+                        return (
+                          <GalleryTile
+                            key={`${photo.url}-${index}`}
                             src={photo.url}
                             alt={`${categoria} ${index + 1}`}
-                            className="h-auto w-full object-cover transition-opacity duration-300 hover:opacity-90"
+                            onOpen={() => openLightbox(globalIdx)}
+                            className={mosaicItemClass(fotos.length, index)}
                           />
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </section>
                 ))
               )}
             </div>
           </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {lightboxIndex !== null ? (
+          <GalleryLightbox
+            items={items}
+            index={lightboxIndex}
+            onClose={closeLightbox}
+            onIndexChange={setLightboxIndex}
+          />
         ) : null}
       </AnimatePresence>
     </>

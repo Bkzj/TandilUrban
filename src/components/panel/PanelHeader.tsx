@@ -18,7 +18,7 @@ export default function PanelHeader() {
   const ctaLabel = isPanelRoot ? 'Ir al sitio público' : 'Volver al panel';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-surface/10 bg-text-primary/55 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-white/5 backdrop-blur-lg">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4 md:px-8">
         <Link
           href="/panel"
@@ -43,7 +43,7 @@ export default function PanelHeader() {
 
         <Link
           href={ctaHref}
-          className="group inline-flex items-center gap-2 rounded-xl border border-surface/15 bg-surface/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-surface/80 transition hover:border-naranja/60 hover:bg-naranja/15 hover:text-surface"
+          className="group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-surface/80 transition hover:border-naranja/60 hover:bg-white/10 hover:text-surface"
         >
           <span aria-hidden className="transition-transform group-hover:-translate-x-0.5">←</span>
           {ctaLabel}

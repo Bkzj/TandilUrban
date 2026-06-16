@@ -14,7 +14,7 @@ export function HintEnter({ children = 'Presioná Enter para continuar' }: { chi
   return (
     <p className="flex items-center gap-2 text-xs text-surface/65">
       {children}
-      <kbd className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border border-surface/30 px-1.5 font-mono text-[0.65rem] text-surface/80">
+      <kbd className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-xl border border-white/10 px-1.5 font-mono text-[0.65rem] text-surface/80">
         ↵
       </kbd>
     </p>
@@ -41,7 +41,7 @@ export function BigChoice({
       className={`group relative w-full overflow-hidden rounded-2xl border text-left transition-all ${
         active
           ? 'border-naranja bg-naranja/15 shadow-lg shadow-naranja/20'
-          : 'border-surface/15 bg-surface/5 hover:border-surface/35 hover:bg-surface/10'
+          : 'border-white/10 bg-white/5 shadow-lg shadow-black/20 backdrop-blur-md hover:border-white/20 hover:bg-white/10'
       } ${compact ? 'px-5 py-5' : 'px-6 py-7'}`}
     >
       <div className={`font-semibold text-surface ${compact ? 'text-lg' : 'text-2xl'}`}>{label}</div>
@@ -105,7 +105,7 @@ export function SubtleInput({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className="border-0 border-b-[3px] border-surface/40 bg-transparent px-0 pb-3 pt-2 text-2xl font-medium text-white caret-naranja outline-none transition-colors placeholder:font-light placeholder:text-surface/35 focus:border-naranja focus:placeholder:text-surface/55 disabled:opacity-50"
+        className="border-0 border-b-[3px] border-white/20 bg-transparent px-0 pb-3 pt-2 text-2xl font-medium text-white caret-naranja outline-none transition-colors placeholder:font-light placeholder:text-surface/35 focus:border-naranja focus:placeholder:text-surface/55 disabled:opacity-50"
       />
     </label>
   );
@@ -126,7 +126,7 @@ export function UploadCard({
     <button
       type="button"
       onClick={onClick}
-      className="group flex w-full items-center gap-4 rounded-2xl border border-dashed border-surface/25 bg-surface/5 px-6 py-6 text-left transition hover:border-naranja/70 hover:bg-naranja/10"
+      className="group flex w-full items-center gap-4 rounded-2xl border border-dashed border-white/10 bg-white/5 px-6 py-6 text-left transition hover:border-naranja/70 hover:bg-naranja/10"
     >
       <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface/10 text-xl text-surface/80 transition group-hover:bg-naranja/20 group-hover:text-naranja">
         {icon}

@@ -6,6 +6,8 @@ import Link from 'next/link';
 
 import type { PanelPropiedadEstado, PanelPropiedadTableRow } from '@/types/panel';
 
+import { panelGlassTable } from '@/components/panel/panel-theme';
+
 import { EstadoSelector } from './EstadoSelector';
 import { PropertyQuickView } from './PropertyQuickView';
 
@@ -37,13 +39,18 @@ export function PropertiesClientTable({ propiedades: initialPropiedades }: Props
     setPropiedades(initialPropiedades);
   }, [initialPropiedades]);
 
+  const onPropiedadUpdate = useCallback((updated: PanelPropiedadTableRow) => {
+    setPropiedades((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    setSelectedProp(updated);
+  }, []);
+
   return (
     <>
-      <div className="mt-10 w-full overflow-hidden rounded-2xl border !border-surface/10 !bg-black/20 backdrop-blur-md">
+      <div className={`mt-10 w-full ${panelGlassTable}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm !text-white">
             <thead>
-              <tr className="border-b border-surface/10 !text-white/60">
+              <tr className="border-b border-white/10 !text-white/60">
                 <th className="px-4 py-3 font-semibold">Propiedad</th>
                 <th className="hidden px-4 py-3 font-semibold sm:table-cell">Operación / Tipo</th>
                 <th className="px-4 py-3 font-semibold">Precio</th>
@@ -75,7 +82,7 @@ export function PropertiesClientTable({ propiedades: initialPropiedades }: Props
                     <tr
                       key={prop.id}
                       onClick={() => setSelectedProp(prop)}
-                      className="cursor-pointer border-b border-surface/10 transition-colors hover:!bg-surface/10"
+                      className="cursor-pointer border-b border-white/10 transition-colors hover:bg-white/5"
                     >
                       <td className="max-w-[14rem] px-4 py-3 align-middle">
                         <div className="flex items-center gap-3">
@@ -85,14 +92,14 @@ export function PropertiesClientTable({ propiedades: initialPropiedades }: Props
                               alt=""
                               width={44}
                               height={44}
-                              className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                              className="h-11 w-11 shrink-0 rounded-xl object-cover"
                             />
                           ) : (
                             // eslint-disable-next-line @next/next/no-img-element -- placeholder SVG data URI
                             <img
                               src={PLACEHOLDER_THUMB}
                               alt=""
-                              className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                              className="h-11 w-11 shrink-0 rounded-xl object-cover"
                             />
                           )}
                           <span className="line-clamp-2 font-medium !text-white">{prop.titulo}</span>
@@ -132,7 +139,11 @@ export function PropertiesClientTable({ propiedades: initialPropiedades }: Props
       </div>
 
       {selectedProp ? (
-        <PropertyQuickView propiedad={selectedProp} onClose={() => setSelectedProp(null)} />
+        <PropertyQuickView
+          propiedad={selectedProp}
+          onClose={() => setSelectedProp(null)}
+          onPropiedadUpdate={onPropiedadUpdate}
+        />
       ) : null}
     </>
   );

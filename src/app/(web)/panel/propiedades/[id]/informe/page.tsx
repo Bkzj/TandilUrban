@@ -60,7 +60,7 @@ export default async function PropiedadInformePage({ params }: PageProps) {
 
   return (
     <div className="print:m-0 print:bg-white print:p-0">
-      <div className="print:hidden border-b border-white/10 bg-black/20 px-6 py-4">
+      <div className="print:hidden border-b border-white/10 bg-white/5 px-6 py-4 backdrop-blur-lg">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4">
           <Link
             href="/panel/propiedades"
@@ -68,12 +68,20 @@ export default async function PropiedadInformePage({ params }: PageProps) {
           >
             ← Volver a propiedades
           </Link>
-          <Link
-            href={`/panel/propiedades/editar/${prop.id}`}
-            className="text-xs font-semibold uppercase tracking-wider text-white/60 hover:text-white"
-          >
-            Editar ficha
-          </Link>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              href={`/panel/propiedades/${prop.id}/informe-total`}
+              className="text-xs font-semibold uppercase tracking-wider text-white/60 hover:text-white"
+            >
+              Informe integral
+            </Link>
+            <Link
+              href={`/panel/propiedades/editar/${prop.id}`}
+              className="text-xs font-semibold uppercase tracking-wider text-white/60 hover:text-white"
+            >
+              Editar ficha
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -198,7 +206,11 @@ export default async function PropiedadInformePage({ params }: PageProps) {
         </footer>
       </article>
 
-      <PropiedadInformePrintButton />
+      <PropiedadInformePrintButton
+        propiedadId={prop.id}
+        variant="valoracion"
+        filename={`informe-valoracion-${prop.id.slice(-8).toUpperCase()}.pdf`}
+      />
     </div>
   );
 }

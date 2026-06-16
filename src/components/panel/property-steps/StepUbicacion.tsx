@@ -13,7 +13,7 @@ const LocationMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="relative z-0 flex h-[400px] w-full items-center justify-center overflow-hidden rounded-2xl border !border-surface/10 text-sm text-surface/60">
+      <div className="relative z-0 flex h-[400px] w-full items-center justify-center overflow-hidden rounded-2xl border border-white/10 text-sm text-surface/60">
         Cargando mapa…
       </div>
     ),
@@ -178,7 +178,7 @@ export function StepUbicacion({ data, update, isEditMode }: StepProps) {
       <form onSubmit={onSubmit} className="w-full">
         <div className="relative z-[60] mb-8 w-full">
           <input
-            className="w-full rounded-xl border !border-surface/20 !bg-black/20 p-4 !text-white !border-b-[3px] focus:!border-naranja outline-none transition-colors placeholder:!text-surface/50"
+            className="w-full rounded-xl border border-white/10 bg-white/5 p-4 !text-white !border-b-[3px] focus:!border-naranja outline-none transition-colors placeholder:!text-surface/50"
             placeholder="Buscar dirección (ej. Mitre 450, Tandil)..."
             value={query}
             onChange={(e) => update('direccion', e.target.value)}

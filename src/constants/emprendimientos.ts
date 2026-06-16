@@ -1,4 +1,4 @@
-çimport type { EmprendimientoEditorial } from '@/types/emprendimientos';
+import type { EmprendimientoEditorial } from '@/types/emprendimientos';
 
 /** Contenido editorial curado hasta existir un modelo dedicado en Prisma. */
 export const EMPRENDIMIENTOS_EDITORIALES: EmprendimientoEditorial[] = [
@@ -94,39 +94,6 @@ export const EMPRENDIMIENTOS_EDITORIALES: EmprendimientoEditorial[] = [
     ctaLabel: 'Más información',
     ctaHref: 'mailto:contacto@propeagroup.com?subject=Franquicia%20farmacia',
   },
-  {
-    id: 'pub-financiacion',
-    categoria: 'publicidad',
-    titulo: 'Financiación para emprendedores',
-    subtitulo: 'Banco aliado · Propea Group',
-    descripcion:
-      'Líneas especiales para compra de local, pozo o franquicia. Tasas preferenciales y asesoramiento gratuito para socios del portal.',
-    imagen:
-      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=2070&auto=format&fit=crop',
-    imagenes: [
-      'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=2070&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2070&auto=format&fit=crop',
-    ],
-    badge: 'Publicidad',
-    ctaLabel: 'Conocer condiciones',
-    ctaHref: 'mailto:contacto@propeagroup.com?subject=Financiaci%C3%B3n%20emprendedores',
-    patrocinado: true,
-    destacado: true,
-  },
-  {
-    id: 'pub-asesoria-legal',
-    categoria: 'publicidad',
-    titulo: 'Asesoría legal para negocios',
-    subtitulo: 'Estudio jurídico asociado',
-    descripcion:
-      'Contratos de franquicia, locación comercial y constitución de sociedades. Primera consulta sin cargo para usuarios Propea Group.',
-    imagen:
-      'https://images.unsplash.com/photo-1589829545855-d11d042db266?q=80&w=2070&auto=format&fit=crop',
-    badge: 'Publicidad',
-    ctaLabel: 'Agendar consulta',
-    ctaHref: 'mailto:contacto@propeagroup.com?subject=Asesor%C3%ADa%20legal',
-    patrocinado: true,
-  },
 ];
 
 export const EMPRENDIMIENTO_CATEGORIA_META = {
@@ -146,12 +113,6 @@ export const EMPRENDIMIENTO_CATEGORIA_META = {
     label: 'Franquicia',
     navLabel: 'Franquicias',
     descripcion: 'Marcas consolidadas buscando socios en Tandil.',
-    accent: 'naranja' as const,
-  },
-  publicidad: {
-    label: 'Patrocinado',
-    navLabel: 'Publicidad',
-    descripcion: 'Servicios y aliados recomendados para emprendedores.',
     accent: 'naranja' as const,
   },
 } as const;

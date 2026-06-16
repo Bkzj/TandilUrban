@@ -1,6 +1,6 @@
 'use client';
 
-import { PublicSearchPill } from '@/components/public/PublicSearchPill';
+import { PREMIUM_PILL_CLASS, PublicSearchPill } from '@/components/public/PublicSearchPill';
 
 export type HeroSearchProps = {
   compact?: boolean;
@@ -21,11 +21,9 @@ export default function HeroSearch({
   formClassName,
 }: HeroSearchProps) {
   const compactPillClass =
-    'mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 rounded-2xl border border-white/15 bg-white/95 p-3 shadow-xl backdrop-blur-md md:flex md:flex-row md:items-end md:gap-0 md:divide-x md:divide-gray-200 md:rounded-full md:p-2';
+    'mx-auto flex w-full max-w-5xl flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2 shadow-xl md:flex-row md:gap-0 md:rounded-full md:p-2';
 
-  const fullPillClass =
-    formClassName ??
-    'relative z-10 mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 overflow-visible rounded-3xl border-0 bg-white p-4 shadow-xl md:flex md:flex-row md:items-end md:gap-0 md:divide-x md:divide-gray-200/90 md:rounded-full md:border md:border-white/30 md:bg-white/92 md:p-3 md:shadow-2xl md:backdrop-blur-xl';
+  const fullPillClass = formClassName ?? PREMIUM_PILL_CLASS;
 
   if (compact) {
     return (

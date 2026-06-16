@@ -44,11 +44,17 @@ function operacionToUrl(o: string): string {
 
 const SUGGEST_MAX = 80;
 
-const DEFAULT_PILL_CLASS =
-  'relative z-10 mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 overflow-visible rounded-3xl border-0 bg-white p-4 shadow-2xl md:flex md:flex-row md:items-end md:gap-0 md:divide-x md:divide-gray-200/90 md:rounded-full md:border md:border-white/30 md:bg-white/92 md:p-3 md:shadow-2xl md:backdrop-blur-xl';
+export const PREMIUM_PILL_CLASS =
+  'relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-3 overflow-visible rounded-2xl bg-white p-2 shadow-2xl md:flex-row md:gap-0 md:rounded-full md:p-3';
 
 const FIELD_SHELL =
-  'flex min-h-0 w-full items-center px-3 py-2 md:min-h-[52px] md:px-4';
+  'flex min-h-0 w-full items-center border-b border-gray-100 px-3 py-2.5 md:min-h-[52px] md:flex-1 md:border-b-0 md:border-r md:px-4 md:py-2';
+
+const SELECT_CLASS =
+  'w-full cursor-pointer appearance-none border-0 bg-transparent bg-[length:1rem] bg-[right_0.25rem_center] bg-no-repeat py-2 pr-7 text-sm font-medium text-gray-800 outline-none md:py-1 md:pr-8';
+
+const CHEVRON_SVG =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\")";
 
 export function PublicSearchPill({
   formClassName,
@@ -78,9 +84,7 @@ export function PublicSearchPill({
   const filteredBarrios = useMemo(() => {
     if (!barrios?.length) return [];
     const q = query.trim().toLowerCase();
-    const list = q
-      ? barrios.filter((b) => b.toLowerCase().includes(q))
-      : barrios;
+    const list = q ? barrios.filter((b) => b.toLowerCase().includes(q)) : barrios;
     return list.slice(0, SUGGEST_MAX);
   }, [barrios, query]);
 
@@ -110,19 +114,14 @@ export function PublicSearchPill({
     router.push(qs ? `/buscar?${qs}` : '/buscar');
   }
 
-  const pillClass = formClassName ?? DEFAULT_PILL_CLASS;
+  const pillClass = formClassName ?? PREMIUM_PILL_CLASS;
   const formOverflow = hasBarrios ? 'overflow-visible' : '';
   const queryPlaceholder = hasBarrios ? 'Buscar barrio...' : 'Buscar barrio, ciudad o dirección';
 
-  const selectClass =
-    'w-full cursor-pointer appearance-none border-0 bg-transparent bg-[length:1rem] bg-[right_0.25rem_center] bg-no-repeat py-2 pr-7 text-sm font-medium text-text-primary outline-none md:py-1 md:pr-8';
-
   return (
     <form onSubmit={onSubmit} className={`${pillClass} ${formOverflow}`.trim()}>
-      <div
-        className={`${FIELD_SHELL} relative z-20 col-span-2 min-w-0 gap-2 md:col-span-1 md:flex-1 md:gap-3`}
-      >
-        <Search className="h-4 w-4 shrink-0 text-naranja md:h-5 md:w-5" aria-hidden />
+      <div className={`${FIELD_SHELL} relative z-20 min-w-0 gap-2 md:gap-3`}>
+        <Search className="h-4 w-4 shrink-0 text-gray-400 md:h-5 md:w-5" aria-hidden />
         <div className="relative min-w-0 flex-1">
           <input
             type="search"
@@ -139,7 +138,7 @@ export function PublicSearchPill({
             }}
             onBlur={scheduleCloseSuggestions}
             placeholder={queryPlaceholder}
-            className="w-full min-w-0 border-0 bg-transparent py-0 text-sm text-text-primary outline-none placeholder:text-text-secondary"
+            className="w-full min-w-0 border-0 bg-transparent py-0 text-sm text-gray-800 outline-none placeholder:text-gray-400"
             autoComplete="off"
             aria-label="Buscar ubicación"
             aria-controls={hasBarrios ? 'hero-barrios-suggestions' : undefined}
@@ -150,10 +149,10 @@ export function PublicSearchPill({
             <ul
               id="hero-barrios-suggestions"
               role="listbox"
-              className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[100] max-h-56 overflow-y-auto rounded-2xl border border-white/30 bg-white/20 py-2 shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-white/15"
+              className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[100] max-h-56 overflow-y-auto rounded-2xl border border-gray-100 bg-white py-2 shadow-2xl"
             >
               {filteredBarrios.length === 0 ? (
-                <li className="px-4 py-3 text-center text-sm text-text-secondary">Sin coincidencias</li>
+                <li className="px-4 py-3 text-center text-sm text-gray-400">Sin coincidencias</li>
               ) : (
                 filteredBarrios.map((b) => (
                   <li key={b} role="presentation">
@@ -161,7 +160,7 @@ export function PublicSearchPill({
                       type="button"
                       role="option"
                       aria-selected={query === b}
-                      className="w-full px-4 py-2.5 text-left text-sm text-text-primary transition-colors hover:bg-white/25"
+                      className="w-full px-4 py-2.5 text-left text-sm text-gray-800 transition-colors hover:bg-gray-50"
                       onMouseDown={(e) => {
                         e.preventDefault();
                         clearBlurTimer();
@@ -179,15 +178,13 @@ export function PublicSearchPill({
         </div>
       </div>
 
-      <div className={`${FIELD_SHELL} col-span-1 md:flex-1`}>
+      <div className={FIELD_SHELL}>
         <select
           aria-label="Operación"
           value={operacion}
           onChange={(ev) => setOperacion(ev.target.value)}
-          className={selectClass}
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
-          }}
+          className={SELECT_CLASS}
+          style={{ backgroundImage: CHEVRON_SVG }}
         >
           <option value="">Operación</option>
           <option value="VENTA">Venta</option>
@@ -195,15 +192,13 @@ export function PublicSearchPill({
         </select>
       </div>
 
-      <div className={`${FIELD_SHELL} col-span-1 md:flex-1`}>
+      <div className={`${FIELD_SHELL} md:border-r-0`}>
         <select
           aria-label="Tipo de propiedad"
           value={tipo}
           onChange={(ev) => setTipo(ev.target.value)}
-          className={selectClass}
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
-          }}
+          className={SELECT_CLASS}
+          style={{ backgroundImage: CHEVRON_SVG }}
         >
           <option value="">Tipo</option>
           <option value="Casa">Casa</option>
@@ -212,10 +207,10 @@ export function PublicSearchPill({
         </select>
       </div>
 
-      <div className="col-span-2 flex w-full items-center justify-center px-1 pb-0.5 md:col-span-1 md:w-auto md:justify-end md:px-2 md:pb-0">
+      <div className="flex w-full shrink-0 items-center px-1 pb-0.5 md:w-auto md:px-2 md:pb-0">
         <button
           type="submit"
-          className="w-full rounded-full bg-naranja px-6 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-naranja/90 md:w-auto md:px-8 md:py-3"
+          className="flex w-full shrink-0 items-center justify-center rounded-xl bg-[#B4853F] px-8 py-3 text-sm font-bold text-white shadow-md transition-all duration-300 hover:scale-105 hover:bg-[#9a7033] md:w-auto md:rounded-full"
         >
           Buscar
         </button>

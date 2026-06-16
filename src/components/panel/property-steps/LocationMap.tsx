@@ -35,7 +35,7 @@ export function LocationMap({ center, onMarkerDrag }: LocationMapProps) {
   const markerIcon = useMemo(() => tandilIcon, []);
 
   return (
-    <div className="relative h-[400px] w-full overflow-hidden rounded-2xl border !border-surface/10 z-0">
+    <div className="relative h-[400px] w-full overflow-hidden rounded-2xl border border-white/10 z-0">
       <MapContainer
         center={center}
         zoom={16}

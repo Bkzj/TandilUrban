@@ -116,6 +116,8 @@ model Propiedad {
   imagenes          Json              @default("[]")
   /** Plano / croquis (URL Cloudinary u otra entrega HTTPS). */
   planoUrl          String?
+  /** Clasificación automática por umbral de precio (VENTA USD / ALQUILER ARS). */
+  esExclusiva       Boolean           @default(false)
 
   visitas    Int @default(0)
   consultas Int @default(0)

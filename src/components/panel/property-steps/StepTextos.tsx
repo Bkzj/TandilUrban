@@ -80,7 +80,7 @@ export function StepTextos({ data, update, isEditMode }: Omit<StepProps, 'onNext
         onChange={(e) => setNotasIA(e.target.value)}
         disabled={isGenerating}
         placeholder="Contexto para la IA (Opcional). Ej: Solo para estudiantes, alquiler temporal por 6 meses, se pide garantía propietaria..."
-        className="mt-5 w-full rounded-xl border !border-surface/20 !bg-black/20 p-4 !text-white focus:!border-naranja outline-none transition-colors placeholder:!text-surface/50 mb-4 min-h-[100px] resize-none"
+        className="mt-5 w-full rounded-xl border border-white/10 bg-white/5 p-4 !text-white focus:!border-naranja outline-none transition-colors placeholder:!text-surface/50 mb-4 min-h-[100px] resize-none"
       />
 
       <button
@@ -111,7 +111,7 @@ export function StepTextos({ data, update, isEditMode }: Omit<StepProps, 'onNext
             rows={5}
             disabled={isGenerating}
             placeholder="3 dormitorios, 2 baños, parque con asador, ubicado a 5 minutos del centro…"
-            className="w-full resize-none border-0 border-b-[3px] border-surface/40 bg-transparent px-0 pb-3 pt-2 text-lg font-medium text-white caret-naranja outline-none transition-colors placeholder:font-light placeholder:text-surface/35 focus:border-naranja focus:placeholder:text-surface/55 disabled:opacity-50"
+            className="w-full resize-none border-0 border-b-[3px] border-white/20 bg-transparent px-0 pb-3 pt-2 text-lg font-medium text-white caret-naranja outline-none transition-colors placeholder:font-light placeholder:text-surface/35 focus:border-naranja focus:placeholder:text-surface/55 disabled:opacity-50"
           />
         </div>
       </div>

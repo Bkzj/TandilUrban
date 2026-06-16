@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import { FavoriteButton } from '@/components/public/FavoriteButton';
+import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaBadge';
 import type { PublicPropiedadListItem } from '@/types/public-search';
 
 const PLACEHOLDER =
@@ -38,6 +39,7 @@ export function EmprendimientoPropiedadCard({
               alt=""
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
+            {propiedad.esExclusiva ? <PropiedadExclusivaBadge /> : null}
             <span
               className={`absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide shadow-sm ${badgeClass}`}
             >

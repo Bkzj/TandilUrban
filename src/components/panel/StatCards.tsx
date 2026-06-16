@@ -7,7 +7,7 @@ type StatCardsProps = {
 };
 
 const CARD_CLASS =
-  'rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md';
+  'rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg shadow-lg shadow-black/20';
 
 const BASE_CARDS = [
   {

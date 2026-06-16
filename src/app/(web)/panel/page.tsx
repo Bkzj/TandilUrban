@@ -5,14 +5,12 @@ import { PricePerSqmChart } from '@/components/panel/PricePerSqmChart';
 import { StatCards } from '@/components/panel/StatCards';
 import { TopProperties } from '@/components/panel/TopProperties';
 import PanelTabs from '@/components/panel/PanelTabs';
+import { panelGlassCardPadded as GLASS_CARD } from '@/components/panel/panel-theme';
 import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/auth';
 import { getPanelAnalytics } from '@/lib/panel-analytics';
 import type { CurrentUser } from '@/types/auth';
 
 export const dynamic = 'force-dynamic';
-
-const GLASS_CARD =
-  'rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md sm:p-8';
 
 type PanelPageProps = {
   searchParams?:
@@ -42,7 +40,7 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
 
       {justPublished ? (
         <div
-          className="mt-6 rounded-2xl border border-naranja/40 bg-black/25 p-4 text-sm font-medium text-white backdrop-blur-md"
+          className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm font-medium text-white backdrop-blur-lg shadow-lg shadow-black/20"
           role="status"
         >
           Propiedad publicada con éxito.

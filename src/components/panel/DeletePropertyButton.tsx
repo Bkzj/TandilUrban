@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 
 type Props = {
   propiedadId: string;
-  /** Icono solo en tabla (histórico) o botón full en modal */
-  variant?: 'icon' | 'full';
+  /** Icono solo en tabla (histórico), botón full en modal, o enlace sutil */
+  variant?: 'icon' | 'full' | 'link';
   /** Tras DELETE exitoso (ej. cerrar Quick View antes del refresh). */
   onSuccess?: () => void;
   /** Solo `variant="full"`: clases extra (se aplican tras el estilo base). */
@@ -38,12 +38,24 @@ export function DeletePropertyButton({
     router.refresh();
   }
 
+  if (variant === 'link') {
+    return (
+      <button
+        type="button"
+        onClick={() => void handleClick()}
+        className={`mx-auto mt-1 cursor-pointer text-xs font-medium tracking-wide text-red-400/60 transition-colors hover:text-red-400 hover:underline underline-offset-4 ${className ?? ''}`}
+      >
+        Eliminar propiedad
+      </button>
+    );
+  }
+
   if (variant === 'full') {
     return (
       <button
         type="button"
         onClick={() => void handleClick()}
-        className={`w-full rounded-xl border border-black/30 !bg-red-500 py-3 text-sm font-bold !text-white transition-colors hover:!bg-red-500 ${className ?? ''}`}
+        className={`w-full rounded-xl border border-white/10 !bg-red-500 py-3 text-sm font-bold !text-white shadow-lg shadow-black/20 transition-colors hover:!bg-red-500 ${className ?? ''}`}
       >
         Eliminar
       </button>
@@ -55,7 +67,7 @@ export function DeletePropertyButton({
       type="button"
       title="Eliminar propiedad"
       onClick={() => void handleClick()}
-      className="flex items-center justify-center rounded-lg p-2 transition-colors !text-surface/50 hover:!text-red-500 hover:!bg-red-500/10"
+      className="flex items-center justify-center rounded-xl p-2 transition-colors !text-surface/50 hover:!bg-red-500/10 hover:!text-red-500"
     >
       <Trash2 className="h-4 w-4" aria-hidden />
     </button>

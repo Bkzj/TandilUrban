@@ -7,6 +7,7 @@ import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/au
 import type { Agente } from '@/types/panel';
 import type { CurrentUser } from '@/types/auth';
 import PanelTabs from '@/components/panel/PanelTabs';
+import { panelBtnGhost, panelGlassEmpty } from '@/components/panel/panel-theme';
 
 export const metadata = {
   title: 'Mi equipo · Panel | Propea Group',
@@ -23,15 +24,12 @@ export default async function EquipoPage() {
     return (
       <main className="mx-auto w-full max-w-7xl px-6 py-12 md:px-8">
         <PanelTabs showEquipo={false} />
-        <div className="mt-12 rounded-2xl border border-surface/10 bg-surface/5 p-10 text-center backdrop-blur">
+        <div className={`mt-12 ${panelGlassEmpty}`}>
           <h1 className="text-2xl font-semibold text-white">Acceso restringido</h1>
           <p className="mt-3 text-sm text-surface/65">
             Esta sección está disponible solo para el administrador principal de una inmobiliaria.
           </p>
-          <Link
-            href="/panel"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl border border-surface/15 bg-surface/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-surface/80 transition hover:border-naranja/60 hover:bg-naranja/15 hover:text-surface"
-          >
+          <Link href="/panel" className={`mt-6 ${panelBtnGhost}`}>
             ← Volver al panel
           </Link>
         </div>

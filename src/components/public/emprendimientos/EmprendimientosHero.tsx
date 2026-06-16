@@ -7,7 +7,6 @@ import {
   ArrowRight,
   Building2,
   ChevronDown,
-  Megaphone,
   Store,
   TrendingUp,
 } from 'lucide-react';
@@ -37,7 +36,6 @@ const PILARES = [
   { icon: Building2, label: 'En pozo' },
   { icon: Store, label: 'Locales' },
   { icon: TrendingUp, label: 'Franquicias' },
-  { icon: Megaphone, label: 'Publicidad' },
 ] as const;
 
 const CARD_LAYOUT = [
@@ -134,8 +132,8 @@ export function EmprendimientosHero({ totalItems, showcaseImages }: Props) {
             variants={fadeUp}
             className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-white/85 sm:text-lg lg:mx-0"
           >
-            Portal informativo y propiedades reales en un solo espacio: pozo, locales,
-            franquicias y aliados para tu próximo negocio.
+            Portal informativo y propiedades reales en un solo espacio: pozo, locales
+            y franquicias para tu próximo negocio.
           </motion.p>
 
           {totalItems > 0 ? (
@@ -165,7 +163,7 @@ export function EmprendimientosHero({ totalItems, showcaseImages }: Props) {
 
           <motion.div
             variants={fadeUp}
-            className="mt-10 grid grid-cols-4 gap-2 sm:gap-3 lg:max-w-md"
+            className="mt-10 grid grid-cols-3 gap-2 sm:gap-3 lg:max-w-md"
           >
             {PILARES.map(({ icon: Icon, label }) => (
               <div

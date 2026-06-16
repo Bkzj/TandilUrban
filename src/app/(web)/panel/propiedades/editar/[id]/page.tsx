@@ -93,7 +93,7 @@ export default async function EditarPropiedadPage({ params }: { params: Promise<
   if (!tenantInmobiliariaId) {
     return (
       <main className="min-h-screen bg-gradient-to-br from-text-primary via-naranja-dark/80 to-verde-dark/50 px-6 py-10 text-white md:px-8">
-        <div className="mx-auto max-w-2xl rounded-xl border border-naranja/30 bg-surface/5 p-8">
+        <div className="mx-auto max-w-2xl rounded-xl border border-naranja/30 bg-white/5 p-8">
           <p className="text-naranja-light">No tenés una inmobiliaria asignada.</p>
           <Link
             href="/panel"
@@ -124,21 +124,21 @@ export default async function EditarPropiedadPage({ params }: { params: Promise<
 
   return (
     <main className="flex min-h-screen flex-col bg-gradient-to-br from-text-primary via-naranja-dark/80 to-verde-dark/50 px-6 py-10 text-white md:px-8">
-      <div className="border-b border-naranja/25 bg-surface/5">
+      <div className="border-b border-white/10 bg-white/5 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 py-4">
           <Link
             href="/panel"
-            className="inline-flex items-center gap-2 rounded-lg border border-naranja/50 bg-naranja/10 px-4 py-2 text-sm font-semibold text-naranja transition-colors hover:bg-naranja/20"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-naranja transition-colors hover:bg-white/10"
           >
             ← Volver al panel
           </Link>
-          <span className="rounded-md bg-naranja px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-surface">
+          <span className="rounded-xl bg-naranja px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-surface">
             Modo Edición
           </span>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl border-b border-naranja/15 pb-2 pt-8">
+      <div className="mx-auto max-w-7xl border-b border-white/10 pb-2 pt-8">
         <h1 className="text-3xl font-semibold tracking-tight text-naranja md:text-4xl">
           Editar propiedad
         </h1>

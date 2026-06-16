@@ -63,7 +63,7 @@ export function LeadSeguimientoLoader({
 
   if (!ready) {
     return (
-      <section className="mb-6 rounded-xl border border-naranja/25 bg-naranja/5 p-4">
+      <section className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
         <p className="text-xs text-white/50">Cargando seguimiento…</p>
       </section>
     );
@@ -71,7 +71,7 @@ export function LeadSeguimientoLoader({
 
   if (error) {
     return (
-      <section className="mb-6 rounded-xl border border-naranja/25 bg-naranja/5 p-4">
+      <section className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
         <p className="text-xs text-naranja-light" role="alert">
           {error}
         </p>

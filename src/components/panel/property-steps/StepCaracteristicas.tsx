@@ -33,7 +33,7 @@ export function StepCaracteristicas({
               className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                 active
                   ? 'border-naranja bg-naranja text-surface shadow shadow-naranja/30'
-                  : 'border-surface/20 bg-transparent text-surface/80 hover:border-surface/40 hover:bg-surface/5'
+                  : 'border-white/10 bg-transparent text-surface/80 hover:border-white/20 hover:bg-white/5'
               }`}
             >
               {item}

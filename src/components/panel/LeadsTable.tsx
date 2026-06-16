@@ -1,8 +1,11 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 
 import type { PanelLeadEstado, PanelLeadRow } from '@/types/panel';
+
+import { panelGlassEmpty, panelGlassTable } from '@/components/panel/panel-theme';
 
 import { LeadQuickView } from './LeadQuickView';
 
@@ -72,7 +75,7 @@ export function LeadsTable({ leads: initialLeads }: Props) {
 
   if (initialLeads.length === 0 && leads.length === 0) {
     return (
-      <div className="mt-10 rounded-2xl border border-white/10 bg-black/20 p-10 text-center backdrop-blur-md">
+      <div className={`mt-10 ${panelGlassEmpty}`}>
         <p className="text-white/80">No hay consultas por ahora.</p>
         <p className="mt-2 text-sm text-white/50">
           Cuando ingresen leads desde el sitio público, aparecerán aquí.
@@ -83,11 +86,11 @@ export function LeadsTable({ leads: initialLeads }: Props) {
 
   return (
     <>
-      <div className="mt-10 overflow-hidden rounded-2xl border border-white/10 bg-black/20 backdrop-blur-md">
+      <div className={`mt-10 ${panelGlassTable}`}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[820px] border-collapse text-left text-sm text-white">
             <thead>
-              <tr className="border-b border-white/10 bg-black/30">
+              <tr className="border-b border-white/10 bg-white/5">
                 <th className="whitespace-nowrap px-4 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">
                   Fecha
                 </th>
@@ -120,7 +123,7 @@ export function LeadsTable({ leads: initialLeads }: Props) {
                   <td className="whitespace-nowrap px-4 py-3 align-middle text-white/80">{fmtShort(lead.createdAt)}</td>
                   <td className="max-w-[280px] px-4 py-3 align-middle">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg bg-black/40 ring-1 ring-white/10">
+                      <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={lead.propiedad.imagenes[0]?.url || PLACEHOLDER}
@@ -154,14 +157,17 @@ export function LeadsTable({ leads: initialLeads }: Props) {
         </div>
       </div>
 
-      {openLead ? (
-        <LeadQuickView
-          lead={openLead}
-          onClose={() => setOpenId(null)}
-          onLeadUpdated={onLeadUpdated}
-          onVisitasUpdated={onLeadVisitasUpdated}
-        />
-      ) : null}
+      <AnimatePresence>
+        {openLead ? (
+          <LeadQuickView
+            key={openLead.id}
+            lead={openLead}
+            onClose={() => setOpenId(null)}
+            onLeadUpdated={onLeadUpdated}
+            onVisitasUpdated={onLeadVisitasUpdated}
+          />
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

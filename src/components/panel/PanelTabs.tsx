@@ -53,7 +53,7 @@ export default function PanelTabs({ showEquipo }: Props) {
   return (
     <nav
       aria-label="Navegación del panel"
-      className="flex flex-wrap items-center gap-1 rounded-2xl border border-surface/10 bg-surface/5 p-1.5 backdrop-blur"
+      className="flex flex-wrap items-center gap-1 rounded-2xl border border-white/10 bg-white/5 p-1.5 backdrop-blur-lg shadow-lg shadow-black/20"
     >
       {tabs
         .filter((tab) => tab.visible !== false)
@@ -63,10 +63,11 @@ export default function PanelTabs({ showEquipo }: Props) {
             <Link
               key={tab.href}
               href={tab.href}
+              prefetch={false}
               className={`rounded-xl border-l-4 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
                 isActive
                   ? 'border-naranja bg-naranja/10 text-naranja shadow-sm shadow-naranja/20'
-                  : 'border-transparent text-surface/70 hover:border-naranja/30 hover:bg-naranja/5 hover:text-surface'
+                  : 'border-transparent text-surface/70 hover:border-naranja/30 hover:bg-white/5 hover:text-surface'
               }`}
             >
               {tab.label}

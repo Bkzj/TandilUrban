@@ -1,6 +1,6 @@
 import type { PublicPropiedadListItem } from '@/types/public-search';
 
-export type EmprendimientoCategoria = 'pozo' | 'local' | 'franquicia' | 'publicidad';
+export type EmprendimientoCategoria = 'pozo' | 'local' | 'franquicia';
 
 export type EmprendimientoEditorial = {
   id: string;

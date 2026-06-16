@@ -12,6 +12,7 @@ import {
 import { collectPublicIdsForDeletion, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
+import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
 import { prisma } from '@/lib/prisma';
 import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
 
@@ -120,6 +121,7 @@ export async function PUT(
 
     const data = payload.data;
     const esLote = data.tipo === 'Lote';
+    const esExclusiva = computeEsExclusiva(data);
 
     await prisma.propiedad.update({
       where: { id: propiedad.id },
@@ -144,6 +146,7 @@ export async function PUT(
         caracteristicas: data.caracteristicas,
         imagenes: data.imagenes,
         planoUrl: data.planoUrl,
+        esExclusiva,
       },
     });
 

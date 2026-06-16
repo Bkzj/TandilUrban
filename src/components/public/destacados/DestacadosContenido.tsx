@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Building2, Home, Star, TrendingUp } from 'lucide-react';
 
-import { DestacadoPropertyCard } from '@/components/public/destacados/DestacadoPropertyCard';
+import { FeaturedPropertiesSection } from '@/components/web/FeaturedPropertiesSection';
+import { FeaturedPropertyCard } from '@/components/web/FeaturedPropertyCard';
 import type { PublicPropiedadListItem } from '@/types/public-search';
 
 const MAX_GALERIA = 6;
@@ -120,52 +121,14 @@ export function DestacadosContenido({ propiedades, favoritoIds }: Props) {
       </div>
 
       {filtro === 'todos' && galeria.length > 0 ? (
-        <section
-          id="oportunidades"
-          className="scroll-mt-20 border-b border-naranja/8 bg-gradient-to-b from-naranja-light/25 via-background to-background py-16 sm:py-20"
-        >
-          <div className="mx-auto max-w-5xl px-6 sm:px-8">
-            <motion.div
-              className="mb-12 text-center sm:mb-14"
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-5% 0px' }}
-              transition={{ duration: 0.9, ease: PREMIUM_EASE }}
-            >
-              <p className="text-[0.65rem] font-bold uppercase tracking-[0.28em] text-naranja">
-                Selección exclusiva
-              </p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
-                Lo más relevante del mes
-              </h2>
-            </motion.div>
-
-            <div className="flex flex-wrap justify-center gap-x-10 gap-y-12">
-              {galeria.map((p, index) => (
-                <motion.div
-                  key={p.id}
-                  custom={index}
-                  variants={reveal}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: '-4% 0px' }}
-                >
-                  <DestacadoPropertyCard
-                    propiedad={p}
-                    isFavoritoInicial={favoritoSet.has(p.id)}
-                    rank={index + 1}
-                    size="sm"
-                  />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <div id="oportunidades" className="scroll-mt-20">
+          <FeaturedPropertiesSection propiedades={galeria} favoritoIds={favoritoIds} />
+        </div>
       ) : (
         <div id="oportunidades" className="scroll-mt-20" />
       )}
 
-      <section className="mx-auto w-full max-w-5xl px-6 py-20 sm:px-8 sm:py-24">
+      <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:py-24">
         <motion.div
           className="mb-14 text-center sm:mb-16"
           initial={{ opacity: 0, y: 12 }}
@@ -189,7 +152,7 @@ export function DestacadosContenido({ propiedades, favoritoIds }: Props) {
         </motion.div>
 
         {filtradas.length > 0 ? (
-          <div className="flex flex-wrap justify-center gap-x-12 gap-y-14">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {filtradas.map((propiedad, index) => (
               <motion.div
                 key={propiedad.id}
@@ -198,12 +161,11 @@ export function DestacadosContenido({ propiedades, favoritoIds }: Props) {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-4% 0px' }}
+                className={index % 3 === 1 ? 'lg:mt-16' : ''}
               >
-                <DestacadoPropertyCard
+                <FeaturedPropertyCard
                   propiedad={propiedad}
                   isFavoritoInicial={favoritoSet.has(propiedad.id)}
-                  rank={index + 1}
-                  size="md"
                 />
               </motion.div>
             ))}

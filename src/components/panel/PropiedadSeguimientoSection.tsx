@@ -64,7 +64,7 @@ export function PropiedadSeguimientoSection({ propiedadId, visitasWeb, consultas
       : engagement;
 
   return (
-    <section className="mt-6 rounded-xl border border-black/15 bg-black/25 p-4">
+    <section className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
       <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-white/70">
         Seguimiento de la propiedad
       </h3>
@@ -94,7 +94,7 @@ export function PropiedadSeguimientoSection({ propiedadId, visitasWeb, consultas
           type="button"
           onClick={() => setHistorialOpen((v) => !v)}
           disabled={loading}
-          className="flex w-full items-center justify-between gap-2 rounded-lg border border-black/15 bg-black/30 px-3 py-2 text-left text-xs font-semibold text-white transition hover:border-white/25 disabled:opacity-50"
+          className="flex w-full items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left text-xs font-semibold text-white transition hover:border-white/25 disabled:opacity-50"
           aria-expanded={historialOpen}
         >
           <span>Visitantes registrados ({historial.length})</span>
@@ -104,7 +104,7 @@ export function PropiedadSeguimientoSection({ propiedadId, visitasWeb, consultas
           />
         </button>
         {historialOpen ? (
-          <ul className="mt-2 max-h-52 space-y-1.5 overflow-y-auto rounded-lg border border-black/15 bg-black/40 p-2">
+          <ul className="mt-2 max-h-52 space-y-1.5 overflow-y-auto rounded-xl border border-white/10 bg-white/5 p-2">
             {historial.length === 0 ? (
               <li className="px-2 py-3 text-center text-xs text-white/45">
                 Todavía no hay visitas presenciales registradas.
@@ -146,8 +146,8 @@ function Metric({
 }) {
   return (
     <div
-      className={`rounded-lg border p-3 ${
-        highlight ? 'border-naranja/40 bg-naranja/15' : 'border-black/10 bg-black/20'
+      className={`rounded-xl border p-3 ${
+        highlight ? 'border-naranja/40 bg-naranja/15' : 'border-white/10 bg-white/5'
       }`}
     >
       <p className="text-[0.6rem] font-bold uppercase tracking-wide text-white/60">{label}</p>

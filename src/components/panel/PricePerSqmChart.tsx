@@ -26,7 +26,7 @@ export function PricePerSqmChart({ data }: PricePerSqmChartProps) {
       : '—';
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+    <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg shadow-lg shadow-black/20">
       <div className="border-b border-white/10 pb-4">
         <h2 className="text-xl font-semibold text-white sm:text-2xl">Inteligencia de Precios</h2>
         <p className="mt-3 text-2xl font-bold tabular-nums tracking-tight text-white sm:text-3xl">

@@ -20,7 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const lenisReady = useClientMounted();
 
   return (
-    <SessionProvider>
+    <SessionProvider refetchOnWindowFocus={false}>
       {lenisReady ? (
         <ReactLenis
           root

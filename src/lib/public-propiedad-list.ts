@@ -20,6 +20,7 @@ export const PUBLIC_LISTING_SELECT = {
   imagenes: true,
   visitas: true,
   consultas: true,
+  esExclusiva: true,
 } as const;
 
 export type PublicListingRow = {
@@ -40,6 +41,7 @@ export type PublicListingRow = {
   imagenes: unknown;
   visitas: number;
   consultas: number;
+  esExclusiva: boolean;
 };
 
 function coerceCoord(value: unknown): number {
@@ -76,6 +78,7 @@ export function mapRowsToPublicPropiedadList(
       imagenes: imagenesItemsToUrls(normalizePropiedadImagenesDb(p.imagenes)),
       visitas: p.visitas,
       consultas: p.consultas,
+      esExclusiva: p.esExclusiva,
     };
   });
 }

@@ -66,7 +66,7 @@ export async function cambiarEstadoPropiedad(
       .catch(console.error);
   }
 
-  revalidatePath('/panel/propiedades');
+  revalidatePath('/panel/propiedades', 'page');
 
   return { ok: true, estado: nuevoEstado };
 }

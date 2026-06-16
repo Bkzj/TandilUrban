@@ -22,12 +22,12 @@ function CounterRow({
       <span className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-surface/65">
         {label}
       </span>
-      <div className="flex items-center gap-4 rounded-xl border !border-surface/20 !bg-black/20 p-2">
+      <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-2">
         <button
           type="button"
           onClick={onMinus}
           disabled={disabled}
-          className="flex h-10 w-10 items-center justify-center rounded-lg hover:!bg-surface/10 !text-white text-xl disabled:opacity-40"
+          className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-white/10 !text-white text-xl disabled:opacity-40"
         >
           -
         </button>
@@ -36,7 +36,7 @@ function CounterRow({
           type="button"
           onClick={onPlus}
           disabled={disabled}
-          className="flex h-10 w-10 items-center justify-center rounded-lg hover:!bg-surface/10 !text-white text-xl disabled:opacity-40"
+          className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-white/10 !text-white text-xl disabled:opacity-40"
         >
           +
         </button>

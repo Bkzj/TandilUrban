@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaBadge';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
@@ -14,11 +15,12 @@ interface PropertyCardProps {
   ambientes: number;
   m2Total: number;
   esSustentable: boolean;
+  esExclusiva?: boolean;
   imagenUrl: string;
 }
 
 export default function PropertyCard({ 
-  id, titulo, precio, moneda, operacion, ambientes, m2Total, esSustentable, imagenUrl 
+  id, titulo, precio, moneda, operacion, ambientes, m2Total, esSustentable, esExclusiva = false, imagenUrl 
 }: PropertyCardProps) {
   const rotateXRaw = useMotionValue(0);
   const rotateYRaw = useMotionValue(0);
@@ -62,6 +64,7 @@ export default function PropertyCard({
         
         <div className="relative h-64 w-full overflow-hidden">
           <div className="absolute left-4 top-4 z-10 rounded-full bg-verde px-3 py-1 text-xs font-bold uppercase text-surface">{operacion}</div>
+          {esExclusiva ? <PropiedadExclusivaBadge /> : null}
           {esSustentable && (
             <div className="absolute right-4 top-4 z-10 rounded-full bg-verde-hover px-3 py-1 text-xs font-bold text-surface shadow-md">🌱 Sustentable</div>
           )}

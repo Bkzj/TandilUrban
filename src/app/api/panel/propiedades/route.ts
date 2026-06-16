@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 
 import { onPropiedadPublicada } from '@/lib/match-engine';
 import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
+import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
 import { requireAgencyPublishingContext } from '@/lib/panel-agency-publish';
 import { prisma } from '@/lib/prisma';
 import { AuthError } from '@/lib/auth';
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
     const data = payload.data;
 
     const esLote = data.tipo === 'Lote';
+    const esExclusiva = computeEsExclusiva(data);
 
     const propiedad = await prisma.propiedad.create({
       data: {
@@ -59,6 +61,7 @@ export async function POST(request: NextRequest) {
         caracteristicas: data.caracteristicas,
         imagenes: data.imagenes,
         planoUrl: data.planoUrl,
+        esExclusiva,
       },
       select: { id: true, titulo: true, estado: true },
     });

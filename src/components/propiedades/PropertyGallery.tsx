@@ -83,23 +83,28 @@ type GalleryTileProps = {
 
 function GalleryTile({ src, alt, onOpen, className = '', overlay }: GalleryTileProps) {
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className={`group relative block h-full w-full min-h-0 overflow-hidden rounded-xl bg-gray-100 text-left ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-lg hover:ring-black/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-naranja sm:rounded-2xl ${className}`}
+    <div
+      className={`group relative block h-full w-full min-h-0 overflow-hidden rounded-xl bg-gray-100 ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-lg hover:ring-black/10 sm:rounded-2xl ${className}`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={alt}
-        className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
-        aria-hidden
-      />
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={alt}
+        className="absolute inset-0 z-0 block h-full w-full cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-naranja focus-visible:ring-offset-2"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt=""
+          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+        />
+        <span
+          className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
+          aria-hidden
+        />
+      </button>
       {overlay}
-    </button>
+    </div>
   );
 }
 
@@ -382,8 +387,8 @@ export function PropertyGallery({ imagenes }: Props) {
               className="rounded-xl sm:rounded-2xl"
               overlay={
                 i === 3 && items.length > 4 ? (
-                  <div className="pointer-events-none absolute inset-0 flex items-end justify-end p-3">
-                    <ShowAllButton onClick={openModal} />
+                  <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-end p-3">
+                    <ShowAllButton onClick={openModal} className="pointer-events-auto" />
                   </div>
                 ) : null
               }
@@ -405,7 +410,7 @@ export function PropertyGallery({ imagenes }: Props) {
           onOpen={() => openLightbox(0)}
           className="col-span-4 row-span-2 md:col-span-2 md:row-span-2 rounded-xl sm:rounded-2xl"
           overlay={
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-end p-3 md:hidden">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-end p-3 md:hidden">
               <ShowAllButton onClick={openModal} className="pointer-events-auto" />
             </div>
           }
@@ -424,7 +429,7 @@ export function PropertyGallery({ imagenes }: Props) {
                   className="h-full rounded-xl sm:rounded-2xl"
                   overlay={
                     isLastSlot ? (
-                      <div className="pointer-events-none absolute inset-0 flex items-end justify-end p-3">
+                      <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-end p-3">
                         <ShowAllButton onClick={openModal} className="pointer-events-auto" />
                       </div>
                     ) : null

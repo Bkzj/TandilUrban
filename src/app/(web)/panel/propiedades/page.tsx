@@ -10,6 +10,7 @@ import type { CurrentUser } from '@/types/auth';
 import type { PanelPropiedadTableRow } from '@/types/panel';
 import PanelTabs from '@/components/panel/PanelTabs';
 import { PropertiesClientTable } from '@/components/panel/PropertiesClientTable';
+import { panelBtnGhost, panelGlassEmpty } from '@/components/panel/panel-theme';
 
 export const metadata = {
   title: 'Administrar propiedades · Panel | Propea Group',
@@ -30,15 +31,12 @@ export default async function PanelPropiedadesPage() {
     return (
       <main className="mx-auto w-full max-w-7xl px-6 py-12 md:px-8">
         <PanelTabs showEquipo={canManageTeam} />
-        <div className="mt-12 rounded-2xl border border-surface/10 bg-surface/5 p-10 text-center backdrop-blur">
+        <div className={`mt-12 ${panelGlassEmpty}`}>
           <h1 className="text-2xl font-semibold !text-white">Acceso restringido</h1>
           <p className="mt-3 text-sm !text-white/65">
             Solo tienen permiso usuarios ligados a una inmobiliaria (administrador o agente).
           </p>
-          <Link
-            href="/panel"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl border border-surface/15 bg-surface/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] !text-white/80 transition hover:border-naranja/60 hover:bg-naranja/15"
-          >
+          <Link href="/panel" className={`mt-6 ${panelBtnGhost}`}>
             ← Volver al panel
           </Link>
         </div>
@@ -65,10 +63,40 @@ export default async function PanelPropiedadesPage() {
       tipo: true,
       precio: true,
       moneda: true,
+      m2Total: true,
       visitas: true,
       consultas: true,
       estado: true,
       createdAt: true,
+      _count: { select: { favoritadosPor: true } },
+      contactos: {
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          nombre: true,
+          email: true,
+          telefono: true,
+          visitasFisicas: true,
+          createdAt: true,
+        },
+      },
+      visitasFisicasEventos: {
+        where: { delta: 1 },
+        orderBy: { createdAt: 'desc' },
+        take: 8,
+        select: {
+          id: true,
+          createdAt: true,
+          contacto: {
+            select: {
+              id: true,
+              nombre: true,
+              email: true,
+              telefono: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -80,8 +108,27 @@ export default async function PanelPropiedadesPage() {
     tipo: p.tipo,
     precio: p.precio,
     moneda: p.moneda,
+    m2Total: p.m2Total,
     visitas: p.visitas,
     consultas: p.consultas,
+    favoritosCount: p._count.favoritadosPor,
+    visitasFisicas: p.contactos.reduce((sum, c) => sum + c.visitasFisicas, 0),
+    consultasPropiedad: p.contactos.map((c) => ({
+      id: c.id,
+      nombre: c.nombre,
+      email: c.email,
+      telefono: c.telefono,
+      visitasFisicas: c.visitasFisicas,
+      createdAt: c.createdAt.toISOString(),
+    })),
+    visitantesPresenciales: p.visitasFisicasEventos.map((ev) => ({
+      id: ev.id,
+      contactoId: ev.contacto.id,
+      nombre: ev.contacto.nombre,
+      email: ev.contacto.email,
+      telefono: ev.contacto.telefono,
+      fechaVisita: ev.createdAt.toISOString(),
+    })),
     estado: p.estado,
     createdAt: p.createdAt.toISOString(),
   }));

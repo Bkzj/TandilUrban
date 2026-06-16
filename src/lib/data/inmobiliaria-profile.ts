@@ -22,6 +22,7 @@ const PUBLIC_LISTING_SELECT = {
   imagenes: true,
   visitas: true,
   consultas: true,
+  esExclusiva: true,
 } as const;
 
 type ListingRow = {
@@ -42,6 +43,7 @@ type ListingRow = {
   imagenes: unknown;
   visitas: number;
   consultas: number;
+  esExclusiva: boolean;
 };
 
 function mapListingRows(rows: ListingRow[]): PublicPropiedadListItem[] {
@@ -63,6 +65,7 @@ function mapListingRows(rows: ListingRow[]): PublicPropiedadListItem[] {
     imagenes: imagenesItemsToUrls(normalizePropiedadImagenesDb(p.imagenes)),
     visitas: p.visitas,
     consultas: p.consultas,
+    esExclusiva: p.esExclusiva,
   }));
 }
 

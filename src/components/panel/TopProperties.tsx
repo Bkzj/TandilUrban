@@ -12,7 +12,7 @@ type TopPropertiesProps = {
 
 export function TopProperties({ topPropiedades }: TopPropertiesProps) {
   return (
-    <div className="w-full rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md sm:p-8 lg:col-span-3">
+    <div className="w-full rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg shadow-lg shadow-black/20 sm:p-8 lg:col-span-3">
       <div className="border-b border-white/10 pb-4">
         <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">Ranking</p>
         <h2 className="mt-1 text-xl font-semibold text-white sm:text-2xl">

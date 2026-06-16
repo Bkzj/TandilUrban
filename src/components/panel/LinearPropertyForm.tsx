@@ -432,7 +432,7 @@ function Footer({
         disabled={!showBack}
         aria-hidden={!showBack}
         tabIndex={showBack ? 0 : -1}
-        className={`pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-surface/20 px-6 py-3 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-surface/30 ${
+        className={`pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-black/20 backdrop-blur-md transition-all hover:bg-white/10 ${
           !showBack ? 'pointer-events-none opacity-0' : ''
         }`}
       >

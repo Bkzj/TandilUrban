@@ -8,6 +8,26 @@ export type PropiedadImagenItem = {
 /** Estado serializado desde Prisma `EstadoPropiedad`. */
 export type PanelPropiedadEstado = 'DISPONIBLE' | 'RESERVADA' | 'VENDIDA' | 'PAUSADA';
 
+/** Consulta / lead vinculada a una propiedad (para registrar visitas presenciales). */
+export type PanelConsultaPreview = {
+  id: string;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  visitasFisicas: number;
+  createdAt: string;
+};
+
+/** Visitante con visita presencial registrada (vista rápida de propiedad). */
+export type PanelVisitanteFisicoPreview = {
+  id: string;
+  contactoId: string;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  fechaVisita: string;
+};
+
 /** Fila de propiedad en el panel administrador (serializable para client components). */
 export type PanelPropiedadTableRow = {
   id: string;
@@ -19,6 +39,11 @@ export type PanelPropiedadTableRow = {
   moneda: string;
   visitas: number;
   consultas: number;
+  m2Total: number;
+  favoritosCount: number;
+  visitasFisicas: number;
+  visitantesPresenciales: PanelVisitanteFisicoPreview[];
+  consultasPropiedad: PanelConsultaPreview[];
   estado: PanelPropiedadEstado;
   createdAt: string;
 };

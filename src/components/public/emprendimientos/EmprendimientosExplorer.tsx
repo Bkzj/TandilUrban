@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Building2, Megaphone, Store, TrendingUp } from 'lucide-react';
+import { ArrowRight, Building2, Store, TrendingUp } from 'lucide-react';
 
 import { EMPRENDIMIENTO_CATEGORIA_META } from '@/constants/emprendimientos';
 import { EmprendimientoEditorialCard } from '@/components/public/emprendimientos/EmprendimientoEditorialCard';
@@ -21,7 +21,6 @@ const FILTROS: { id: EmprendimientoFiltro; label: string; icon: typeof Building2
   { id: 'pozo', label: 'En pozo', icon: Building2 },
   { id: 'local', label: 'Locales', icon: Store },
   { id: 'franquicia', label: 'Franquicias', icon: Store },
-  { id: 'publicidad', label: 'Publicidad', icon: Megaphone },
 ];
 
 type Props = {
@@ -89,10 +88,10 @@ export function EmprendimientosExplorer({ data, favoritoIds }: Props) {
     const franquicia =
       pool.find((e) => e.categoria === 'franquicia' && e.destacado) ??
       pool.find((e) => e.categoria === 'franquicia');
-    const publicidad =
-      pool.find((e) => e.categoria === 'publicidad' && e.patrocinado) ??
-      pool.find((e) => e.categoria === 'publicidad');
-    const picked = [franquicia, publicidad].filter(Boolean) as EmprendimientoEditorial[];
+    const local =
+      pool.find((e) => e.categoria === 'local' && e.destacado) ??
+      pool.find((e) => e.categoria === 'local');
+    const picked = [franquicia, local].filter(Boolean) as EmprendimientoEditorial[];
     for (const item of pool) {
       if (picked.length >= 2) break;
       if (!picked.some((p) => p.id === item.id)) picked.push(item);
@@ -112,7 +111,6 @@ export function EmprendimientosExplorer({ data, favoritoIds }: Props) {
       : editorialesPozoAll;
   const editorialesLocal = editoriales.filter((e) => e.categoria === 'local');
   const editorialesFranquicia = editoriales.filter((e) => e.categoria === 'franquicia');
-  const editorialesPublicidad = editoriales.filter((e) => e.categoria === 'publicidad');
 
   const showSpotlight = filtro === 'todos' && spotlight;
   const totalVisible =
@@ -123,7 +121,7 @@ export function EmprendimientosExplorer({ data, favoritoIds }: Props) {
   return (
     <>
       <div className="sticky top-0 z-30 border-b border-verde/10 bg-background/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-3 sm:px-6 hide-scrollbar">
+        <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-2 px-4 py-3 sm:px-6">
           {FILTROS.map(({ id, label, icon: Icon }) => {
             const active = filtro === id;
             return (
@@ -214,14 +212,6 @@ export function EmprendimientosExplorer({ data, favoritoIds }: Props) {
           {(filtro === 'todos' || filtro === 'franquicia') && editorialesFranquicia.length > 0 ? (
             <SectionBlock categoria="franquicia" editoriales={editorialesFranquicia} />
           ) : null}
-
-          {(filtro === 'todos' || filtro === 'publicidad') && editorialesPublicidad.length > 0 ? (
-            <SectionBlock
-              categoria="publicidad"
-              editoriales={editorialesPublicidad}
-              variant="sponsored"
-            />
-          ) : null}
         </>
       )}
 
@@ -263,30 +253,19 @@ function SectionBlock({
   categoria,
   editoriales,
   children,
-  variant,
 }: {
   categoria: EmprendimientoCategoria;
   editoriales: EmprendimientoEditorial[];
   children?: ReactNode;
-  variant?: 'sponsored';
 }) {
   const meta = EMPRENDIMIENTO_CATEGORIA_META[categoria];
-  const isSponsored = variant === 'sponsored';
 
   return (
-    <section
-      className={`py-12 sm:py-16 ${isSponsored ? 'bg-naranja-light/25' : 'bg-white'}`}
-    >
+    <section className="bg-white py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-8 flex flex-col gap-2 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p
-              className={`text-xs font-bold uppercase tracking-[0.2em] ${
-                isSponsored ? 'text-naranja-dark' : 'text-verde'
-              }`}
-            >
-              {isSponsored ? 'Aliados recomendados' : 'Catálogo'}
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-verde">Catálogo</p>
             <h2 className="mt-2 text-2xl font-extrabold text-text-primary sm:text-3xl">
               {meta.navLabel}
             </h2>

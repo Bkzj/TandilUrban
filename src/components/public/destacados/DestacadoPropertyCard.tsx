@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowUpRight, Sparkles, Star } from 'lucide-react';
+import { ArrowUpRight, Star } from 'lucide-react';
 
 import { FavoriteButton } from '@/components/public/FavoriteButton';
+import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaBadge';
 import type { PublicPropiedadListItem } from '@/types/public-search';
 
 const PLACEHOLDER =
@@ -107,17 +108,14 @@ export function DestacadoPropertyCard({
             <div className="relative">
               <PremiumVisual propiedad={propiedad} size={size} />
 
-              <div className="absolute left-2.5 top-2.5 flex items-center gap-1.5">
-                {rankLabel ? (
+              {propiedad.esExclusiva ? <PropiedadExclusivaBadge /> : null}
+              {rankLabel ? (
+                <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1.5">
                   <span className="rounded-md bg-black/40 px-1.5 py-0.5 text-[0.55rem] font-bold tabular-nums tracking-wider text-naranja-light backdrop-blur-sm">
                     {rankLabel}
                   </span>
-                ) : null}
-                <span className="inline-flex items-center gap-0.5 rounded-md bg-naranja/90 px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-widest text-white">
-                  <Sparkles className="h-2 w-2" aria-hidden />
-                  Premium
-                </span>
-              </div>
+                </div>
+              ) : null}
             </div>
 
             <div className={`space-y-2 ${isSm ? 'px-3.5 py-3.5' : 'px-4 py-4'}`}>

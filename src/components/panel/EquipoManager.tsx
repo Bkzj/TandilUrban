@@ -114,7 +114,7 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="grid gap-6 rounded-2xl border border-surface/15 bg-surface/5 p-6 backdrop-blur sm:grid-cols-3 md:p-8"
+            className="grid gap-6 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg shadow-lg shadow-black/20 sm:grid-cols-3 md:p-8"
             noValidate
           >
             <SubtleField label="Nombre" name="nombre" autoFocus required minLength={2} placeholder="María López" />
@@ -137,7 +137,7 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
               <button
                 type="button"
                 onClick={closeForm}
-                className="rounded-xl border border-surface/20 px-4 py-2 text-sm text-surface/80 transition hover:border-surface/40 hover:bg-surface/10"
+                className="rounded-xl border border-white/10 px-4 py-2 text-sm text-surface/80 transition hover:bg-white/10 hover:text-surface"
               >
                 Cancelar
               </button>
@@ -161,14 +161,14 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
       ) : null}
 
       {/* Tabla minimalista */}
-      <div className="overflow-hidden rounded-2xl border border-surface/10 bg-surface/5 backdrop-blur">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-lg shadow-black/20">
         {agentes.length === 0 ? (
           <p className="px-6 py-12 text-center text-sm text-surface/65">
             Todavía no agregaste agentes. Pulsá <span className="text-surface">Añadir agente</span> para empezar.
           </p>
         ) : (
           <table className="w-full text-left text-sm text-surface/85">
-            <thead className="border-b border-surface/10 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-surface/55">
+            <thead className="border-b border-white/10 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-surface/55">
               <tr>
                 <th className="px-6 py-4 font-medium">Agente</th>
                 <th className="px-6 py-4 font-medium">Email</th>
@@ -180,7 +180,7 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
               {agentes.map((a) => (
                 <tr
                   key={a.id}
-                  className="border-b border-surface/10 transition-colors last:border-b-0 hover:bg-surface/[0.04]"
+                  className="border-b border-white/10 transition-colors last:border-b-0 hover:bg-white/5"
                 >
                   <td className="px-6 py-4 font-semibold text-white">{a.nombre}</td>
                   <td className="px-6 py-4 text-surface/75">{a.email}</td>
@@ -198,7 +198,7 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
                       disabled={pendingDeleteId === a.id}
                       title="Eliminar agente"
                       aria-label={`Eliminar a ${a.nombre}`}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-surface/15 text-surface/70 transition hover:border-naranja hover:bg-naranja/15 hover:text-surface disabled:opacity-50"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-surface/70 transition hover:border-naranja hover:bg-naranja/15 hover:text-surface disabled:opacity-50"
                     >
                       <span aria-hidden>{pendingDeleteId === a.id ? '…' : '🗑️'}</span>
                     </button>
@@ -250,7 +250,7 @@ function SubtleField({
         minLength={minLength}
         autoFocus={autoFocus}
         placeholder={placeholder}
-        className="border-0 border-b-4 border-surface/40 bg-transparent px-0 pb-2.5 pt-2 text-xl font-medium text-white caret-naranja outline-none transition-colors placeholder:font-light placeholder:text-surface/35 focus:border-naranja focus:placeholder:text-surface/55"
+        className="border-0 border-b-4 border-white/20 bg-transparent px-0 pb-2.5 pt-2 text-xl font-medium text-white caret-naranja outline-none transition-colors placeholder:font-light placeholder:text-surface/35 focus:border-naranja focus:placeholder:text-surface/55"
       />
       {hint ? <span className="text-[0.7rem] text-surface/45">{hint}</span> : null}
     </label>

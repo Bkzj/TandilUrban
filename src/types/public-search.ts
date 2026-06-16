@@ -17,4 +17,5 @@ export type PublicPropiedadListItem = {
   imagenes: string[];
   visitas: number;
   consultas: number;
+  esExclusiva: boolean;
 };

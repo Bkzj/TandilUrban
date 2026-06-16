@@ -12,14 +12,14 @@ export function StepPrecio({ data, update, onNext, isEditMode }: StepProps) {
       </StepHeading>
       <div className="space-y-6">
         <div className="flex items-end gap-4">
-          <div className="flex shrink-0 overflow-hidden rounded-xl border border-surface/20 bg-surface/5">
+          <div className="flex shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5">
             {(['USD', 'ARS'] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => update('moneda', m)}
                 className={`px-4 py-2.5 text-sm font-semibold transition-colors ${
-                  data.moneda === m ? 'bg-naranja text-surface' : 'text-surface/70 hover:bg-surface/5'
+                  data.moneda === m ? 'bg-naranja text-surface' : 'text-surface/70 hover:bg-white/5'
                 }`}
               >
                 {m}

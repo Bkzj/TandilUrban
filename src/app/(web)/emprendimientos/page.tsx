@@ -11,7 +11,7 @@ import type { SessionUserAugmented } from '@/types/auth';
 export const metadata: Metadata = {
   title: 'Emprendimientos | Propea Group',
   description:
-    'Proyectos en pozo, locales comerciales, franquicias y publicidad para emprendedores en Tandil. Portal informativo y fichas de propiedades en un solo lugar.',
+    'Proyectos en pozo, locales comerciales y franquicias para emprendedores en Tandil. Portal informativo y fichas de propiedades en un solo lugar.',
 };
 
 function collectShowcaseImages(

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, Menu, User, X } from 'lucide-react';
@@ -9,14 +10,26 @@ import { Heart, Menu, User, X } from 'lucide-react';
 import { roleCanAccessPanel } from '@/lib/rbac';
 import type { SessionUserAugmented } from '@/types/auth';
 
-const NAV_LINKS = [
+const LEFT_LINKS = [
   { href: '/buscar', label: 'Propiedades' },
-  { href: '/destacados', label: 'Destacados' },
-  { href: '/servicios', label: 'Servicios' },
-  { href: '/nosotros', label: 'Nosotros' },
+  { href: '/emprendimientos', label: 'Emprendimientos' },
 ] as const;
 
+const RIGHT_LINKS = [
+  { href: '/inmobiliarias', label: 'Inmobiliarias' },
+  { href: '/buscar', label: 'Mapa' },
+] as const;
+
+const MOBILE_NAV_LINKS = [...LEFT_LINKS, ...RIGHT_LINKS] as const;
+
+const NAV_LINK_CLASS =
+  'text-base font-semibold text-gray-800 transition-colors hover:text-emerald-800';
+
+const FAVORITES_HREF = '/perfil/favoritos';
+const FAVORITES_LOGIN = `/login?callbackUrl=${encodeURIComponent(FAVORITES_HREF)}`;
+
 export default function Navbar() {
+  const pathname = usePathname();
   const { data: session, status } = useSession();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -50,6 +63,11 @@ export default function Navbar() {
     };
   }, [mobileNavOpen]);
 
+  useEffect(() => {
+    setMobileNavOpen(false);
+    setUserMenuOpen(false);
+  }, [pathname]);
+
   const displayName =
     typeof session?.user?.name === 'string' ? session.user.name : 'Usuario';
   const initials = displayName
@@ -67,195 +85,177 @@ export default function Navbar() {
   const showPanelLink = Boolean(session && roleCanAccessPanel(sessionRole));
 
   const closeMobileNav = () => setMobileNavOpen(false);
-  const isAuthenticated = Boolean(session);
+  const favoritesHref = session ? FAVORITES_HREF : FAVORITES_LOGIN;
 
-  const favoritesLinkClass =
-    'flex h-10 w-10 items-center justify-center rounded-xl border border-surface/25 bg-surface/10 text-surface transition hover:bg-surface/20 hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-naranja-light';
+  const iconBtnClass =
+    'flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-800 transition hover:border-gray-300 hover:text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-200';
 
   const menuItemClass =
-    'flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition hover:bg-verde-light hover:text-verde-dark';
+    'flex items-center gap-2.5 px-4 py-2.5 text-base font-semibold text-gray-800 transition hover:bg-gray-50 hover:text-emerald-800';
 
   return (
-    <nav className="relative z-50 w-full bg-verde text-surface shadow-lg">
-      <div className="mx-auto flex w-full max-w-[100vw] items-center justify-between gap-3 px-4 py-2 sm:px-6 md:px-8">
-        <Link
-          href="/"
-          onClick={closeMobileNav}
-          aria-label="Propea Group — inicio"
-          className="shrink-0 cursor-pointer text-xl font-serif font-bold uppercase tracking-widest drop-shadow-md sm:text-2xl md:text-3xl"
-        >
-          Propea Group
-        </Link>
-
-        {/* Enlaces — desktop */}
-        <div className="hidden flex-1 items-center justify-center gap-8 text-sm font-medium uppercase tracking-widest drop-shadow-sm md:flex lg:gap-10">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="py-2 transition-colors hover:text-naranja"
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-md">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid h-16 w-full grid-cols-3 items-center md:h-[4.5rem]">
+          <div className="flex items-center justify-start gap-3 md:gap-8">
+            <button
+              type="button"
+              className={`${iconBtnClass} md:hidden`}
+              onClick={() => setMobileNavOpen((open) => !open)}
+              aria-expanded={mobileNavOpen}
+              aria-label={mobileNavOpen ? 'Cerrar menú' : 'Abrir menú'}
             >
-              {link.label}
+              {mobileNavOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
+            </button>
+
+            <div className="hidden items-center gap-8 md:flex">
+              {LEFT_LINKS.map((link) => (
+                <Link key={link.href} href={link.href} className={NAV_LINK_CLASS}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <Link
+              href="/"
+              onClick={closeMobileNav}
+              aria-label="Propea Group — inicio"
+              className="font-serif text-base font-bold uppercase tracking-[0.2em] text-gray-900 sm:text-lg md:text-xl"
+            >
+              Propea Group
             </Link>
-          ))}
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {/* Contacto — solo pantallas grandes */}
-          <div className="hidden items-center gap-3 xl:flex xl:gap-4">
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-full bg-naranja px-5 py-2.5 text-sm font-bold text-surface shadow-md transition-all hover:bg-naranja-hover"
-            >
-              📞 2494567818 - TANDIL
-            </button>
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-full bg-naranja px-5 py-2.5 text-sm font-bold text-surface shadow-md transition-all hover:bg-naranja-hover"
-            >
-              ✉️
-            </button>
           </div>
 
-          {/* Auth — tablet/desktop */}
-          <div className="hidden items-center gap-2 md:flex md:gap-3">
-            {status === 'loading' ? (
-              <span className="h-9 w-20 animate-pulse rounded-lg bg-surface/20" aria-hidden />
-            ) : !session ? (
-              <>
-                <Link
-                  href="/login"
-                  className="rounded-xl border border-surface/30 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-surface transition hover:bg-surface/10 sm:px-4 sm:text-sm"
-                >
-                  Ingresar
+          <div className="flex items-center justify-end gap-3 sm:gap-4 md:gap-6">
+            <div className="hidden items-center gap-6 md:flex">
+              {RIGHT_LINKS.map((link) => (
+                <Link key={`${link.href}-${link.label}`} href={link.href} className={NAV_LINK_CLASS}>
+                  {link.label}
                 </Link>
-                <Link
-                  href="/register"
-                  className="rounded-xl bg-naranja px-3 py-2 text-xs font-bold uppercase tracking-wide text-surface shadow-md transition hover:bg-naranja-hover sm:px-4 sm:text-sm"
-                >
-                  Registrarse
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/perfil/favoritos"
-                  className={favoritesLinkClass}
-                  aria-label="Mis favoritos"
-                  title="Mis favoritos"
-                >
-                  <Heart className="h-5 w-5" aria-hidden />
-                </Link>
-                <div className="relative" ref={userMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setUserMenuOpen((open) => !open)}
-                  className="flex items-center gap-2 rounded-xl border border-surface/20 bg-surface/10 px-2 py-1.5 pr-3 backdrop-blur transition hover:bg-surface/20 focus:outline-none focus:ring-2 focus:ring-naranja-light sm:gap-3"
-                  aria-expanded={userMenuOpen}
-                  aria-haspopup="menu"
-                >
-                  {avatarUrl ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={avatarUrl}
-                      alt=""
-                      className="h-9 w-9 rounded-lg object-cover ring-2 ring-naranja/40"
-                    />
-                  ) : (
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-naranja text-xs font-bold text-surface shadow-inner">
-                      {initials || 'TU'}
-                    </span>
-                  )}
-                  <span className="hidden max-w-[140px] truncate text-left text-xs font-semibold uppercase tracking-wide lg:inline lg:max-w-[180px] lg:text-sm">
-                    {displayName}
-                  </span>
-                  <motion.span animate={{ rotate: userMenuOpen ? 180 : 0 }} className="text-surface/80">
-                    ▾
-                  </motion.span>
-                </button>
+              ))}
+            </div>
 
-                <AnimatePresence>
-                  {userMenuOpen ? (
-                    <motion.div
-                      role="menu"
-                      initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                      transition={{ duration: 0.18, ease: 'easeOut' }}
-                      className="absolute right-0 z-[100] mt-2 min-w-[200px] origin-top overflow-hidden rounded-xl border border-border-light bg-surface py-2 text-text-primary shadow-2xl"
-                    >
-                      {showPanelLink ? (
-                        <Link
-                          role="menuitem"
-                          href="/panel"
-                          onClick={() => setUserMenuOpen(false)}
-                          className={menuItemClass}
-                        >
-                          Panel
-                        </Link>
-                      ) : null}
-                      <Link
-                        role="menuitem"
-                        href="/perfil"
-                        onClick={() => setUserMenuOpen(false)}
-                        className={menuItemClass}
-                      >
-                        <User className="h-4 w-4 shrink-0" aria-hidden />
-                        Mi Perfil
-                      </Link>
-                      <Link
-                        role="menuitem"
-                        href="/perfil/favoritos"
-                        onClick={() => setUserMenuOpen(false)}
-                        className={menuItemClass}
-                      >
-                        <Heart className="h-4 w-4 shrink-0 text-red-500" aria-hidden />
-                        Favoritos
-                      </Link>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setUserMenuOpen(false);
-                          void signOut({ callbackUrl: '/' });
-                        }}
-                        className="w-full px-4 py-2.5 text-left text-sm font-medium text-naranja-dark transition hover:bg-naranja-light"
-                      >
-                        Cerrar sesión
-                      </button>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-              </div>
-              </>
-            )}
-          </div>
-
-          {isAuthenticated ? (
             <Link
-              href="/perfil/favoritos"
-              className={`${favoritesLinkClass} md:hidden`}
+              href={favoritesHref}
+              className={`${iconBtnClass} hover:text-red-600`}
               aria-label="Mis favoritos"
               title="Mis favoritos"
             >
-              <Heart className="h-5 w-5" aria-hidden />
+              <Heart className="h-[1.15rem] w-[1.15rem]" aria-hidden />
             </Link>
-          ) : null}
 
-          {/* Menú hamburguesa — móvil */}
-          <button
-            type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-surface/25 bg-surface/10 text-surface transition hover:bg-surface/20 md:hidden"
-            onClick={() => setMobileNavOpen((open) => !open)}
-            aria-expanded={mobileNavOpen}
-            aria-label={mobileNavOpen ? 'Cerrar menú' : 'Abrir menú'}
-          >
-            {mobileNavOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
-          </button>
+            <div className="flex items-center gap-2 md:gap-3">
+              {status === 'loading' ? (
+                <span className="h-9 w-20 animate-pulse rounded-xl bg-gray-200" aria-hidden />
+              ) : !session ? (
+                <>
+                  <Link
+                    href="/login"
+                    className="rounded-xl border border-gray-200 px-3 py-2 text-base font-semibold text-gray-800 transition hover:border-emerald-200 hover:text-emerald-800 sm:px-4"
+                  >
+                    Ingresar
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="hidden rounded-xl bg-gray-900 px-3 py-2 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-900 sm:inline-flex sm:px-4"
+                  >
+                    Registrarse
+                  </Link>
+                </>
+              ) : (
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setUserMenuOpen((open) => !open)}
+                    className="flex h-10 items-center gap-2 rounded-xl border border-gray-200 bg-white px-1.5 transition hover:border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-200 md:h-auto md:px-2 md:py-1.5 md:pr-3"
+                    aria-expanded={userMenuOpen}
+                    aria-haspopup="menu"
+                    aria-label={`Menú de ${displayName}`}
+                  >
+                    {avatarUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={avatarUrl}
+                        alt=""
+                        className="h-8 w-8 rounded-lg object-cover ring-2 ring-emerald-700/30 md:h-9 md:w-9"
+                      />
+                    ) : (
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-900 text-xs font-bold text-white md:h-9 md:w-9">
+                        {initials || 'PG'}
+                      </span>
+                    )}
+                    <span className="hidden max-w-[140px] truncate text-left text-base font-semibold text-gray-800 lg:inline lg:max-w-[180px]">
+                      {displayName}
+                    </span>
+                    <motion.span
+                      animate={{ rotate: userMenuOpen ? 180 : 0 }}
+                      className="hidden text-gray-600 md:inline"
+                    >
+                      ▾
+                    </motion.span>
+                  </button>
+
+                  <AnimatePresence>
+                    {userMenuOpen ? (
+                      <motion.div
+                        role="menu"
+                        initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                        transition={{ duration: 0.18, ease: 'easeOut' }}
+                        className="absolute right-0 z-[100] mt-2 min-w-[220px] origin-top overflow-hidden rounded-xl border border-gray-100 bg-white py-2 shadow-xl shadow-black/10"
+                      >
+                        {showPanelLink ? (
+                          <Link
+                            role="menuitem"
+                            href="/panel"
+                            onClick={() => setUserMenuOpen(false)}
+                            className={menuItemClass}
+                          >
+                            Panel
+                          </Link>
+                        ) : null}
+                        <Link
+                          role="menuitem"
+                          href="/perfil"
+                          onClick={() => setUserMenuOpen(false)}
+                          className={menuItemClass}
+                        >
+                          <User className="h-4 w-4 shrink-0" aria-hidden />
+                          Mi Perfil
+                        </Link>
+                        <Link
+                          role="menuitem"
+                          href={FAVORITES_HREF}
+                          onClick={() => setUserMenuOpen(false)}
+                          className={menuItemClass}
+                        >
+                          <Heart className="h-4 w-4 shrink-0 text-red-500" aria-hidden />
+                          Favoritos
+                        </Link>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            void signOut({ callbackUrl: '/' });
+                          }}
+                          className="w-full px-4 py-2.5 text-left text-base font-semibold text-gray-800 transition hover:bg-gray-50 hover:text-emerald-800"
+                        >
+                          Cerrar sesión
+                        </button>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Panel móvil */}
       <AnimatePresence>
         {mobileNavOpen ? (
           <motion.div
@@ -263,49 +263,58 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="overflow-hidden border-t border-surface/15 md:hidden"
+            className="overflow-hidden border-t border-gray-100 bg-white/95 md:hidden"
           >
             <div className="space-y-1 px-4 py-4">
-              {NAV_LINKS.map((link) => (
+              {MOBILE_NAV_LINKS.map((link) => (
                 <Link
-                  key={link.label}
+                  key={`${link.href}-${link.label}`}
                   href={link.href}
                   onClick={closeMobileNav}
-                  className="block rounded-lg px-3 py-3 text-sm font-medium uppercase tracking-widest transition-colors hover:bg-surface/10 hover:text-naranja"
+                  className={`block rounded-xl px-3 py-3 ${NAV_LINK_CLASS} hover:bg-gray-50`}
                 >
                   {link.label}
                 </Link>
               ))}
 
-              <div className="my-3 h-px bg-surface/15" />
+              <Link
+                href={favoritesHref}
+                onClick={closeMobileNav}
+                className={`flex items-center gap-2.5 rounded-xl px-3 py-3 ${NAV_LINK_CLASS} hover:bg-gray-50`}
+              >
+                <Heart className="h-4 w-4 shrink-0 text-red-500" aria-hidden />
+                Favoritos
+              </Link>
+
+              <div className="my-3 h-px bg-gray-100" />
 
               {status === 'loading' ? (
-                <span className="mx-3 block h-10 animate-pulse rounded-lg bg-surface/20" aria-hidden />
+                <span className="mx-3 block h-10 animate-pulse rounded-xl bg-gray-200" aria-hidden />
               ) : !session ? (
                 <div className="flex flex-col gap-2 px-1">
                   <Link
                     href="/login"
                     onClick={closeMobileNav}
-                    className="rounded-xl border border-surface/30 px-4 py-3 text-center text-sm font-semibold uppercase tracking-wide transition hover:bg-surface/10"
+                    className="rounded-xl border border-gray-200 px-4 py-3 text-center text-base font-semibold text-gray-800 transition hover:text-emerald-800"
                   >
                     Ingresar
                   </Link>
                   <Link
                     href="/register"
                     onClick={closeMobileNav}
-                    className="rounded-xl bg-naranja px-4 py-3 text-center text-sm font-bold uppercase tracking-wide text-surface shadow-md transition hover:bg-naranja-hover"
+                    className="rounded-xl bg-gray-900 px-4 py-3 text-center text-base font-semibold text-white transition hover:bg-emerald-900"
                   >
                     Registrarse
                   </Link>
                 </div>
               ) : (
                 <div className="space-y-1 px-1">
-                  <p className="px-3 py-2 text-sm font-semibold">{displayName}</p>
+                  <p className="px-3 py-2 text-base font-semibold text-gray-900">{displayName}</p>
                   {showPanelLink ? (
                     <Link
                       href="/panel"
                       onClick={closeMobileNav}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-surface/10"
+                      className={`block rounded-xl px-3 py-3 ${NAV_LINK_CLASS} hover:bg-gray-50`}
                     >
                       Panel
                     </Link>
@@ -313,18 +322,10 @@ export default function Navbar() {
                   <Link
                     href="/perfil"
                     onClick={closeMobileNav}
-                    className="flex items-center gap-2.5 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-surface/10"
+                    className={`flex items-center gap-2.5 rounded-xl px-3 py-3 ${NAV_LINK_CLASS} hover:bg-gray-50`}
                   >
                     <User className="h-4 w-4 shrink-0" aria-hidden />
                     Mi Perfil
-                  </Link>
-                  <Link
-                    href="/perfil/favoritos"
-                    onClick={closeMobileNav}
-                    className="flex items-center gap-2.5 rounded-lg px-3 py-3 text-sm font-medium transition hover:bg-surface/10"
-                  >
-                    <Heart className="h-4 w-4 shrink-0 text-red-400" aria-hidden />
-                    Favoritos
                   </Link>
                   <button
                     type="button"
@@ -332,7 +333,7 @@ export default function Navbar() {
                       closeMobileNav();
                       void signOut({ callbackUrl: '/' });
                     }}
-                    className="w-full rounded-lg px-3 py-3 text-left text-sm font-medium text-naranja-light transition hover:bg-surface/10"
+                    className="w-full rounded-xl px-3 py-3 text-left text-base font-semibold text-gray-800 transition hover:bg-gray-50 hover:text-emerald-800"
                   >
                     Cerrar sesión
                   </button>
@@ -344,4 +345,4 @@ export default function Navbar() {
       </AnimatePresence>
     </nav>
   );
-}
+};

@@ -235,7 +235,7 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
         </div>
 
         {data.planoUrl ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface/15 bg-black/25 px-4 py-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
             <p className="truncate text-sm text-surface/85">
               {data.planoUrl.startsWith('blob:') ? 'Plano listo para subir' : 'Plano cargado'}
             </p>
@@ -243,14 +243,14 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
               type="button"
               onClick={removePlano}
               disabled={isProcessing}
-              className="inline-flex items-center gap-1 rounded-lg border border-surface/20 px-3 py-1.5 text-xs font-semibold text-surface/80 transition hover:border-naranja/40 hover:text-naranja-light"
+              className="inline-flex items-center gap-1 rounded-xl border border-white/10 px-3 py-1.5 text-xs font-semibold text-surface/80 transition hover:border-naranja/40 hover:text-naranja-light"
             >
               <X className="h-3.5 w-3.5" aria-hidden />
               Quitar
             </button>
           </div>
         ) : (
-          <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-naranja/35 bg-black/20 px-4 py-6 text-center transition hover:border-naranja/60 hover:bg-naranja/10">
+          <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-naranja/35 bg-white/5 px-4 py-6 text-center transition hover:border-naranja/60 hover:bg-naranja/10">
             <span className="text-sm font-semibold text-naranja-light">Adjuntar plano</span>
             <span className="mt-1 text-xs text-surface/50">Tocá para elegir archivo</span>
             <input
@@ -274,7 +274,7 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
           disabled={isProcessing}
           rows={3}
           placeholder="Ayuda a la IA a etiquetar: zonas, cantidad de dormitorios, baños, patio…"
-          className="w-full resize-none rounded-xl border !border-surface/15 !bg-black/25 px-4 py-3 text-sm text-white/90 outline-none ring-0 transition-colors placeholder:text-surface/45 focus:!border-naranja/50 disabled:opacity-60"
+          className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/90 outline-none ring-0 transition-colors placeholder:text-surface/45 focus:!border-naranja/50 disabled:opacity-60"
         />
       </label>
 
@@ -352,7 +352,7 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
                 key={`${idx}-${item.url.slice(0, 48)}`}
                 className="group relative flex flex-col gap-1"
               >
-                <div className="relative aspect-square overflow-hidden rounded-xl border !border-surface/15 !bg-black/20">
+                <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-white/5">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={item.url}
@@ -368,7 +368,7 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
                       }}
                       disabled={idx === 0 || isProcessing}
                       aria-label="Mover izquierda"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border !border-white/20 !bg-black/75 !text-white shadow-sm transition-colors hover:!bg-black/90 disabled:pointer-events-none disabled:opacity-30"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-xl border !border-white/20 !bg-black/75 !text-white shadow-sm transition-colors hover:!bg-black/90 disabled:pointer-events-none disabled:opacity-30"
                     >
                       <ChevronLeft className="h-4 w-4" aria-hidden />
                     </button>
@@ -380,7 +380,7 @@ export function StepImagenes({ data, update, isEditMode }: StepProps) {
                       }}
                       disabled={idx === data.imagenes.length - 1 || isProcessing}
                       aria-label="Mover derecha"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border !border-white/20 !bg-black/75 !text-white shadow-sm transition-colors hover:!bg-black/90 disabled:pointer-events-none disabled:opacity-30"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-xl border !border-white/20 !bg-black/75 !text-white shadow-sm transition-colors hover:!bg-black/90 disabled:pointer-events-none disabled:opacity-30"
                     >
                       <ChevronRight className="h-4 w-4" aria-hidden />
                     </button>

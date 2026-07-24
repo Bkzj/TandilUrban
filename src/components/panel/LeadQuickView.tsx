@@ -135,6 +135,7 @@ export function LeadQuickView({ lead, onClose, onLeadUpdated, onVisitasUpdated }
           </section>
 
           <LeadSeguimientoLoader
+            key={lead.id}
             contactoId={lead.id}
             visitanteNombre={lead.nombre}
             initialVisitasLead={lead.visitasFisicas ?? 0}

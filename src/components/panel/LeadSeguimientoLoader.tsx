@@ -25,7 +25,8 @@ export function LeadSeguimientoLoader({
   consultas,
   onVisitasLeadChange,
 }: Props) {
-  const [ready, setReady] = useState(false);
+  const [loadedContactoId, setLoadedContactoId] = useState<string | null>(null);
+  const ready = loadedContactoId === contactoId;
   const [error, setError] = useState<string | null>(null);
   const [visitasLead, setVisitasLead] = useState(initialVisitasLead);
   const [visitasFisicasPropiedad, setVisitasFisicasPropiedad] = useState(0);
@@ -33,27 +34,21 @@ export function LeadSeguimientoLoader({
   const [historialPropiedad, setHistorialPropiedad] = useState<VisitaFisicaHistorialItem[]>([]);
 
   useEffect(() => {
-    setVisitasLead(initialVisitasLead);
-  }, [contactoId, initialVisitasLead]);
-
-  useEffect(() => {
     let cancelled = false;
-    setReady(false);
-    setError(null);
 
     void (async () => {
       const result = await getSeguimientoLead(contactoId);
       if (cancelled) return;
       if (!result.ok) {
         setError(result.error);
-        setReady(true);
+        setLoadedContactoId(contactoId);
         return;
       }
       setVisitasLead(result.visitasFisicas);
       setVisitasFisicasPropiedad(result.visitasFisicasPropiedad);
       setHistorialLead(result.historialLead);
       setHistorialPropiedad(result.historialPropiedad);
-      setReady(true);
+      setLoadedContactoId(contactoId);
     })();
 
     return () => {

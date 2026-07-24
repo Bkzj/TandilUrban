@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { EstadoPropiedad } from '@prisma/client';
 
@@ -39,10 +39,6 @@ export function EstadoSelector({
   const [estado, setEstado] = useState(estadoActual);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    setEstado(estadoActual);
-  }, [propiedadId, estadoActual]);
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const next = e.target.value as PanelPropiedadEstado;

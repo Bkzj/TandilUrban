@@ -61,9 +61,7 @@ export async function cambiarEstadoPropiedad(
     nuevoEstado === EstadoPropiedad.DISPONIBLE &&
     estadoAnterior !== EstadoPropiedad.DISPONIBLE
   ) {
-    void import('@/lib/match-engine')
-      .then((m) => m.onPropiedadPublicada(id))
-      .catch(console.error);
+    void triggerMatchEngine(id).catch(console.error);
   }
 
   revalidatePath('/panel/propiedades', 'page');

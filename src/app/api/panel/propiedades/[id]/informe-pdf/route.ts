@@ -47,8 +47,7 @@ export async function GET(request: Request, context: RouteContext) {
       },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Error al generar el PDF.';
     console.error('[GET /api/panel/propiedades/[id]/informe-pdf]', error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'No se pudo generar el PDF.' }, { status: 500 });
   }
 }

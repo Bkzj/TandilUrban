@@ -19,6 +19,8 @@
 
 # production
 /build
+/dist
+/assets-raw
 
 # misc
 .DS_Store
@@ -32,6 +34,23 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# credentials, database exports and source archives
+*.key
+*.p12
+*.pfx
+*.jks
+*credentials*.json
+*secrets*.json
+*.dump
+*.sql.gz
+*.backup
+*.bak
+*.zip
+*.tar
+*.tar.gz
+*.tgz
 
 # vercel
 .vercel

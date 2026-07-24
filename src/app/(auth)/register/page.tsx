@@ -2,22 +2,20 @@
 
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 
 export default function RegisterPage() {
-  const router = useRouter();
-
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     const response = await fetch('/api/auth/register', {
@@ -26,7 +24,7 @@ export default function RegisterPage() {
       body: JSON.stringify({ nombre, email, password }),
     });
 
-    const result = (await response.json()) as { error?: string };
+    const result = (await response.json()) as { error?: string; message?: string };
 
     if (!response.ok) {
       setLoading(false);
@@ -34,22 +32,8 @@ export default function RegisterPage() {
       return;
     }
 
-    const login = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-      callbackUrl: '/',
-    });
-
     setLoading(false);
-
-    if (login?.error) {
-      router.push('/login');
-      return;
-    }
-
-    router.push(login?.url ?? '/');
-    router.refresh();
+    setSuccess(result.message ?? 'Cuenta creada. Revisá tu correo para verificarla antes de ingresar.');
   }
 
   return (
@@ -113,6 +97,7 @@ export default function RegisterPage() {
             </div>
 
             {error ? <p className="text-sm font-medium text-naranja-dark">{error}</p> : null}
+            {success ? <p className="text-sm font-medium text-verde">{success}</p> : null}
 
             <motion.button
               whileHover={{ scale: 1.02 }}

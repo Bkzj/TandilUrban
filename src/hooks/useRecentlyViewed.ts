@@ -1,9 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 const STORAGE_KEY = 'tandilurban:recent-properties';
+const CHANGE_EVENT = 'propea:recent-properties-change';
 const MAX_ITEMS = 6;
+const EMPTY: RecentProperty[] = [];
+let cachedRaw: string | null | undefined;
+let cachedItems: RecentProperty[] = EMPTY;
 
 export type RecentProperty = {
   id: string;
@@ -14,48 +18,53 @@ export type RecentProperty = {
 };
 
 function readStorage(): RecentProperty[] {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === 'undefined') return EMPTY;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
+    if (raw === cachedRaw) return cachedItems;
+    cachedRaw = raw;
+    if (!raw) return (cachedItems = EMPTY);
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return (cachedItems = EMPTY);
+    cachedItems = parsed.filter(
       (item): item is RecentProperty =>
-        item != null &&
-        typeof item === 'object' &&
-        typeof (item as RecentProperty).id === 'string' &&
-        typeof (item as RecentProperty).titulo === 'string',
+        item != null && typeof item === 'object' &&
+        typeof (item as Record<string, unknown>).id === 'string' &&
+        typeof (item as Record<string, unknown>).titulo === 'string',
     );
+    return cachedItems;
   } catch {
-    return [];
+    return (cachedItems = EMPTY);
   }
 }
 
 function writeStorage(items: RecentProperty[]) {
-  if (typeof window === 'undefined') return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    const raw = JSON.stringify(items);
+    window.localStorage.setItem(STORAGE_KEY, raw);
+    cachedRaw = raw;
+    cachedItems = items;
+    window.dispatchEvent(new Event(CHANGE_EVENT));
   } catch {
     /* quota / private mode */
   }
 }
 
+function subscribe(onStoreChange: () => void): () => void {
+  const onStorage = () => onStoreChange();
+  window.addEventListener('storage', onStorage);
+  window.addEventListener(CHANGE_EVENT, onStorage);
+  return () => {
+    window.removeEventListener('storage', onStorage);
+    window.removeEventListener(CHANGE_EVENT, onStorage);
+  };
+}
+
 export function useRecentlyViewed() {
-  const [recentProperties, setRecentProperties] = useState<RecentProperty[]>([]);
-
-  useEffect(() => {
-    setRecentProperties(readStorage());
-  }, []);
-
+  const recentProperties = useSyncExternalStore(subscribe, readStorage, () => EMPTY);
   const addProperty = useCallback((prop: RecentProperty) => {
-    setRecentProperties((prev) => {
-      const without = prev.filter((p) => p.id !== prop.id);
-      const next = [prop, ...without].slice(0, MAX_ITEMS);
-      writeStorage(next);
-      return next;
-    });
+    const without = readStorage().filter((item) => item.id !== prop.id);
+    writeStorage([prop, ...without].slice(0, MAX_ITEMS));
   }, []);
-
   return { recentProperties, addProperty };
 }

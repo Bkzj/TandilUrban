@@ -15,6 +15,38 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resendPending, setResendPending] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [retryAfter, setRetryAfter] = useState<number | null>(null);
+
+  const verified = searchParams.get('verified') === '1';
+  const verificationError = searchParams.get('error');
+
+  async function resendVerification() {
+    if (resendPending || !email.trim()) return;
+    setResendPending(true);
+    setResendMessage(null);
+    setRetryAfter(null);
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { message?: string; error?: string };
+      if (response.status === 429) {
+        const seconds = Number(response.headers.get('Retry-After') ?? '60');
+        setRetryAfter(Number.isFinite(seconds) ? seconds : 60);
+        setResendMessage('Alcanzaste el límite de reenvíos. Intentá nuevamente más tarde.');
+      } else if (response.ok) {
+        setResendMessage(payload.message ?? 'Si corresponde, te enviaremos un nuevo correo de verificación.');
+      } else {
+        setResendMessage('No pudimos procesar el reenvío. Intentá nuevamente más tarde.');
+      }
+    } finally {
+      setResendPending(false);
+    }
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,6 +83,8 @@ function LoginForm() {
           <p className="text-sm font-semibold uppercase tracking-wide text-verde">Propea Group</p>
           <h1 className="mt-2 text-3xl font-bold text-text-primary">Iniciar sesion</h1>
           <p className="mt-2 text-sm text-text-secondary">Accede al panel con tus credenciales.</p>
+          {verified ? <p className="mt-3 text-sm font-medium text-verde">Tu correo fue verificado. Ya podés ingresar.</p> : null}
+          {verificationError ? <p className="mt-3 text-sm text-text-secondary">El enlace de verificación no es válido o venció. Podés solicitar uno nuevo.</p> : null}
 
           <form className="mt-8 space-y-4" onSubmit={onSubmit}>
             <div>
@@ -95,6 +129,20 @@ function LoginForm() {
               {loading ? 'Ingresando...' : 'Ingresar'}
             </motion.button>
           </form>
+
+          <div className="mt-5 border-t border-border-light pt-4">
+            <p className="text-sm text-text-secondary">¿Todavía no verificaste tu correo?</p>
+            <button
+              type="button"
+              onClick={() => void resendVerification()}
+              disabled={resendPending || !email.trim()}
+              className="mt-2 text-sm font-semibold text-verde hover:text-verde-hover disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {resendPending ? 'Enviando…' : 'Reenviar correo de verificación'}
+            </button>
+            {resendMessage ? <p className="mt-2 text-sm text-text-secondary" role="status">{resendMessage}</p> : null}
+            {retryAfter ? <p className="mt-1 text-xs text-text-secondary">Tiempo sugerido de espera: {retryAfter} segundos.</p> : null}
+          </div>
 
           <p className="mt-6 text-sm text-text-secondary">
             No tienes cuenta?{' '}

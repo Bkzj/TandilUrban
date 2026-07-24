@@ -1,4 +1,6 @@
 import { existsSync } from 'node:fs';
+import { lookup } from 'node:dns/promises';
+import { isIP } from 'node:net';
 import { platform } from 'node:os';
 
 import puppeteer, { type Browser, type PDFOptions } from 'puppeteer-core';
@@ -38,22 +40,117 @@ function informePath(id: string, variant: InformePdfVariant): string {
     : `/panel/propiedades/${id}/informe`;
 }
 
-function resolveBaseUrl(request: Request): string {
-  const fromEnv = process.env.NEXTAUTH_URL?.trim();
-  if (fromEnv) return fromEnv.replace(/\/$/, '');
+export type PdfSecurityConfig = {
+  applicationOrigin: string;
+  allowedOrigins: ReadonlySet<string>;
+};
 
-  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host');
-  if (!host) return 'http://localhost:3000';
+let cachedSecurityConfig: PdfSecurityConfig | undefined;
 
-  const proto = request.headers.get('x-forwarded-proto') ?? (host.includes('localhost') ? 'http' : 'https');
-  return `${proto}://${host}`;
+export function parsePdfSecurityConfig(env: Readonly<Record<string, string | undefined>>): PdfSecurityConfig {
+  const raw = env.APP_INTERNAL_URL?.trim();
+  if (!raw) throw new Error('Configuración inválida: falta APP_INTERNAL_URL.');
+  const applicationUrl = new URL(raw);
+  if (!['http:', 'https:'].includes(applicationUrl.protocol) || applicationUrl.username || applicationUrl.password) {
+    throw new Error('Configuración inválida: APP_INTERNAL_URL debe ser una URL HTTP/HTTPS absoluta.');
+  }
+
+  const allowedOrigins = new Set<string>([applicationUrl.origin]);
+  for (const item of env.PDF_ALLOWED_ORIGINS?.split(',') ?? []) {
+    const value = item.trim();
+    if (!value) continue;
+    const candidate = new URL(value);
+    if (candidate.protocol !== 'https:' || candidate.origin !== value.replace(/\/$/, '')) {
+      throw new Error('Configuración inválida: PDF_ALLOWED_ORIGINS solo admite orígenes HTTPS.');
+    }
+    allowedOrigins.add(candidate.origin);
+  }
+  return { applicationOrigin: applicationUrl.origin, allowedOrigins };
+}
+
+function configuredPdfSecurity(): PdfSecurityConfig {
+  cachedSecurityConfig ??= parsePdfSecurityConfig(process.env);
+  return cachedSecurityConfig;
+}
+
+export function buildTrustedReportUrl(
+  propiedadId: string,
+  variant: InformePdfVariant,
+  config: PdfSecurityConfig,
+): URL {
+  const target = new URL(informePath(encodeURIComponent(propiedadId), variant), config.applicationOrigin);
+  if (target.origin !== config.applicationOrigin) {
+    throw new Error('El destino del informe no coincide con el origen interno configurado.');
+  }
+  return target;
+}
+
+function isPrivateIp(address: string): boolean {
+  if (isIP(address) === 4) {
+    const [a, b] = address.split('.').map(Number);
+    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+  }
+  if (isIP(address) === 6) {
+    const normalized = address.toLowerCase();
+    return normalized === '::1' || normalized === '::' || normalized.startsWith('fc') ||
+      normalized.startsWith('fd') || /^fe[89ab]/.test(normalized);
+  }
+  return true;
+}
+
+export async function requestUrlIsAllowed(
+  rawUrl: string,
+  config: PdfSecurityConfig,
+  resolveHost: (hostname: string) => Promise<Array<{ address: string }>> = (hostname) =>
+    lookup(hostname, { all: true, verbatim: true }),
+): Promise<boolean> {
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+  if (!config.allowedOrigins.has(url.origin)) return false;
+  if (url.origin === config.applicationOrigin) return true;
+  if (url.protocol !== 'https:' || ['localhost', 'localhost.localdomain'].includes(url.hostname.toLowerCase())) {
+    return false;
+  }
+  try {
+    const addresses = await resolveHost(url.hostname);
+    return addresses.length > 0 && addresses.every(({ address }) => !isPrivateIp(address));
+  } catch {
+    return false;
+  }
+}
+
+export function parseRequestCookies(cookieHeader: string, origin: string) {
+  return cookieHeader.split(';').flatMap((part) => {
+    const separator = part.indexOf('=');
+    if (separator <= 0) return [];
+    const name = part.slice(0, separator).trim();
+    const value = part.slice(separator + 1).trim();
+    return name ? [{ name, value, url: origin }] : [];
+  });
+}
+
+export function navigationStayedOnTarget(responseUrl: string, target: URL, config: PdfSecurityConfig): boolean {
+  try {
+    return responseUrl === target.href && new URL(responseUrl).origin === config.applicationOrigin;
+  } catch {
+    return false;
+  }
 }
 
 async function launchBrowser(): Promise<Browser> {
+  const disableSandbox = process.env.PUPPETEER_DISABLE_SANDBOX === 'true';
   return puppeteer.launch({
     executablePath: resolveChromeExecutable(),
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--font-render-hinting=none'],
+    args: [
+      ...(disableSandbox ? ['--no-sandbox', '--disable-setuid-sandbox'] : []),
+      '--font-render-hinting=none',
+    ],
   });
 }
 
@@ -67,20 +164,30 @@ export async function renderInformePdfFromUrl(
     throw new Error('Sesión requerida para generar el PDF.');
   }
 
-  const baseUrl = resolveBaseUrl(request);
-  const targetUrl = `${baseUrl}${informePath(propiedadId, variant)}`;
+  const security = configuredPdfSecurity();
+  const targetUrl = buildTrustedReportUrl(propiedadId, variant, security);
 
   const browser = await launchBrowser();
 
   try {
     const page = await browser.newPage();
-    await page.setExtraHTTPHeaders({ cookie: cookieHeader });
+    await page.setCookie(...parseRequestCookies(cookieHeader, security.applicationOrigin));
+    await page.setRequestInterception(true);
+    page.on('request', (interceptedRequest) => {
+      void requestUrlIsAllowed(interceptedRequest.url(), security).then((allowed) => {
+        if (interceptedRequest.isInterceptResolutionHandled()) return;
+        return allowed ? interceptedRequest.continue() : interceptedRequest.abort('blockedbyclient');
+      });
+    });
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
 
-    await page.goto(targetUrl, {
+    const response = await page.goto(targetUrl.href, {
       waitUntil: 'networkidle0',
       timeout: 60_000,
     });
+    if (!response || !navigationStayedOnTarget(response.url(), targetUrl, security)) {
+      throw new Error('La navegación del informe fue redirigida fuera del destino permitido.');
+    }
 
     await page.waitForSelector('article', { timeout: 15_000 });
 

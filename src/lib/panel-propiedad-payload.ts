@@ -36,13 +36,12 @@ function parseImagenesPayload(raw: unknown): PropiedadImagenItem[] | null {
       const o = item as Record<string, unknown>;
       const url = String(o.url).trim();
       if (!url) continue;
-      const public_id =
-        typeof o.public_id === 'string' && o.public_id.trim() !== '' ? o.public_id.trim() : null;
       const categoria =
         typeof o.categoria === 'string' && o.categoria.trim() !== ''
           ? o.categoria.trim()
           : 'Sin clasificar';
-      out.push({ url, public_id, categoria });
+      // El public_id del cliente nunca es fuente de verdad. Se resuelve contra el registro server-side.
+      out.push({ url, public_id: null, categoria });
     }
   }
   return out;
@@ -114,6 +113,12 @@ export function validarPropiedadPayload(
   return {
     ok: true,
     data: {
+      uploadPropertyId:
+        typeof b.uploadPropertyId === 'string' && b.uploadPropertyId.trim()
+          ? b.uploadPropertyId.trim()
+          : undefined,
+      uploadToken:
+        typeof b.uploadToken === 'string' && b.uploadToken.trim() ? b.uploadToken.trim() : undefined,
       operacion: b.operacion as 'VENTA' | 'ALQUILER',
       tipo: b.tipo,
       direccion: b.direccion.trim(),

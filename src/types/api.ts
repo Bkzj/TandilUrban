@@ -28,6 +28,8 @@ export type CreateAgentePayload = {
  * Refleja el output del onboarding lineal del panel.
  */
 export type CreatePropiedadPayload = {
+  uploadPropertyId?: string;
+  uploadToken?: string;
   operacion: 'VENTA' | 'ALQUILER';
   tipo: string;
   direccion: string;

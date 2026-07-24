@@ -104,14 +104,11 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
       categoria: img.categoria?.trim() || 'Sin clasificar',
     }));
     const blobSourcesUploaded: string[] = [];
+    let uploadPropertyId = initialData?.id;
+    let uploadToken: string | undefined;
 
     try {
       if (hasBlobImages) {
-        const tituloSeg =
-          formData.titulo.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9/-]/g, '') ||
-          'propiedad';
-        const folderPath = `tandilurban/propiedades/${tituloSeg}`;
-        const batch = Date.now();
         const nextItems: PropiedadImagenItem[] = [];
 
         for (let i = 0; i < formData.imagenes.length; i++) {
@@ -119,16 +116,11 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
           const src = item.url;
           if (src.startsWith('blob:')) {
             const dataUrl = await blobUrlToDataUrl(src);
-            const file = blobFiles?.getFileForBlob(src);
-            const rawStem = (file?.name ?? 'photo').replace(/\.[^.]+$/, '');
-            const stem = rawStem.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'photo';
-            const publicId = `${stem}-${batch}-${i}`;
-
             const up = await fetch('/api/upload', {
               method: 'POST',
               credentials: 'same-origin',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ file: dataUrl, folderPath, publicId }),
+              body: JSON.stringify({ file: dataUrl, propertyId: uploadPropertyId, uploadToken }),
             });
 
             if (!up.ok) {
@@ -138,7 +130,14 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
               );
             }
 
-            const json = (await up.json()) as { url: string; public_id?: string };
+            const json = (await up.json()) as {
+              url: string;
+              public_id: string;
+              propertyId: string;
+              uploadToken?: string;
+            };
+            uploadPropertyId = json.propertyId;
+            uploadToken = json.uploadToken ?? uploadToken;
             nextItems.push({
               url: json.url,
               public_id: json.public_id ?? null,
@@ -162,20 +161,15 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
         formData.planoUrl.trim() !== '' ? formData.planoUrl.trim() : null;
 
       if (planoUrlPayload?.startsWith('blob:')) {
-        const tituloSeg =
-          formData.titulo.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9/-]/g, '') ||
-          'propiedad';
-        const folderPath = `tandilurban/propiedades/${tituloSeg}`;
         const dataUrl = await blobUrlToDataUrl(planoUrlPayload);
-        const file = blobFiles?.getFileForBlob(planoUrlPayload);
         const up = await fetch('/api/upload', {
           method: 'POST',
           credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             file: dataUrl,
-            folderPath,
-            publicId: `plano-${Date.now()}`,
+            propertyId: uploadPropertyId,
+            uploadToken,
           }),
         });
         if (!up.ok) {
@@ -184,7 +178,13 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
             typeof j.error === 'string' ? j.error : 'Falló la subida del plano a la nube.',
           );
         }
-        const json = (await up.json()) as { url: string };
+        const json = (await up.json()) as {
+          url: string;
+          propertyId: string;
+          uploadToken?: string;
+        };
+        uploadPropertyId = json.propertyId;
+        uploadToken = json.uploadToken ?? uploadToken;
         planoUrlPayload = json.url;
         blobFiles?.unregisterBlob(formData.planoUrl);
         URL.revokeObjectURL(formData.planoUrl);
@@ -214,6 +214,8 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
         planoUrl: planoUrlPayload,
         titulo: formData.titulo,
         descripcion: formData.descripcion,
+        uploadPropertyId,
+        uploadToken,
       };
 
       const editId = initialData?.id;

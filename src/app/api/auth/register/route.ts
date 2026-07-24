@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
-import { randomBytes } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { sendVerificationEmail } from '@/lib/mail';
+import { issueVerificationToken } from '@/lib/auth-verification';
 import type { RegisterPayload } from '@/types/api';
 
 function validarPayload(body: unknown): { ok: true; data: RegisterPayload } | { ok: false; error: string } {
@@ -53,8 +53,7 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await hash(payload.data.password, 12);
-    const verificationToken = randomBytes(32).toString('hex');
-    const verificationExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 horas
+    const verificationToken = issueVerificationToken();
 
     const user = await prisma.user.create({
       data: {
@@ -65,8 +64,8 @@ export async function POST(request: Request) {
         verificationTokens: {
           create: {
             email: payload.data.email,
-            token: verificationToken,
-            expiresAt: verificationExpiresAt,
+            token: verificationToken.tokenHash,
+            expiresAt: verificationToken.expiresAt,
           },
         },
       },
@@ -78,7 +77,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const mailResult = await sendVerificationEmail(payload.data.email, verificationToken);
+    const mailResult = await sendVerificationEmail(payload.data.email, verificationToken.rawToken);
 
     if (!mailResult.ok) {
       await prisma.user.delete({ where: { id: user.id } });

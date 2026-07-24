@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useCallback, useState, useTransition } from 'react';
 import { Heart } from 'lucide-react';
 
 import { toggleFavorito } from '@/actions/favoritos';
@@ -20,10 +20,6 @@ export function FavoriteButton({
   const [isAnimating, setIsAnimating] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [, startTransition] = useTransition();
-
-  useEffect(() => {
-    setIsFavorito(isFavoritoInicial);
-  }, [isFavoritoInicial]);
 
   const showToast = useCallback((message: string) => {
     setToast(message);

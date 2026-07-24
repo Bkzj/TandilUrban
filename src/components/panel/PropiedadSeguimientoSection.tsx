@@ -25,7 +25,8 @@ type Props = {
 };
 
 export function PropiedadSeguimientoSection({ propiedadId, visitasWeb, consultas }: Props) {
-  const [loading, setLoading] = useState(true);
+  const [loadedPropertyId, setLoadedPropertyId] = useState<string | null>(null);
+  const loading = loadedPropertyId !== propiedadId;
   const [error, setError] = useState<string | null>(null);
   const [visitasFisicasPropiedad, setVisitasFisicasPropiedad] = useState(0);
   const [engagement, setEngagement] = useState<PropiedadEngagementMetrics>(() =>
@@ -36,21 +37,19 @@ export function PropiedadSeguimientoSection({ propiedadId, visitasWeb, consultas
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
     void (async () => {
       const result = await getSeguimientoPropiedad(propiedadId);
       if (cancelled) return;
       if (!result.ok) {
         setError(result.error);
-        setLoading(false);
+        setLoadedPropertyId(propiedadId);
         return;
       }
       setVisitasFisicasPropiedad(result.visitasFisicasPropiedad);
       setEngagement(result.engagement);
       setHistorial(result.historialPropiedad);
-      setLoading(false);
+      setLoadedPropertyId(propiedadId);
     })();
 
     return () => {

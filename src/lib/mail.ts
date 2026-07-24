@@ -24,9 +24,9 @@ export function buildAuthPasswordResetLink(token: string): string {
   return `${getAppBase()}/restablecer-contrasena?token=${encodeURIComponent(token)}`;
 }
 
-function logDevFallback(kind: string, url: string, extra?: unknown): void {
+function logDevFallback(kind: string, extra?: unknown): void {
   console.warn('\n⚠️ [DEV FALLBACK] Correo de auth no enviado por Resend (sandbox / error).');
-  console.warn(`⚠️ [DEV FALLBACK] ${kind}:`, url);
+  console.warn(`⚠️ [DEV FALLBACK] ${kind}.`);
   if (extra !== undefined) console.warn('⚠️ [DEV FALLBACK] Detalle:', extra);
 }
 
@@ -47,7 +47,7 @@ async function sendWithResendOrDevFallback(opts: {
 
   if (!apiKey) {
     if (isDev()) {
-      logDevFallback(opts.devLinkLabel, opts.fallbackUrlForLog, 'RESEND_API_KEY no definida');
+      logDevFallback(opts.devLinkLabel, 'RESEND_API_KEY no definida');
       return { ok: true, delivered: false, reason: 'missing_api_key' };
     }
     return { ok: false, error: new Error('RESEND_API_KEY no está definida.') };
@@ -64,7 +64,7 @@ async function sendWithResendOrDevFallback(opts: {
 
     if (error) {
       if (isDev()) {
-        logDevFallback(opts.devLinkLabel, opts.fallbackUrlForLog, error);
+        logDevFallback(opts.devLinkLabel, error);
         return { ok: true, delivered: false, reason: 'dev_fallback' };
       }
       return {
@@ -80,7 +80,7 @@ async function sendWithResendOrDevFallback(opts: {
     return { ok: true, delivered: true };
   } catch (e) {
     if (isDev()) {
-      logDevFallback(opts.devLinkLabel, opts.fallbackUrlForLog, e);
+      logDevFallback(opts.devLinkLabel, e);
       return { ok: true, delivered: false, reason: 'dev_fallback' };
     }
     const msg = e instanceof Error ? e.message : String(e);

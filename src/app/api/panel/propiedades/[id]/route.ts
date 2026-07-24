@@ -3,13 +3,9 @@ import { EstadoPropiedad, Prisma } from '@prisma/client';
 
 import { onPropiedadPublicada } from '@/lib/match-engine';
 
-import {
-  configureCloudinary,
-  cloudinary,
-  isCloudinaryServerConfigured,
-  managedPropertyFoldersFromPublicIds,
-} from '@/lib/cloudinary';
-import { collectPublicIdsForDeletion, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
+import { scheduleAssetCleanup, schedulePropertyDeletion } from '@/lib/cloudinary-cleanup';
+import { normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
+import { resolvePropertyAssets } from '@/lib/panel-property-assets';
 import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
 import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
@@ -99,7 +95,7 @@ export async function PUT(
     const { id } = await params;
     const propiedad = await prisma.propiedad.findUnique({
       where: { id },
-      select: { id: true, inmobiliariaId: true, agenteId: true },
+      select: { id: true, inmobiliariaId: true, agenteId: true, imagenes: true, planoUrl: true },
     });
 
     if (!propiedad) {
@@ -120,6 +116,29 @@ export async function PUT(
     }
 
     const data = payload.data;
+    const assets = await resolvePropertyAssets({
+      tenantId: propiedad.inmobiliariaId,
+      propertyId: propiedad.id,
+      images: data.imagenes,
+      planoUrl: data.planoUrl ?? null,
+      legacyImages: normalizePropiedadImagenesDb(propiedad.imagenes),
+      legacyPlanoUrl: propiedad.planoUrl,
+    });
+
+    const removedAssets = await prisma.cloudinaryAsset.findMany({
+      where: {
+        inmobiliariaId: propiedad.inmobiliariaId,
+        propertyId: propiedad.id,
+        status: 'BOUND',
+        id: { notIn: assets.assetIds },
+      },
+      select: { id: true },
+    });
+    await scheduleAssetCleanup({
+      tenantId: propiedad.inmobiliariaId,
+      propertyId: propiedad.id,
+      assetIds: removedAssets.map(({ id: assetId }) => assetId),
+    });
     const esLote = data.tipo === 'Lote';
     const esExclusiva = computeEsExclusiva(data);
 
@@ -144,8 +163,8 @@ export async function PUT(
         banos: esLote ? 0 : data.banos,
         cocheras: esLote ? 0 : data.cocheras,
         caracteristicas: data.caracteristicas,
-        imagenes: data.imagenes,
-        planoUrl: data.planoUrl,
+        imagenes: assets.images,
+        planoUrl: assets.planoUrl,
         esExclusiva,
       },
     });
@@ -178,7 +197,7 @@ export async function DELETE(
     const { id } = await params;
     const propiedad = await prisma.propiedad.findUnique({
       where: { id },
-      select: { id: true, inmobiliariaId: true, agenteId: true, imagenes: true },
+      select: { id: true, inmobiliariaId: true, agenteId: true },
     });
 
     if (!propiedad) {
@@ -192,33 +211,10 @@ export async function DELETE(
       );
     }
 
-    const items = normalizePropiedadImagenesDb(propiedad.imagenes);
-
-    if (isCloudinaryServerConfigured()) {
-      try {
-        configureCloudinary();
-        const publicIds = collectPublicIdsForDeletion(items);
-        if (publicIds.length > 0) {
-          await cloudinary.api.delete_resources(publicIds, { resource_type: 'image' });
-        }
-        const folders = managedPropertyFoldersFromPublicIds(publicIds);
-        for (const folder of folders) {
-          try {
-            await cloudinary.api.delete_folder(folder);
-          } catch {
-            /* carpeta no vacía o ya eliminada */
-          }
-        }
-      } catch (cloudErr) {
-        console.error('[DELETE /api/panel/propiedades/[id]] Cloudinary:', cloudErr);
-        return NextResponse.json(
-          { error: 'No se pudieron eliminar las imágenes en la nube. Intentá de nuevo.' },
-          { status: 502 }
-        );
-      }
-    }
-
-    await prisma.propiedad.delete({ where: { id: propiedad.id } });
+    await schedulePropertyDeletion({
+      tenantId: propiedad.inmobiliariaId,
+      propertyId: propiedad.id,
+    });
     return new NextResponse(null, { status: 200 });
   } catch (error) {
     const handled = handleAuthError(error);

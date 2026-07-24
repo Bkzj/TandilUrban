@@ -33,6 +33,8 @@ function buildOgElement(propiedad: NonNullable<Awaited<ReturnType<typeof getProp
         fontFamily: 'system-ui, sans-serif',
       }}
     >
+      {/* ImageResponse renders this element directly; next/image cannot run its optimizer here. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={fotoUrl}
         alt="Propiedad"

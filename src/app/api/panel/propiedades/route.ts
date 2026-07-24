@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 
 import { onPropiedadPublicada } from '@/lib/match-engine';
 import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
+import { bindDraftAssets, resolvePropertyAssets, validateNewPropertyUploadScope } from '@/lib/panel-property-assets';
 import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
 import { requireAgencyPublishingContext } from '@/lib/panel-agency-publish';
 import { prisma } from '@/lib/prisma';
@@ -33,12 +34,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: payload.error }, { status: 400 });
     }
     const data = payload.data;
+    const uploadPropertyId = validateNewPropertyUploadScope(
+      inmobiliariaId,
+      user.id,
+      data.uploadPropertyId,
+      data.uploadToken,
+    );
+    if (!uploadPropertyId && (data.imagenes.length > 0 || data.planoUrl)) {
+      return NextResponse.json({ error: 'Las imágenes no tienen un alcance de subida válido.' }, { status: 400 });
+    }
+    const assets = uploadPropertyId
+      ? await resolvePropertyAssets({
+          tenantId: inmobiliariaId,
+          propertyId: uploadPropertyId,
+          images: data.imagenes,
+          planoUrl: data.planoUrl ?? null,
+        })
+      : { images: [], planoUrl: null, assetIds: [] };
 
     const esLote = data.tipo === 'Lote';
     const esExclusiva = computeEsExclusiva(data);
 
-    const propiedad = await prisma.propiedad.create({
-      data: {
+    const propiedad = await prisma.$transaction(async (tx) => {
+      const created = await tx.propiedad.create({
+        data: {
+        ...(uploadPropertyId ? { id: uploadPropertyId } : {}),
         inmobiliariaId,
         titulo: data.titulo,
         descripcion: data.descripcion,
@@ -59,11 +79,21 @@ export async function POST(request: NextRequest) {
         cocheras: esLote ? 0 : data.cocheras,
         agenteId: user.id,
         caracteristicas: data.caracteristicas,
-        imagenes: data.imagenes,
-        planoUrl: data.planoUrl,
+        imagenes: assets.images,
+        planoUrl: assets.planoUrl,
         esExclusiva,
-      },
-      select: { id: true, titulo: true, estado: true },
+        },
+        select: { id: true, titulo: true, estado: true },
+      });
+      if (assets.assetIds.length > 0) {
+        await bindDraftAssets(tx.cloudinaryAsset, {
+          assetIds: assets.assetIds,
+          tenantId: inmobiliariaId,
+          propertyId: created.id,
+          userId: user.id,
+        });
+      }
+      return created;
     });
 
     if (propiedad.estado === 'DISPONIBLE') {

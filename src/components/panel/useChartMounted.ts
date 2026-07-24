@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
-/** Evita que Recharts mida el contenedor antes del layout (width/height -1). */
+const subscribe = () => () => undefined;
+
+/** Evita que Recharts mida el contenedor antes de la hidratación. */
 export function useChartMounted(): boolean {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  return mounted;
+  return useSyncExternalStore(subscribe, () => true, () => false);
 }

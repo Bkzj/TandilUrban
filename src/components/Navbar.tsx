@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
@@ -31,8 +31,16 @@ const FAVORITES_LOGIN = `/login?callbackUrl=${encodeURIComponent(FAVORITES_HREF)
 export default function Navbar() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [userMenu, setUserMenu] = useState({ pathname, open: false });
+  const [mobileNav, setMobileNav] = useState({ pathname, open: false });
+  const userMenuOpen = userMenu.pathname === pathname && userMenu.open;
+  const mobileNavOpen = mobileNav.pathname === pathname && mobileNav.open;
+  const setUserMenuOpen = useCallback((value: boolean | ((open: boolean) => boolean)) =>
+    setUserMenu({ pathname, open: typeof value === 'function' ? value(userMenuOpen) : value }),
+  [pathname, userMenuOpen]);
+  const setMobileNavOpen = useCallback((value: boolean | ((open: boolean) => boolean)) =>
+    setMobileNav({ pathname, open: typeof value === 'function' ? value(mobileNavOpen) : value }),
+  [mobileNavOpen, pathname]);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,7 +51,7 @@ export default function Navbar() {
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [setUserMenuOpen]);
 
   useEffect(() => {
     function onEscape(event: KeyboardEvent) {
@@ -54,7 +62,7 @@ export default function Navbar() {
     }
     document.addEventListener('keydown', onEscape);
     return () => document.removeEventListener('keydown', onEscape);
-  }, []);
+  }, [setMobileNavOpen, setUserMenuOpen]);
 
   useEffect(() => {
     document.body.style.overflow = mobileNavOpen ? 'hidden' : '';
@@ -62,11 +70,6 @@ export default function Navbar() {
       document.body.style.overflow = '';
     };
   }, [mobileNavOpen]);
-
-  useEffect(() => {
-    setMobileNavOpen(false);
-    setUserMenuOpen(false);
-  }, [pathname]);
 
   const displayName =
     typeof session?.user?.name === 'string' ? session.user.name : 'Usuario';

@@ -2,9 +2,9 @@ import type { NextAuthOptions } from 'next-auth';
 import { getServerSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import { compare } from 'bcryptjs';
 import { RolUsuario } from '@prisma/client';
 
+import { authorizeCredentials } from '@/lib/auth-credentials';
 import { prisma } from '@/lib/prisma';
 import { currentUserInclude, type CurrentUser, type SessionUserAugmented } from '@/types/auth';
 
@@ -30,23 +30,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Contrasena', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-
-        const user = await prisma.user.findUnique({
-          where: { email: String(credentials.email).toLowerCase() },
-        });
-        if (!user) return null;
-
-        const passwordValido = await compare(String(credentials.password), user.passwordHash);
-        if (!passwordValido) return null;
-
-        return {
-          id: user.id,
-          name: user.nombre,
-          email: user.email,
-          image: user.avatarUrl ?? null,
-          role: user.rol,
-        };
+        return authorizeCredentials(credentials, (email) => prisma.user.findUnique({ where: { email } }));
       },
     }),
   ],

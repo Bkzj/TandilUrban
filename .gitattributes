@@ -1,0 +1,15 @@
+# Never include local configuration, generated clients, credentials or backups in git archives.
+.env export-ignore
+.env.* export-ignore
+.env.example -export-ignore
+src/generated/prisma export-ignore
+*.pem export-ignore
+*.key export-ignore
+*.p12 export-ignore
+*.pfx export-ignore
+*.jks export-ignore
+*credentials*.json export-ignore
+*secrets*.json export-ignore
+*.dump export-ignore
+*.backup export-ignore
+*.bak export-ignore

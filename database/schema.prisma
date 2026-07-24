@@ -34,6 +34,21 @@ enum EstadoContacto {
   RESPONDIDO
 }
 
+enum CloudinaryAssetStatus {
+  DRAFT
+  BOUND
+  PENDING_DELETION
+  DELETED
+}
+
+enum CloudinaryCleanupStatus {
+  PENDING
+  PROCESSING
+  RETRY
+  COMPLETE
+  REJECTED
+}
+
 model User {
   id               String     @id @default(cuid())
   rol              RolUsuario @default(USUARIO_NORMAL)
@@ -53,13 +68,13 @@ model User {
   agenciaId String?
   agencia   Inmobiliaria? @relation("AgentesDeInmobiliaria", fields: [agenciaId], references: [id], onDelete: SetNull)
 
-  verificationTokens VerificationToken[]
-  propiedadesComoAgente Propiedad[] @relation("PropiedadAgente")
-  favoritos             Propiedad[] @relation("UsuarioFavoritos")
+  verificationTokens        VerificationToken[]
+  propiedadesComoAgente     Propiedad[]          @relation("PropiedadAgente")
+  favoritos                 Propiedad[]          @relation("UsuarioFavoritos")
   visitasFisicasRegistradas VisitaFisicaEvento[] @relation("VisitaFisicaRegistradaPor")
 
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([agenciaId])
 }
@@ -69,20 +84,28 @@ model Inmobiliaria {
   userId        String  @unique
   user          User    @relation("PerfilInmobiliaria", fields: [userId], references: [id], onDelete: Cascade)
   nombreAgencia String
-  /** Logo público B2B (vidriera, fichas). Si falta, puede usarse `logoAgencia` legacy. */
+  /**
+   * Logo público B2B (vidriera, fichas). Si falta, puede usarse `logoAgencia` legacy.
+   */
   logoUrl       String?
   logoAgencia   String?
-  /** Texto corto para el directorio público de inmobiliarias. */
-  bio           String?  @db.Text
-  /** Aparece en el carrusel / bloque destacado del directorio. */
-  destacada     Boolean  @default(false)
+  /**
+   * Texto corto para el directorio público de inmobiliarias.
+   */
+  bio           String? @db.Text
+  /**
+   * Aparece en el carrusel / bloque destacado del directorio.
+   */
+  destacada     Boolean @default(false)
   cuit          String  @unique
   direccion     String
 
-  agentes     User[]      @relation("AgentesDeInmobiliaria")
-  propiedades Propiedad[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  agentes                User[]                  @relation("AgentesDeInmobiliaria")
+  propiedades            Propiedad[]
+  cloudinaryAssets       CloudinaryAsset[]
+  cloudinaryDeletionJobs CloudinaryDeletionJob[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
 }
 
 model Propiedad {
@@ -91,7 +114,7 @@ model Propiedad {
   inmobiliaria   Inmobiliaria @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
 
   agenteId String?
-  agente   User? @relation("PropiedadAgente", fields: [agenteId], references: [id], onDelete: SetNull)
+  agente   User?   @relation("PropiedadAgente", fields: [agenteId], references: [id], onDelete: SetNull)
 
   titulo          String
   descripcion     String          @db.Text
@@ -112,21 +135,27 @@ model Propiedad {
   banos           Int             @default(0)
   cocheras        Int             @default(0)
   caracteristicas String[]
-  /** Fotos: `{ url, public_id?, categoria? }[]` persistido como JSONB */
-  imagenes          Json              @default("[]")
-  /** Plano / croquis (URL Cloudinary u otra entrega HTTPS). */
-  planoUrl          String?
-  /** Clasificación automática por umbral de precio (VENTA USD / ALQUILER ARS). */
-  esExclusiva       Boolean           @default(false)
+  /**
+   * Fotos: `{ url, public_id?, categoria? }[]` persistido como JSONB
+   */
+  imagenes        Json            @default("[]")
+  /**
+   * Plano / croquis (URL Cloudinary u otra entrega HTTPS).
+   */
+  planoUrl        String?
+  /**
+   * Clasificación automática por umbral de precio (VENTA USD / ALQUILER ARS).
+   */
+  esExclusiva     Boolean         @default(false)
 
-  visitas    Int @default(0)
+  visitas   Int @default(0)
   consultas Int @default(0)
 
-  contactos            Contacto[]
+  contactos             Contacto[]
   visitasFisicasEventos VisitaFisicaEvento[]
-  favoritadosPor       User[]     @relation("UsuarioFavoritos")
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  favoritadosPor        User[]               @relation("UsuarioFavoritos")
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 
   @@index([inmobiliariaId])
   @@index([estado])
@@ -136,18 +165,86 @@ model Propiedad {
   @@index([agenteId])
 }
 
+model CloudinaryAsset {
+  id             String                @id @default(cuid())
+  publicId       String                @unique
+  secureUrl      String                @unique
+  bytes          Int
+  mimeType       String
+  inmobiliariaId String
+  inmobiliaria   Inmobiliaria          @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
+  /**
+   * UUID de alcance emitido por el servidor; coincide con Propiedad.id al persistir.
+   */
+  propertyId     String
+  createdById    String
+  status         CloudinaryAssetStatus @default(DRAFT)
+  expiresAt      DateTime?
+  boundAt        DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([inmobiliariaId, propertyId])
+  @@index([inmobiliariaId, createdAt])
+  @@index([status, expiresAt])
+}
+
+model CloudinaryDeletionJob {
+  id             String                       @id @default(cuid())
+  inmobiliariaId String
+  inmobiliaria   Inmobiliaria                 @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
+  propertyId     String
+  status         CloudinaryCleanupStatus      @default(PENDING)
+  attempts       Int                          @default(0)
+  nextAttemptAt  DateTime                     @default(now())
+  lastErrorCode  String?
+  resources      CloudinaryDeletionResource[]
+  createdAt      DateTime                     @default(now())
+  updatedAt      DateTime                     @updatedAt
+
+  @@index([status, nextAttemptAt])
+  @@index([inmobiliariaId, propertyId])
+}
+
+model CloudinaryDeletionResource {
+  id            String                  @id @default(cuid())
+  jobId         String
+  job           CloudinaryDeletionJob   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  assetId       String
+  publicId      String
+  status        CloudinaryCleanupStatus @default(PENDING)
+  attempts      Int                     @default(0)
+  resultCode    String?
+  lastErrorCode String?
+  updatedAt     DateTime                @updatedAt
+
+  @@unique([jobId, publicId])
+  @@index([status])
+}
+
+model RateLimitBucket {
+  key       String   @id
+  count     Int
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+}
+
 model Contacto {
-  id          String         @id @default(cuid())
-  nombre      String
-  email       String
-  telefono         String?
-  mensaje          String         @db.Text
-  propiedadId      String
-  propiedad        Propiedad      @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
-  estado           EstadoContacto @default(NUEVO)
-  /** Visitas presenciales coordinadas para este lead. */
-  visitasFisicas   Int            @default(0)
-  createdAt        DateTime       @default(now())
+  id             String         @id @default(cuid())
+  nombre         String
+  email          String
+  telefono       String?
+  mensaje        String         @db.Text
+  propiedadId    String
+  propiedad      Propiedad      @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  estado         EstadoContacto @default(NUEVO)
+  /**
+   * Visitas presenciales coordinadas para este lead.
+   */
+  visitasFisicas Int            @default(0)
+  createdAt      DateTime       @default(now())
 
   visitasFisicasEventos VisitaFisicaEvento[]
 
@@ -155,18 +252,22 @@ model Contacto {
   @@index([estado])
 }
 
-/** Registro de cada visita presencial (+1 / -1) para historial y métricas. */
+/**
+ * Registro de cada visita presencial (+1 / -1) para historial y métricas.
+ */
 model VisitaFisicaEvento {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   contactoId      String
-  contacto        Contacto @relation(fields: [contactoId], references: [id], onDelete: Cascade)
+  contacto        Contacto  @relation(fields: [contactoId], references: [id], onDelete: Cascade)
   propiedadId     String
   propiedad       Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
   registradoPorId String
-  registradoPor   User     @relation("VisitaFisicaRegistradaPor", fields: [registradoPorId], references: [id], onDelete: Cascade)
-  /** +1 al sumar visita, -1 al restar. */
+  registradoPor   User      @relation("VisitaFisicaRegistradaPor", fields: [registradoPorId], references: [id], onDelete: Cascade)
+  /**
+   * +1 al sumar visita, -1 al restar.
+   */
   delta           Int
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
 
   @@index([contactoId])
   @@index([propiedadId])

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { findVerificationTokenWithLegacyCompatibility, hashVerificationToken } from '@/lib/auth-verification';
 
 export async function GET(request: Request) {
   const reqUrl = new URL(request.url);
@@ -12,11 +13,20 @@ export async function GET(request: Request) {
     return redirect('/login?error=missing_token');
   }
 
-  const record = await prisma.verificationToken.findUnique({
-    where: { token },
+  const tokenHash = hashVerificationToken(token);
+  const record = await findVerificationTokenWithLegacyCompatibility(token, {
+    findByToken: (storedToken) => prisma.verificationToken.findUnique({ where: { token: storedToken } }),
+    replaceToken: (id, storedToken) => prisma.verificationToken.update({
+      where: { id },
+      data: { token: storedToken },
+    }),
   });
 
-  if (!record || record.expiresAt.getTime() < Date.now()) {
+  if (!record) {
+    return redirect('/login?error=invalid_or_expired_token');
+  }
+  if (record.expiresAt.getTime() < Date.now()) {
+    await prisma.verificationToken.deleteMany({ where: { token: tokenHash } });
     return redirect('/login?error=invalid_or_expired_token');
   }
 
@@ -25,8 +35,8 @@ export async function GET(request: Request) {
   });
 
   if (!user) {
-    await prisma.verificationToken.deleteMany({ where: { token } });
-    return redirect('/login?error=user_not_found');
+    await prisma.verificationToken.deleteMany({ where: { token: tokenHash } });
+    return redirect('/login?error=invalid_or_expired_token');
   }
 
   await prisma.$transaction([

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 
 import Navbar from '@/components/Navbar';
 import { InmobiliariasContenido } from '@/components/public/inmobiliarias/InmobiliariasContenido';
@@ -37,6 +38,8 @@ function collectShowcaseImages(data: InmobiliariasDirectoryData): string[] {
 }
 
 export default async function InmobiliariasPage() {
+  // El directorio es datos operativos de PostgreSQL y debe resolverse por request, no al compilar.
+  await connection();
   const data = await getInmobiliariasDirectory();
   const totalAgencias = data.destacadas.length + data.todas.length;
   const showcaseImages = collectShowcaseImages(data);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -34,10 +34,6 @@ export function PropertiesClientTable({ propiedades: initialPropiedades }: Props
     setPropiedades((prev) => prev.map((p) => (p.id === id ? { ...p, estado } : p)));
     setSelectedProp((prev) => (prev?.id === id ? { ...prev, estado } : prev));
   }, []);
-
-  useEffect(() => {
-    setPropiedades(initialPropiedades);
-  }, [initialPropiedades]);
 
   const onPropiedadUpdate = useCallback((updated: PanelPropiedadTableRow) => {
     setPropiedades((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -124,6 +120,7 @@ export function PropertiesClientTable({ propiedades: initialPropiedades }: Props
                         onClick={(e) => e.stopPropagation()}
                       >
                         <EstadoSelector
+                          key={`${prop.id}-${prop.estado}`}
                           propiedadId={prop.id}
                           estadoActual={prop.estado}
                           onEstadoChange={(estado) => onEstadoChange(prop.id, estado)}

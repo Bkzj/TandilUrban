@@ -16,6 +16,7 @@ const REQUIRED = [
 ];
 
 const EXCLUDED = [
+  /(^|\/)\.git\//,
   /(^|\/)\.env(?:\.|$)(?!example$)/,
   /(^|\/)node_modules\//,
   /(^|\/)src\/generated\/prisma\//,

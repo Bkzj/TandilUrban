@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -28,5 +28,16 @@ test('source ZIP includes operational sources and excludes local/generated artif
     assert.equal(entries.has(absent), false, `unexpected ${absent}`);
     assert.equal(existsSync(join(extractedRoot, ...absent.split('/'))), false);
   }
-  assert.equal([...entries].some((file) => file.startsWith('assets-raw/') || file.startsWith('dist/')), false);
+  assert.equal(
+    [...entries].some((file) =>
+      file.startsWith('.git/') || file.startsWith('assets-raw/') || file.startsWith('dist/')),
+    false,
+  );
+
+  const fakeGit = join(extractedRoot, '.git');
+  mkdirSync(fakeGit);
+  writeFileSync(join(fakeGit, 'HEAD'), 'ref: refs/heads/main\n');
+  const fallbackZip = join(temporary, 'source-fallback.zip');
+  const fallbackEntries = new Set(createSourceZip(fallbackZip, extractedRoot));
+  assert.equal([...fallbackEntries].some((file) => file.startsWith('.git/')), false);
 });

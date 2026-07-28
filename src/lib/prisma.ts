@@ -1,8 +1,9 @@
 import { Prisma, PrismaClient } from '@/generated/prisma';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { getServerEnvironment } from '@/lib/validation/environment';
 
-const connectionString = process.env.DATABASE_URL!;
+const connectionString = getServerEnvironment().DATABASE_URL;
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);

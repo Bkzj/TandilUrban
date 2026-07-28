@@ -1,4 +1,5 @@
 import { compare } from 'bcryptjs';
+import { credentialsSchema } from '@/lib/validation/auth';
 
 const DUMMY_PASSWORD_HASH =
   '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6Ttx0W3IeqJZgJ6QXQ7VQ6E5xE5eK';
@@ -29,9 +30,10 @@ export async function authorizeCredentials(
   credentials: { email?: unknown; password?: unknown } | undefined,
   findUser: (email: string) => Promise<CredentialsUser | null>,
 ) {
-  if (typeof credentials?.email !== 'string' || typeof credentials.password !== 'string') return null;
-  const user = await findUser(credentials.email.trim().toLowerCase());
-  const allowed = await isCredentialsLoginAllowed(user, credentials.password);
+  const parsed = credentialsSchema.safeParse(credentials);
+  if (!parsed.success) return null;
+  const user = await findUser(parsed.data.email);
+  const allowed = await isCredentialsLoginAllowed(user, parsed.data.password);
   if (!user || !allowed) return null;
   return {
     id: user.id,

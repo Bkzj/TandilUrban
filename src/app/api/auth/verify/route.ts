@@ -1,20 +1,22 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { findVerificationTokenWithLegacyCompatibility, hashVerificationToken } from '@/lib/auth-verification';
+import { verificationTokenSchema } from '@/lib/validation/auth';
+import { getServerEnvironment } from '@/lib/validation/environment';
 
 export async function GET(request: Request) {
   const reqUrl = new URL(request.url);
-  const origin = reqUrl.origin;
   const token = reqUrl.searchParams.get('token');
 
-  const redirect = (path: string) => NextResponse.redirect(new URL(path, origin));
+  const redirect = (path: string) => NextResponse.redirect(new URL(path, getServerEnvironment().APP_URL));
 
-  if (!token) {
-    return redirect('/login?error=missing_token');
+  const parsedToken = verificationTokenSchema.safeParse(token);
+  if (!parsedToken.success) {
+    return redirect('/login?error=invalid_or_expired_token');
   }
 
-  const tokenHash = hashVerificationToken(token);
-  const record = await findVerificationTokenWithLegacyCompatibility(token, {
+  const tokenHash = hashVerificationToken(parsedToken.data);
+  const record = await findVerificationTokenWithLegacyCompatibility(parsedToken.data, {
     findByToken: (storedToken) => prisma.verificationToken.findUnique({ where: { token: storedToken } }),
     replaceToken: (id, storedToken) => prisma.verificationToken.update({
       where: { id },

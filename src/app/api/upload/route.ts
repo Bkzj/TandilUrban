@@ -1,16 +1,19 @@
 import { NextResponse } from 'next/server';
 
-import { AuthError } from '@/lib/auth';
+import { ApiError } from '@/lib/api-error';
 import { configureCloudinary, cloudinary, isCloudinaryServerConfigured } from '@/lib/cloudinary';
+import { uploadManagedImage } from '@/lib/managed-upload-service';
 import { requireAgencyPublishingContext } from '@/lib/panel-agency-publish';
 import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { prisma } from '@/lib/prisma';
 import { configuredRateLimitStore, requestIp } from '@/lib/rate-limit';
+import { runRouteHandler } from '@/lib/route-handler';
 import { UploadAuthorizationError } from '@/lib/upload-authorization';
-import { uploadManagedImage } from '@/lib/managed-upload-service';
+import { getServerEnvironment } from '@/lib/validation/environment';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { parseJsonBody } from '@/lib/validation/request';
+import { parseImageDataUrl, uploadBodySchema } from '@/lib/validation/upload';
 
-const MAX_FILE_BYTES = 12 * 1024 * 1024;
-const MAX_REQUEST_BYTES = 17 * 1024 * 1024;
 const TENANT_DAILY_BYTES = 250 * 1024 * 1024;
 const TENANT_DAILY_FILES = 200;
 const MIME_FORMATS = {
@@ -18,143 +21,111 @@ const MIME_FORMATS = {
   'image/png': 'png',
   'image/webp': 'webp',
 } as const;
-type AllowedMime = keyof typeof MIME_FORMATS;
-
-function authResponse(error: unknown): NextResponse | null {
-  return error instanceof AuthError
-    ? NextResponse.json({ error: error.message }, { status: error.status })
-    : null;
-}
-
-function parseImageDataUri(value: unknown): { bytes: Buffer; mimeType: AllowedMime; canonical: string } | null {
-  if (typeof value !== 'string' || value.length > Math.ceil(MAX_FILE_BYTES * 4 / 3) + 128) return null;
-  const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
-  if (!match) return null;
-  const mimeType = match[1] as AllowedMime;
-  const bytes = Buffer.from(match[2], 'base64');
-  if (bytes.length === 0 || bytes.length > MAX_FILE_BYTES) return null;
-  const validSignature =
-    (mimeType === 'image/jpeg' && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) ||
-    (mimeType === 'image/png' && bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) ||
-    (mimeType === 'image/webp' && bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP');
-  if (!validSignature) return null;
-  return { bytes, mimeType, canonical: `data:${mimeType};base64,${bytes.toString('base64')}` };
-}
-
-async function readLimitedJson(request: Request): Promise<unknown> {
-  if (!request.body) throw new Error('Solicitud sin cuerpo.');
-  const reader = request.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > MAX_REQUEST_BYTES) {
-      await reader.cancel();
-      throw new RangeError('REQUEST_TOO_LARGE');
-    }
-    chunks.push(value);
-  }
-  const body = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk))).toString('utf8');
-  return JSON.parse(body) as unknown;
-}
 
 export async function POST(request: Request) {
-  try {
+  return runRouteHandler(request, 'managed_upload.failed', async () => {
     const { inmobiliariaId, user } = await requireAgencyPublishingContext();
-    const contentLength = Number(request.headers.get('content-length') ?? '0');
-    if (!Number.isFinite(contentLength) || contentLength > MAX_REQUEST_BYTES) {
-      return NextResponse.json({ error: 'La solicitud supera el tamaño máximo permitido.' }, { status: 413 });
-    }
-
-    const rateLimits = configuredRateLimitStore();
+    const rates = configuredRateLimitStore();
     const [ipRate, userRate, tenantRate] = await Promise.all([
-      rateLimits.consume(`upload:ip:${requestIp(request)}`, { limit: 80, windowMs: 60 * 60 * 1000 }),
-      rateLimits.consume(`upload:user:${user.id}`, { limit: 120, windowMs: 60 * 60 * 1000 }),
-      rateLimits.consume(`upload:tenant:${inmobiliariaId}`, { limit: 200, windowMs: 60 * 60 * 1000 }),
+      rates.consume(`upload:ip:${requestIp(request)}`, { limit: 80, windowMs: 60 * 60 * 1000 }),
+      rates.consume(`upload:user:${user.id}`, { limit: 120, windowMs: 60 * 60 * 1000 }),
+      rates.consume(`upload:tenant:${inmobiliariaId}`, { limit: 200, windowMs: 60 * 60 * 1000 }),
     ]);
     if (!ipRate.allowed || !userRate.allowed || !tenantRate.allowed) {
-      return NextResponse.json({ error: 'Se alcanzó temporalmente el límite de subidas.' }, { status: 429 });
+      throw new ApiError('RATE_LIMITED', {
+        message: 'Se alcanzó temporalmente el límite de subidas.',
+        retryAfterSeconds: Math.max(
+          ipRate.retryAfterSeconds,
+          userRate.retryAfterSeconds,
+          tenantRate.retryAfterSeconds,
+        ),
+      });
     }
-
     if (!isCloudinaryServerConfigured()) {
-      return NextResponse.json(
-        { error: 'Subida de archivos no disponible (Cloudinary sin configurar).' },
-        { status: 503 },
-      );
+      throw new ApiError('EXTERNAL_UNAVAILABLE', {
+        message: 'La subida de archivos no está disponible temporalmente.',
+      });
     }
 
-    const body = await readLimitedJson(request);
-    if (!body || typeof body !== 'object') {
-      return NextResponse.json({ error: 'Solicitud inválida.' }, { status: 400 });
-    }
-    const input = body as Record<string, unknown>;
-    const image = parseImageDataUri(input.file);
+    const body = await parseJsonBody(
+      request,
+      uploadBodySchema,
+      REQUEST_LIMITS.uploadRequestBytes,
+    );
+    const image = parseImageDataUrl(body.file, REQUEST_LIMITS.uploadImageBytes);
     if (!image) {
-      return NextResponse.json({ error: 'La imagen debe ser JPEG, PNG o WebP y respetar el tamaño máximo.' }, { status: 400 });
+      throw new ApiError('VALIDATION_ERROR', {
+        message: 'La imagen debe ser JPEG, PNG o WebP y respetar el tamaño máximo.',
+        fields: { file: ['Imagen inválida o demasiado grande.'] },
+      });
     }
-
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const quota = await prisma.cloudinaryAsset.aggregate({
       where: { inmobiliariaId, createdAt: { gte: since } },
       _sum: { bytes: true },
       _count: { id: true },
     });
-    if ((quota._sum.bytes ?? 0) + image.bytes.length > TENANT_DAILY_BYTES || quota._count.id >= TENANT_DAILY_FILES) {
-      return NextResponse.json({ error: 'La inmobiliaria alcanzó su cuota diaria de archivos.' }, { status: 429 });
+    if (
+      (quota._sum.bytes ?? 0) + image.bytes.byteLength > TENANT_DAILY_BYTES ||
+      quota._count.id >= TENANT_DAILY_FILES
+    ) {
+      throw new ApiError('RATE_LIMITED', {
+        message: 'La inmobiliaria alcanzó su cuota diaria de archivos.',
+        retryAfterSeconds: 60 * 60,
+      });
     }
 
-    const secret = process.env.NEXTAUTH_SECRET?.trim();
-    if (!secret) throw new Error('Configuración inválida: falta NEXTAUTH_SECRET.');
-
+    const secret = getServerEnvironment().NEXTAUTH_SECRET;
     configureCloudinary();
-    const uploaded = await uploadManagedImage({
-      tenantId: inmobiliariaId,
-      userId: user.id,
-      secret,
-      propertyId: typeof input.propertyId === 'string' ? input.propertyId.trim() : undefined,
-      uploadToken: typeof input.uploadToken === 'string' ? input.uploadToken.trim() : undefined,
-      findProperty: (propertyId) => prisma.propiedad.findUnique({
-        where: { id: propertyId },
-        select: { id: true, inmobiliariaId: true, agenteId: true },
-      }),
-      canModifyExistingProperty: (property) => userCanModifyPropiedad(user, property),
-      mimeType: image.mimeType,
-      canonicalDataUri: image.canonical,
-      uploadRemote: async (dataUri, publicId) => {
-        const result = await cloudinary.uploader.upload(dataUri, {
-          public_id: publicId,
-          overwrite: false,
-          resource_type: 'image',
-          allowed_formats: Object.values(MIME_FORMATS),
-        });
-        return { publicId: result.public_id, secureUrl: result.secure_url, bytes: result.bytes };
-      },
-      destroyRemote: async (publicId) => {
-        await cloudinary.uploader.destroy(publicId, { resource_type: 'image', invalidate: true });
-      },
-      createOwnershipRecord: async (record) => {
-        await prisma.cloudinaryAsset.create({ data: record });
-      },
-    });
-
-    return NextResponse.json({
-      url: uploaded.url,
-      public_id: uploaded.publicId,
-      propertyId: uploaded.propertyId,
-      uploadToken: uploaded.uploadToken,
-    });
-  } catch (error) {
-    if (error instanceof RangeError && error.message === 'REQUEST_TOO_LARGE') {
-      return NextResponse.json({ error: 'La solicitud supera el tamaño máximo permitido.' }, { status: 413 });
+    try {
+      const uploaded = await uploadManagedImage({
+        tenantId: inmobiliariaId,
+        userId: user.id,
+        secret,
+        propertyId: body.propertyId,
+        uploadToken: body.uploadToken,
+        findProperty: (propertyId) =>
+          prisma.propiedad.findUnique({
+            where: { id: propertyId },
+            select: { id: true, inmobiliariaId: true, agenteId: true },
+          }),
+        canModifyExistingProperty: (property) => userCanModifyPropiedad(user, property),
+        mimeType: image.mimeType,
+        canonicalDataUri: `data:${image.mimeType};base64,${image.base64}`,
+        uploadRemote: async (dataUri, publicId) => {
+          const result = await cloudinary.uploader.upload(dataUri, {
+            public_id: publicId,
+            overwrite: false,
+            resource_type: 'image',
+            allowed_formats: Object.values(MIME_FORMATS),
+          });
+          return {
+            publicId: result.public_id,
+            secureUrl: result.secure_url,
+            bytes: result.bytes,
+          };
+        },
+        destroyRemote: async (publicId) => {
+          await cloudinary.uploader.destroy(publicId, {
+            resource_type: 'image',
+            invalidate: true,
+          });
+        },
+        createOwnershipRecord: async (record) => {
+          await prisma.cloudinaryAsset.create({ data: record });
+        },
+      });
+      return NextResponse.json({
+        url: uploaded.url,
+        public_id: uploaded.publicId,
+        propertyId: uploaded.propertyId,
+        uploadToken: uploaded.uploadToken,
+      });
+    } catch (error) {
+      if (error instanceof UploadAuthorizationError) {
+        throw new ApiError('FORBIDDEN', { message: 'No se pudo autorizar la subida.' });
+      }
+      throw error;
     }
-    if (error instanceof UploadAuthorizationError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-    const handled = authResponse(error);
-    if (handled) return handled;
-    console.error('[POST /api/upload]', error instanceof Error ? error.name : 'UnknownError');
-    return NextResponse.json({ error: 'No se pudo subir el archivo.' }, { status: 500 });
-  }
+  });
 }

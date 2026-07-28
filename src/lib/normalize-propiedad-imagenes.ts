@@ -8,7 +8,8 @@ export function normalizePropiedadImagenesDb(raw: unknown): PropiedadImagenItem[
     const s = raw.trim();
     if (!s) return [];
     try {
-      data = JSON.parse(s) as unknown;
+      const decoded: unknown = JSON.parse(s);
+      data = decoded;
     } catch {
       return [{ url: s, public_id: null, categoria: 'Sin clasificar' }];
     }

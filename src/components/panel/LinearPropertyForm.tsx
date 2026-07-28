@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -41,6 +41,7 @@ export default function LinearPropertyForm(props: LinearPropertyFormProps = {}) 
 }
 
 function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) {
+  const creationIdempotencyKey = useRef<string | null>(null);
   const router = useRouter();
   const blobFiles = useBlobImageFilesContext();
   const isEditMode = !!initialData?.id;
@@ -221,10 +222,16 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
       const editId = initialData?.id;
       const url = editId ? `/api/panel/propiedades/${editId}` : '/api/panel/propiedades';
       const method = editId ? 'PUT' : 'POST';
+      if (!editId) creationIdempotencyKey.current ??= crypto.randomUUID();
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(!editId && creationIdempotencyKey.current
+            ? { 'Idempotency-Key': creationIdempotencyKey.current }
+            : {}),
+        },
         body: JSON.stringify(payload),
       });
 

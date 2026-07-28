@@ -1,190 +1,175 @@
 import { NextResponse } from 'next/server';
-import { EstadoPropiedad, Prisma } from '@prisma/client';
 
+import { ApiError } from '@/lib/api-error';
+import {
+  scheduleAssetCleanupInTransaction,
+  schedulePropertyDeletion,
+} from '@/lib/cloudinary-cleanup';
 import { onPropiedadPublicada } from '@/lib/match-engine';
-
-import { scheduleAssetCleanup, schedulePropertyDeletion } from '@/lib/cloudinary-cleanup';
-import { normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
-import { resolvePropertyAssets } from '@/lib/panel-property-assets';
-import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
-import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
-import { prisma } from '@/lib/prisma';
-import { AuthError } from '@/lib/auth';
 import { requirePropertyAccess } from '@/lib/panel-authorization';
+import { resolvePropertyAssets } from '@/lib/panel-property-assets';
+import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
+import { normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
+import { prisma } from '@/lib/prisma';
+import { runRouteHandler } from '@/lib/route-handler';
+import { serverLogger } from '@/lib/server-logger';
+import { identifierSchema } from '@/lib/validation/common';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { createPropertySchema } from '@/lib/validation/property';
+import {
+  canTransitionPropertyState,
+  propertyStateUpdateSchema,
+} from '@/lib/validation/property-state';
+import { parseJsonBody, validateRouteParams } from '@/lib/validation/request';
 
-function handleAuthError(error: unknown): NextResponse | null {
-  if (error instanceof AuthError) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
-  }
-  return null;
-}
-
-const ESTADOS_VALIDOS = Object.values(EstadoPropiedad) as string[];
+const routeParamsSchema = identifierSchema.transform((id) => ({ id }));
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
-    const { propertyWhere } = await requirePropertyAccess(id);
-    const body = (await request.json()) as { estado?: unknown };
-    if (typeof body.estado !== 'string' || !ESTADOS_VALIDOS.includes(body.estado)) {
-      return NextResponse.json({ error: 'Estado inválido.' }, { status: 400 });
-    }
-
-    const nuevoEstado = body.estado as EstadoPropiedad;
-
-    const propiedad = await prisma.propiedad.findFirst({
+  return runRouteHandler(request, 'panel.property_state.failed', async (requestId) => {
+    const route = validateRouteParams((await params).id, routeParamsSchema);
+    const { propertyWhere } = await requirePropertyAccess(route.id);
+    const body = await parseJsonBody(
+      request,
+      propertyStateUpdateSchema,
+      REQUEST_LIMITS.authJsonBytes,
+    );
+    const property = await prisma.propiedad.findFirst({
       where: propertyWhere,
-      select: { id: true, inmobiliariaId: true, agenteId: true, estado: true },
+      select: { id: true, estado: true },
     });
-
-    if (!propiedad) {
-      return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
+    if (!property) throw new ApiError('NOT_FOUND', { message: 'Propiedad no encontrada.' });
+    if (!canTransitionPropertyState(property.estado, body.estado)) {
+      throw new ApiError('CONFLICT', {
+        message: `No se puede pasar de ${property.estado} a ${body.estado}.`,
+      });
     }
-
-    const estadoAnterior = propiedad.estado;
-
-    await prisma.propiedad.update({
-      where: { id: propiedad.id },
-      data: { estado: nuevoEstado },
-    });
-
-    if (
-      nuevoEstado === EstadoPropiedad.DISPONIBLE &&
-      estadoAnterior !== EstadoPropiedad.DISPONIBLE
-    ) {
-      void onPropiedadPublicada(propiedad.id).catch(console.error);
+    if (property.estado !== body.estado) {
+      const updated = await prisma.propiedad.updateMany({
+        where: { id: property.id, estado: property.estado },
+        data: { estado: body.estado },
+      });
+      if (updated.count !== 1) {
+        throw new ApiError('CONFLICT', { message: 'La propiedad cambió mientras se actualizaba.' });
+      }
+      if (body.estado === 'DISPONIBLE') {
+        void onPropiedadPublicada(property.id).catch((error) => {
+          serverLogger.warn('property.match_notification_deferred', {
+            requestId,
+            propertyId: property.id,
+            errorName: error instanceof Error ? error.name : 'UnknownError',
+          });
+        });
+      }
     }
-
-    return NextResponse.json({ ok: true, estado: nuevoEstado }, { status: 200 });
-  } catch (error) {
-    const handled = handleAuthError(error);
-    if (handled) return handled;
-    console.error('[PATCH /api/panel/propiedades/[id]]', error);
-    return NextResponse.json({ error: 'No se pudo actualizar el estado.' }, { status: 500 });
-  }
+    return NextResponse.json({ ok: true, estado: body.estado });
+  });
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
-    const { propertyWhere } = await requirePropertyAccess(id);
-    const propiedad = await prisma.propiedad.findFirst({
-      where: propertyWhere,
-      select: { id: true, inmobiliariaId: true, agenteId: true, imagenes: true, planoUrl: true },
+  return runRouteHandler(request, 'panel.property_update.failed', async () => {
+    const route = validateRouteParams((await params).id, routeParamsSchema);
+    const context = await requirePropertyAccess(route.id);
+    const property = await prisma.propiedad.findFirst({
+      where: context.propertyWhere,
+      select: {
+        id: true,
+        inmobiliariaId: true,
+        agenteId: true,
+        imagenes: true,
+        planoUrl: true,
+      },
     });
+    if (!property) throw new ApiError('NOT_FOUND', { message: 'Propiedad no encontrada.' });
 
-    if (!propiedad) {
-      return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
-    }
-
-    const body = await request.json();
-    const payload = validarPropiedadPayload(body);
-    if (!payload.ok) {
-      return NextResponse.json({ error: payload.error }, { status: 400 });
-    }
-
-    const data = payload.data;
+    const data = await parseJsonBody(
+      request,
+      createPropertySchema,
+      REQUEST_LIMITS.propertyJsonBytes,
+    );
     const assets = await resolvePropertyAssets({
-      tenantId: propiedad.inmobiliariaId,
-      propertyId: propiedad.id,
+      tenantId: property.inmobiliariaId,
+      propertyId: property.id,
       images: data.imagenes,
-      planoUrl: data.planoUrl ?? null,
-      legacyImages: normalizePropiedadImagenesDb(propiedad.imagenes),
-      legacyPlanoUrl: propiedad.planoUrl,
+      planoUrl: data.planoUrl,
+      legacyImages: normalizePropiedadImagenesDb(property.imagenes),
+      legacyPlanoUrl: property.planoUrl,
     });
+    const isLot = data.tipo === 'Lote';
 
-    const removedAssets = await prisma.cloudinaryAsset.findMany({
-      where: {
-        inmobiliariaId: propiedad.inmobiliariaId,
-        propertyId: propiedad.id,
-        status: 'BOUND',
-        id: { notIn: assets.assetIds },
-      },
-      select: { id: true },
-    });
-    await scheduleAssetCleanup({
-      tenantId: propiedad.inmobiliariaId,
-      propertyId: propiedad.id,
-      assetIds: removedAssets.map(({ id: assetId }) => assetId),
-    });
-    const esLote = data.tipo === 'Lote';
-    const esExclusiva = computeEsExclusiva(data);
+    await prisma.$transaction(async (tx) => {
+      const stillAccessible = await tx.propiedad.findFirst({
+        where: context.propertyWhere,
+        select: { id: true },
+      });
+      if (!stillAccessible) throw new ApiError('NOT_FOUND', { message: 'Propiedad no encontrada.' });
 
-    await prisma.propiedad.update({
-      where: { id: propiedad.id },
-      data: {
-        titulo: data.titulo,
-        descripcion: data.descripcion,
-        tipo: data.tipo,
-        operacion: data.operacion,
-        precio: data.precio,
-        moneda: data.moneda,
-        expensas: data.expensas,
-        direccion: data.direccion,
-        barrio: data.barrio,
-        latitud: data.lat,
-        longitud: data.lng,
-        m2Total: data.m2Total,
-        m2Cubiertos: esLote ? 0 : data.m2Cubiertos ?? 0,
-        ambientes: esLote ? 0 : Math.round(data.ambientes ?? 0),
-        dormitorios: esLote ? 0 : data.dormitorios,
-        banos: esLote ? 0 : data.banos,
-        cocheras: esLote ? 0 : data.cocheras,
-        caracteristicas: data.caracteristicas,
-        imagenes: assets.images,
-        planoUrl: assets.planoUrl,
-        esExclusiva,
-      },
+      const removedAssets = await tx.cloudinaryAsset.findMany({
+        where: {
+          inmobiliariaId: property.inmobiliariaId,
+          propertyId: property.id,
+          status: 'BOUND',
+          id: { notIn: assets.assetIds },
+        },
+        select: { id: true },
+      });
+      await scheduleAssetCleanupInTransaction(tx, {
+        tenantId: property.inmobiliariaId,
+        propertyId: property.id,
+        assetIds: removedAssets.map(({ id }) => id),
+      });
+      await tx.propiedad.update({
+        where: { id: property.id },
+        data: {
+          titulo: data.titulo,
+          descripcion: data.descripcion,
+          tipo: data.tipo,
+          operacion: data.operacion,
+          precio: data.precio,
+          moneda: data.moneda,
+          expensas: data.expensas,
+          direccion: data.direccion,
+          barrio: data.barrio,
+          latitud: data.lat,
+          longitud: data.lng,
+          m2Total: data.m2Total,
+          m2Cubiertos: isLot ? 0 : data.m2Cubiertos ?? 0,
+          ambientes: isLot ? 0 : data.ambientes ?? 0,
+          dormitorios: isLot ? 0 : data.dormitorios,
+          banos: isLot ? 0 : data.banos,
+          cocheras: isLot ? 0 : data.cocheras,
+          caracteristicas: data.caracteristicas,
+          imagenes: assets.images,
+          planoUrl: assets.planoUrl,
+          esExclusiva: computeEsExclusiva(data),
+        },
+      });
     });
-
     return new NextResponse(null, { status: 200 });
-  } catch (error) {
-    const handled = handleAuthError(error);
-    if (handled) return handled;
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error('[PUT /api/panel/propiedades/[id]]', error.code, error.message);
-      return NextResponse.json({ error: 'No se pudo actualizar la propiedad.' }, { status: 500 });
-    }
-    console.error('[PUT /api/panel/propiedades/[id]]', error);
-    return NextResponse.json({ error: 'No se pudo actualizar la propiedad.' }, { status: 500 });
-  }
+  });
 }
 
 export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
-    const { propertyWhere } = await requirePropertyAccess(id);
-    const propiedad = await prisma.propiedad.findFirst({
+  return runRouteHandler(request, 'panel.property_delete.failed', async () => {
+    const route = validateRouteParams((await params).id, routeParamsSchema);
+    const { propertyWhere } = await requirePropertyAccess(route.id);
+    const property = await prisma.propiedad.findFirst({
       where: propertyWhere,
-      select: { id: true, inmobiliariaId: true, agenteId: true },
+      select: { id: true, inmobiliariaId: true },
     });
-
-    if (!propiedad) {
-      return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
-    }
-
+    if (!property) throw new ApiError('NOT_FOUND', { message: 'Propiedad no encontrada.' });
     await schedulePropertyDeletion({
-      tenantId: propiedad.inmobiliariaId,
-      propertyId: propiedad.id,
+      tenantId: property.inmobiliariaId,
+      propertyId: property.id,
     });
     return new NextResponse(null, { status: 200 });
-  } catch (error) {
-    const handled = handleAuthError(error);
-    if (handled) return handled;
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error('[DELETE /api/panel/propiedades/[id]]', error.code, error.message);
-      return NextResponse.json({ error: 'No se pudo eliminar la propiedad.' }, { status: 500 });
-    }
-    console.error('[DELETE /api/panel/propiedades/[id]]', error);
-    return NextResponse.json({ error: 'No se pudo eliminar la propiedad.' }, { status: 500 });
-  }
+  });
 }

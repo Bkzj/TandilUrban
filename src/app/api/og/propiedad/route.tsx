@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { identifierSchema } from '@/lib/validation/common';
 
 import { getPropiedadOgData } from '@/lib/propiedad-og';
 
@@ -168,13 +169,13 @@ function buildFallbackOgElement(propiedad: NonNullable<Awaited<ReturnType<typeof
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id') ?? searchParams.get('slug');
+  const parsedId = identifierSchema.safeParse(searchParams.get('id') ?? searchParams.get('slug'));
 
-  if (!id) {
+  if (!parsedId.success) {
     return new Response('Missing id', { status: 400 });
   }
 
-  const propiedad = await getPropiedadOgData(id);
+  const propiedad = await getPropiedadOgData(parsedId.data);
   if (!propiedad) {
     return new Response('Not found', { status: 404 });
   }

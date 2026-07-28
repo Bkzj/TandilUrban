@@ -63,7 +63,14 @@ export async function scheduleAssetCleanup(input: {
   assetIds: string[];
 }): Promise<string | null> {
   if (input.assetIds.length === 0) return null;
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction((tx) => scheduleAssetCleanupInTransaction(tx, input));
+}
+
+export async function scheduleAssetCleanupInTransaction(
+  tx: Prisma.TransactionClient,
+  input: { tenantId: string; propertyId: string; assetIds: string[] },
+): Promise<string | null> {
+    if (input.assetIds.length === 0) return null;
     const assets = await tx.cloudinaryAsset.findMany({
       where: {
         id: { in: input.assetIds },
@@ -88,7 +95,6 @@ export async function scheduleAssetCleanup(input: {
       data: { status: 'PENDING_DELETION', expiresAt: null },
     });
     return job.id;
-  });
 }
 
 export async function scheduleExpiredDraftCleanup(limit = 100): Promise<number> {
@@ -178,3 +184,4 @@ export async function processPendingCloudinaryDeletionJobs(limit = 20): Promise<
   for (const { id } of jobs) await processCloudinaryDeletionJob(id);
   return jobs.length;
 }
+import type { Prisma } from '@prisma/client';

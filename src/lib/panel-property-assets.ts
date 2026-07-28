@@ -1,6 +1,7 @@
 import { publicIdBelongsToProperty, verifyUploadScope } from '@/lib/cloudinary-ownership';
 import { prisma } from '@/lib/prisma';
 import type { PropiedadImagenItem } from '@/types/panel';
+import { getServerEnvironment } from '@/lib/validation/environment';
 
 type RegisteredAsset = {
   id: string;
@@ -81,8 +82,8 @@ export function validateNewPropertyUploadScope(
   uploadToken: string | undefined,
 ): string | undefined {
   if (!propertyId && !uploadToken) return undefined;
-  const secret = process.env.NEXTAUTH_SECRET?.trim();
-  if (!secret || !propertyId || !uploadToken || !verifyUploadScope({
+  const secret = getServerEnvironment().NEXTAUTH_SECRET;
+  if (!propertyId || !uploadToken || !verifyUploadScope({
     tenantId,
     propertyId,
     userId,

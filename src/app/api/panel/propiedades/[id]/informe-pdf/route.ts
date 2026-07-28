@@ -1,49 +1,36 @@
 import { NextResponse } from 'next/server';
-import type { Prisma } from '@prisma/client';
 
-import { AuthError } from '@/lib/auth';
-import { renderInformePdfFromUrl } from '@/lib/panel-informe-pdf';
-import type { InformePdfVariant } from '@/types/informe-pdf';
-import { prisma } from '@/lib/prisma';
+import { ApiError } from '@/lib/api-error';
 import { requirePropertyAccess } from '@/lib/panel-authorization';
+import { renderInformePdfFromUrl } from '@/lib/panel-informe-pdf';
+import { prisma } from '@/lib/prisma';
+import { runRouteHandler } from '@/lib/route-handler';
+import { reportVariantQuerySchema } from '@/lib/validation/analytics';
+import { identifierSchema } from '@/lib/validation/common';
+import { parseSearchParams } from '@/lib/validation/request';
 
-type RouteContext = {
-  params: Promise<{ id: string }>;
-};
-
-function parseVariant(raw: string | null): InformePdfVariant {
-  return raw === 'valoracion' ? 'valoracion' : 'total';
-}
+type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, context: RouteContext) {
-  const { id } = await context.params;
-  const variant = parseVariant(new URL(request.url).searchParams.get('variant'));
+  return runRouteHandler(request, 'panel.property_pdf.failed', async () => {
+    const parsedId = identifierSchema.safeParse((await context.params).id);
+    if (!parsedId.success) throw new ApiError('NOT_FOUND', { message: 'Propiedad no encontrada.' });
+    const query = parseSearchParams(
+      new URL(request.url).searchParams,
+      reportVariantQuerySchema,
+    );
+    const { propertyWhere } = await requirePropertyAccess(parsedId.data);
+    const property = await prisma.propiedad.findFirst({
+      where: propertyWhere,
+      select: { id: true },
+    });
+    if (!property) throw new ApiError('NOT_FOUND', { message: 'Propiedad no encontrada.' });
 
-  let propertyWhere: Prisma.PropiedadWhereInput;
-  try {
-    ({ propertyWhere } = await requirePropertyAccess(id));
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    throw error;
-  }
-
-  const propiedad = await prisma.propiedad.findFirst({
-    where: propertyWhere,
-    select: { id: true, inmobiliariaId: true, agenteId: true },
-  });
-
-  if (!propiedad) {
-    return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
-  }
-
-  try {
-    const pdf = await renderInformePdfFromUrl(request, id, variant);
-    const ref = id.slice(-8).toUpperCase();
-    const filename =
-      variant === 'total' ? `informe-integral-${ref}.pdf` : `informe-valoracion-${ref}.pdf`;
-
+    const pdf = await renderInformePdfFromUrl(request, property.id, query.variant);
+    const ref = property.id.slice(-8).toUpperCase();
+    const filename = query.variant === 'total'
+      ? `informe-integral-${ref}.pdf`
+      : `informe-valoracion-${ref}.pdf`;
     return new NextResponse(new Uint8Array(pdf), {
       status: 200,
       headers: {
@@ -52,8 +39,5 @@ export async function GET(request: Request, context: RouteContext) {
         'Cache-Control': 'no-store',
       },
     });
-  } catch (error) {
-    console.error('[GET /api/panel/propiedades/[id]/informe-pdf]', error);
-    return NextResponse.json({ error: 'No se pudo generar el PDF.' }, { status: 500 });
-  }
+  });
 }

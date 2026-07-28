@@ -6,6 +6,7 @@ import { decimalToMoneyText, formatMoneyAmount } from '@/lib/money';
 import { prisma } from '@/lib/prisma';
 import { normalizePropiedadImagenesDb } from '@/lib/normalize-propiedad-imagenes';
 import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
+import { getServerEnvironment } from '@/lib/validation/environment';
 import type { PublicPropertyOgDto } from '@/types/public-property';
 
 const OG_PLACEHOLDER_IMAGE =
@@ -57,8 +58,7 @@ export function toOgSafeImageUrl(url: string): string {
 }
 
 export function getAppBaseUrl(): string {
-  const raw =
-    process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? 'http://localhost:3000';
+  const raw = getServerEnvironment().NEXT_PUBLIC_APP_URL;
   return raw.replace(/\/$/, '');
 }
 

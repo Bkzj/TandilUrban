@@ -88,6 +88,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([agenciaId])
+  @@unique([id, agenciaId])
 }
 
 model Inmobiliaria {
@@ -159,6 +160,11 @@ model Propiedad {
    * Clasificación automática por umbral de precio (VENTA USD / ALQUILER ARS).
    */
   esExclusiva     Boolean         @default(false)
+  /**
+   * Hash SHA-256 de la clave y huella normalizada para reintentos de creación.
+   */
+  creationIdempotencyKey String? @unique
+  creationFingerprint    String?
 
   /**
    * Cache reconciliable de PropiedadVista medida. No incluye el valor histórico.
@@ -180,6 +186,7 @@ model Propiedad {
   @@index([operacion])
   @@index([barrio])
   @@index([agenteId])
+  @@unique([id, inmobiliariaId])
 }
 
 /**
@@ -189,7 +196,7 @@ model Propiedad {
 model PropiedadVista {
   id             String       @id @default(cuid())
   propiedadId    String
-  propiedad      Propiedad    @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  propiedad      Propiedad    @relation(fields: [propiedadId, inmobiliariaId], references: [id, inmobiliariaId], onDelete: Cascade)
   inmobiliariaId String
   inmobiliaria   Inmobiliaria @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
   anonymousKey   String
@@ -281,6 +288,7 @@ model Contacto {
    */
   visitasFisicas Int            @default(0)
   idempotencyKey String?        @unique
+  idempotencyFingerprint String?
   createdAt      DateTime       @default(now())
 
   visitasFisicasEventos VisitaFisicaEvento[]
@@ -288,6 +296,7 @@ model Contacto {
   @@index([propiedadId])
   @@index([estado])
   @@index([propiedadId, origen, createdAt])
+  @@unique([id, propiedadId])
 }
 
 /**
@@ -296,7 +305,7 @@ model Contacto {
 model VisitaFisicaEvento {
   id              String    @id @default(cuid())
   contactoId      String
-  contacto        Contacto  @relation(fields: [contactoId], references: [id], onDelete: Cascade)
+  contacto        Contacto  @relation(fields: [contactoId, propiedadId], references: [id, propiedadId], onDelete: Cascade)
   propiedadId     String
   propiedad       Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
   registradoPorId String
@@ -306,6 +315,7 @@ model VisitaFisicaEvento {
    */
   delta           Int
   idempotencyKey  String?   @unique
+  idempotencyFingerprint String?
   createdAt       DateTime  @default(now())
 
   @@index([contactoId])

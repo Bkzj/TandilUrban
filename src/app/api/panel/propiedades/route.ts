@@ -1,39 +1,58 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
+import { ApiError } from '@/lib/api-error';
+import { fingerprintIdempotentInput, hashIdempotencyKey } from '@/lib/idempotency';
 import { onPropiedadPublicada } from '@/lib/match-engine';
-import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
-import { bindDraftAssets, resolvePropertyAssets, validateNewPropertyUploadScope } from '@/lib/panel-property-assets';
-import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
 import { requireAgencyPublishingContext } from '@/lib/panel-agency-publish';
+import {
+  bindDraftAssets,
+  resolvePropertyAssets,
+  validateNewPropertyUploadScope,
+} from '@/lib/panel-property-assets';
+import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
 import { prisma } from '@/lib/prisma';
-import { AuthError } from '@/lib/auth';
+import { runRouteHandler } from '@/lib/route-handler';
+import { serverLogger } from '@/lib/server-logger';
+import { idempotencyKeySchema } from '@/lib/validation/common';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { createPropertySchema } from '@/lib/validation/property';
+import { parseJsonBody } from '@/lib/validation/request';
 
-// =============================================================================
-// Helpers
-// =============================================================================
-
-function handleAuthError(error: unknown): NextResponse | null {
-  if (error instanceof AuthError) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
-  }
-  return null;
-}
-
-// =============================================================================
-// POST — crea una propiedad para la agencia del usuario logueado
-// =============================================================================
-
-export async function POST(request: NextRequest) {
-  try {
+export async function POST(request: Request) {
+  return runRouteHandler(request, 'panel.property_create.failed', async (requestId) => {
     const { inmobiliariaId, user } = await requireAgencyPublishingContext();
-
-    const body = await request.json();
-    const payload = validarPropiedadPayload(body);
-    if (!payload.ok) {
-      return NextResponse.json({ error: payload.error }, { status: 400 });
+    const rawKey = request.headers.get('idempotency-key');
+    const parsedKey = idempotencyKeySchema.safeParse(rawKey);
+    if (!parsedKey.success) {
+      throw new ApiError('VALIDATION_ERROR', {
+        message: 'La clave de idempotencia es inválida.',
+        fields: { idempotencyKey: ['La clave de idempotencia es inválida.'] },
+      });
     }
-    const data = payload.data;
+    const data = await parseJsonBody(
+      request,
+      createPropertySchema,
+      REQUEST_LIMITS.propertyJsonBytes,
+    );
+    const idempotencyKey = hashIdempotencyKey(
+      `property-create:${inmobiliariaId}:${user.id}`,
+      parsedKey.data,
+    );
+    const creationFingerprint = fingerprintIdempotentInput('property-create', data);
+    const replay = await prisma.propiedad.findUnique({
+      where: { creationIdempotencyKey: idempotencyKey },
+      select: { id: true, titulo: true, estado: true, creationFingerprint: true },
+    });
+    if (replay) {
+      if (replay.creationFingerprint !== creationFingerprint) {
+        throw new ApiError('CONFLICT', {
+          message: 'La clave de idempotencia ya fue usada con otros datos.',
+        });
+      }
+      return NextResponse.json({ propiedad: replay }, { status: 200 });
+    }
+
     const uploadPropertyId = validateNewPropertyUploadScope(
       inmobiliariaId,
       user.id,
@@ -41,74 +60,89 @@ export async function POST(request: NextRequest) {
       data.uploadToken,
     );
     if (!uploadPropertyId && (data.imagenes.length > 0 || data.planoUrl)) {
-      return NextResponse.json({ error: 'Las imágenes no tienen un alcance de subida válido.' }, { status: 400 });
+      throw new ApiError('VALIDATION_ERROR', {
+        message: 'Las imágenes no tienen un alcance de subida válido.',
+      });
     }
     const assets = uploadPropertyId
       ? await resolvePropertyAssets({
           tenantId: inmobiliariaId,
           propertyId: uploadPropertyId,
           images: data.imagenes,
-          planoUrl: data.planoUrl ?? null,
+          planoUrl: data.planoUrl,
         })
       : { images: [], planoUrl: null, assetIds: [] };
+    const isLot = data.tipo === 'Lote';
 
-    const esLote = data.tipo === 'Lote';
-    const esExclusiva = computeEsExclusiva(data);
-
-    const propiedad = await prisma.$transaction(async (tx) => {
-      const created = await tx.propiedad.create({
-        data: {
-        ...(uploadPropertyId ? { id: uploadPropertyId } : {}),
-        inmobiliariaId,
-        titulo: data.titulo,
-        descripcion: data.descripcion,
-        tipo: data.tipo,
-        operacion: data.operacion,
-        precio: data.precio,
-        moneda: data.moneda,
-        expensas: data.expensas,
-        direccion: data.direccion,
-        barrio: data.barrio,
-        latitud: data.lat,
-        longitud: data.lng,
-        m2Total: data.m2Total,
-        m2Cubiertos: esLote ? 0 : data.m2Cubiertos ?? 0,
-        ambientes: esLote ? 0 : Math.round(data.ambientes ?? 0),
-        dormitorios: esLote ? 0 : data.dormitorios,
-        banos: esLote ? 0 : data.banos,
-        cocheras: esLote ? 0 : data.cocheras,
-        agenteId: user.id,
-        caracteristicas: data.caracteristicas,
-        imagenes: assets.images,
-        planoUrl: assets.planoUrl,
-        esExclusiva,
-        },
-        select: { id: true, titulo: true, estado: true },
-      });
-      if (assets.assetIds.length > 0) {
+    let property: { id: string; titulo: string; estado: 'DISPONIBLE' | 'RESERVADA' | 'PAUSADA' | 'VENDIDA' };
+    let createdNow = true;
+    try {
+      property = await prisma.$transaction(async (tx) => {
+        const created = await tx.propiedad.create({
+          data: {
+            ...(uploadPropertyId ? { id: uploadPropertyId } : {}),
+            inmobiliariaId,
+            agenteId: user.id,
+            titulo: data.titulo,
+            descripcion: data.descripcion,
+            tipo: data.tipo,
+            operacion: data.operacion,
+            precio: data.precio,
+            moneda: data.moneda,
+            expensas: data.expensas,
+            direccion: data.direccion,
+            barrio: data.barrio,
+            latitud: data.lat,
+            longitud: data.lng,
+            m2Total: data.m2Total,
+            m2Cubiertos: isLot ? 0 : data.m2Cubiertos ?? 0,
+            ambientes: isLot ? 0 : data.ambientes ?? 0,
+            dormitorios: isLot ? 0 : data.dormitorios,
+            banos: isLot ? 0 : data.banos,
+            cocheras: isLot ? 0 : data.cocheras,
+            caracteristicas: data.caracteristicas,
+            imagenes: assets.images,
+            planoUrl: assets.planoUrl,
+            esExclusiva: computeEsExclusiva(data),
+            creationIdempotencyKey: idempotencyKey,
+            creationFingerprint,
+          },
+          select: { id: true, titulo: true, estado: true },
+        });
         await bindDraftAssets(tx.cloudinaryAsset, {
           assetIds: assets.assetIds,
           tenantId: inmobiliariaId,
           propertyId: created.id,
           userId: user.id,
         });
+        return created;
+      });
+    } catch (error) {
+      if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2002') {
+        throw error;
       }
-      return created;
-    });
-
-    if (propiedad.estado === 'DISPONIBLE') {
-      void onPropiedadPublicada(propiedad.id).catch(console.error);
+      const concurrentReplay = await prisma.propiedad.findUnique({
+        where: { creationIdempotencyKey: idempotencyKey },
+        select: { id: true, titulo: true, estado: true, creationFingerprint: true },
+      });
+      if (!concurrentReplay || concurrentReplay.creationFingerprint !== creationFingerprint) {
+        throw new ApiError('CONFLICT', {
+          message: 'La clave de idempotencia ya fue usada con otros datos.',
+        });
+      }
+      property = concurrentReplay;
+      createdNow = false;
     }
 
-    return NextResponse.json({ propiedad }, { status: 201 });
-  } catch (error) {
-    const handled = handleAuthError(error);
-    if (handled) return handled;
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error('[POST /api/panel/propiedades] Prisma:', error.code, error.message);
-      return NextResponse.json({ error: 'No se pudo guardar la propiedad.' }, { status: 500 });
+    if (createdNow && property.estado === 'DISPONIBLE') {
+      void onPropiedadPublicada(property.id).catch((error) => {
+        serverLogger.warn('property.match_notification_deferred', {
+          requestId,
+          propertyId: property.id,
+          errorName: error instanceof Error ? error.name : 'UnknownError',
+        });
+      });
     }
-    console.error('[POST /api/panel/propiedades]', error);
-    return NextResponse.json({ error: 'No se pudo guardar la propiedad.' }, { status: 500 });
-  }
+    return NextResponse.json({ propiedad: property }, { status: createdNow ? 201 : 200 });
+  });
 }

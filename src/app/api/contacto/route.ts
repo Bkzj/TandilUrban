@@ -1,180 +1,171 @@
 import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
+
+import { ApiError } from '@/lib/api-error';
+import { fingerprintIdempotentInput, hashIdempotencyKey } from '@/lib/idempotency';
 import { prisma } from '@/lib/prisma';
-import { enviarMailNotificacionLead } from '@/lib/resend';
-import type { ContactoPayload } from '@/types/api';
-import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
 import { createPublicContactInquiry } from '@/lib/public-contact-service';
-
-function validarPayload(body: unknown): { ok: true; data: ContactoPayload } | { ok: false; error: string } {
-  if (!body || typeof body !== 'object') {
-    return { ok: false, error: 'El cuerpo de la solicitud es invalido.' };
-  }
-
-  const { nombre, email, mensaje, propiedadId, telefono } = body as Record<string, unknown>;
-
-  if (typeof nombre !== 'string' || nombre.trim().length < 3) {
-    return { ok: false, error: 'El nombre es obligatorio y debe tener al menos 3 caracteres.' };
-  }
-
-  if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { ok: false, error: 'El email no tiene un formato valido.' };
-  }
-
-  if (typeof telefono !== 'string' || telefono.trim().length < 6) {
-    return { ok: false, error: 'El teléfono es obligatorio (mínimo 6 caracteres).' };
-  }
-  const telefonoNorm = telefono.trim();
-
-  if (typeof mensaje !== 'string' || mensaje.trim().length < 10) {
-    return { ok: false, error: 'El mensaje es obligatorio y debe tener al menos 10 caracteres.' };
-  }
-
-  if (typeof propiedadId !== 'string' || propiedadId.trim().length === 0) {
-    return { ok: false, error: 'propiedadId es obligatorio.' };
-  }
-
-  return {
-    ok: true,
-    data: {
-      nombre: nombre.trim(),
-      email: email.trim().toLowerCase(),
-      telefono: telefonoNorm,
-      mensaje: mensaje.trim(),
-      propiedadId: propiedadId.trim(),
-    },
-  };
-}
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
+import { enviarMailNotificacionLead } from '@/lib/resend';
+import { runRouteHandler } from '@/lib/route-handler';
+import { serverLogger } from '@/lib/server-logger';
+import { idempotencyKeySchema } from '@/lib/validation/common';
+import { publicContactSchema } from '@/lib/validation/contact';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { parseJsonBody } from '@/lib/validation/request';
 
 export async function POST(request: Request) {
-  try {
-    const idempotencyHeader = request.headers.get('idempotency-key')?.trim();
-    if (idempotencyHeader && !/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyHeader)) {
-      return NextResponse.json({ error: 'La clave de idempotencia es inválida.' }, { status: 400 });
+  return runRouteHandler(request, 'public_contact.failed', async (requestId) => {
+    const rawKey = request.headers.get('idempotency-key');
+    const parsedKey = idempotencyKeySchema.safeParse(rawKey);
+    if (!parsedKey.success) {
+      throw new ApiError('VALIDATION_ERROR', {
+        message: 'La clave de idempotencia es inválida.',
+        fields: { idempotencyKey: ['La clave de idempotencia es inválida.'] },
+      });
     }
-    const body = await request.json();
-    const payload = validarPayload(body);
+    const payload = await parseJsonBody(
+      request,
+      publicContactSchema,
+      REQUEST_LIMITS.contactJsonBytes,
+    );
+    const idempotencyKey = hashIdempotencyKey('public-contact', parsedKey.data);
+    const fingerprint = fingerprintIdempotentInput('public-contact', payload);
 
-    if (!payload.ok) {
-      return NextResponse.json({ error: payload.error }, { status: 400 });
-    }
-
-    const result = await createPublicContactInquiry(payload.data, {
-      findPublicProperty: async (propertyId) => {
-        const propiedad = await prisma.propiedad.findFirst({
-          where: { id: propertyId, ...PUBLIC_PROPERTY_WHERE },
-          select: {
-            id: true,
-            titulo: true,
-            agente: { select: { email: true } },
-            inmobiliaria: {
-              select: {
-                user: { select: { email: true } },
-              },
+    const result = await createPublicContactInquiry(
+      payload,
+      {
+        findPublicProperty: async (propertyId) => {
+          const property = await prisma.propiedad.findFirst({
+            where: { id: propertyId, ...PUBLIC_PROPERTY_WHERE },
+            select: {
+              id: true,
+              titulo: true,
+              agente: { select: { email: true } },
+              inmobiliaria: { select: { user: { select: { email: true } } } },
             },
-          },
-        });
-        return propiedad
-          ? {
-              id: propiedad.id,
-              titulo: propiedad.titulo,
-              agenteEmail: propiedad.agente?.email ?? null,
-              adminEmail: propiedad.inmobiliaria.user.email,
-            }
-          : null;
-      },
-      persistInquiry: async (propertyId, data, idempotencyKey) => {
-        if (idempotencyKey) {
+          });
+          return property
+            ? {
+                id: property.id,
+                titulo: property.titulo,
+                agenteEmail: property.agente?.email ?? null,
+                adminEmail: property.inmobiliaria.user.email,
+              }
+            : null;
+        },
+        persistInquiry: async (propertyId, data) => {
           const existing = await prisma.contacto.findUnique({
             where: { idempotencyKey },
-            select: { id: true, createdAt: true, propiedadId: true },
+            select: {
+              id: true,
+              createdAt: true,
+              propiedadId: true,
+              idempotencyFingerprint: true,
+            },
           });
-          if (existing?.propiedadId === propertyId) {
+          if (existing) {
+            if (
+              existing.propiedadId !== propertyId ||
+              existing.idempotencyFingerprint !== fingerprint
+            ) {
+              throw new ApiError('CONFLICT', {
+                message: 'La clave de idempotencia ya fue usada con otros datos.',
+              });
+            }
             return { id: existing.id, createdAt: existing.createdAt, created: false };
           }
-          if (existing) throw new Error('Idempotency key scope mismatch.');
-        }
-        try {
-          return await prisma.$transaction(async (tx) => {
-            const contacto = await tx.contacto.create({
-              data: {
-                nombre: data.nombre,
-                email: data.email,
-                telefono: data.telefono,
-                mensaje: data.mensaje,
-                propiedadId: propertyId,
-                origen: 'PUBLICO',
-                idempotencyKey,
-              },
-              select: { id: true, createdAt: true },
+
+          try {
+            return await prisma.$transaction(async (tx) => {
+              const contact = await tx.contacto.create({
+                data: {
+                  nombre: data.nombre,
+                  email: data.email,
+                  telefono: data.telefono,
+                  mensaje: data.mensaje,
+                  propiedadId: propertyId,
+                  origen: 'PUBLICO',
+                  idempotencyKey,
+                  idempotencyFingerprint: fingerprint,
+                },
+                select: { id: true, createdAt: true },
+              });
+              await tx.propiedad.update({
+                where: { id: propertyId },
+                data: { consultas: { increment: 1 } },
+                select: { id: true },
+              });
+              return { ...contact, created: true };
             });
-            await tx.propiedad.update({
-              where: { id: propertyId },
-              data: { consultas: { increment: 1 } },
-              select: { id: true },
-            });
-            return { ...contacto, created: true };
-          });
-        } catch (error) {
-          if (idempotencyKey && error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-            const existing = await prisma.contacto.findUnique({
-              where: { idempotencyKey },
-              select: { id: true, createdAt: true, propiedadId: true },
-            });
-            if (existing?.propiedadId === propertyId) {
-              return { id: existing.id, createdAt: existing.createdAt, created: false };
+          } catch (error) {
+            if (
+              error instanceof Prisma.PrismaClientKnownRequestError &&
+              error.code === 'P2002'
+            ) {
+              const replay = await prisma.contacto.findUnique({
+                where: { idempotencyKey },
+                select: {
+                  id: true,
+                  createdAt: true,
+                  propiedadId: true,
+                  idempotencyFingerprint: true,
+                },
+              });
+              if (
+                replay?.propiedadId === propertyId &&
+                replay.idempotencyFingerprint === fingerprint
+              ) {
+                return { id: replay.id, createdAt: replay.createdAt, created: false };
+              }
+              throw new ApiError('CONFLICT', {
+                message: 'La clave de idempotencia ya fue usada con otros datos.',
+              });
             }
+            throw error;
           }
-          throw error;
-        }
+        },
       },
-    }, idempotencyHeader);
+      idempotencyKey,
+    );
 
     if (!result.ok) {
-      return NextResponse.json({ error: 'La propiedad no está disponible.' }, { status: 404 });
+      throw new ApiError('NOT_FOUND', { message: 'La propiedad no está disponible.' });
+    }
+    if (result.receipt.created) {
+      try {
+        const mailResult = await enviarMailNotificacionLead({
+          agenteEmail: result.property.agenteEmail,
+          adminEmail: result.property.adminEmail,
+          clienteEmail: payload.email,
+          nombreLead: payload.nombre,
+          telefonoLead: payload.telefono,
+          propiedadTitulo: result.property.titulo,
+          mensaje: payload.mensaje,
+        });
+        if (!mailResult.ok) {
+          serverLogger.warn('public_contact.notification_deferred', {
+            requestId,
+            contactId: result.receipt.id,
+            providerErrorCount: mailResult.errors?.length ?? 0,
+          });
+        }
+      } catch (error) {
+        serverLogger.warn('public_contact.notification_deferred', {
+          requestId,
+          contactId: result.receipt.id,
+          errorName: error instanceof Error ? error.name : 'UnknownError',
+        });
+      }
     }
 
-    try {
-      if (result.receipt.created === false) {
-        return NextResponse.json(
-          {
-            ok: true,
-            message: 'Consulta registrada.',
-            contacto: { id: result.receipt.id, createdAt: result.receipt.createdAt },
-          },
-          { status: 200 },
-        );
-      }
-      const mailResult = await enviarMailNotificacionLead({
-        agenteEmail: result.property.agenteEmail,
-        adminEmail: result.property.adminEmail,
-        clienteEmail: payload.data.email,
-        nombreLead: payload.data.nombre,
-        telefonoLead: payload.data.telefono,
-        propiedadTitulo: result.property.titulo,
-        mensaje: payload.data.mensaje,
-      });
-
-      if (!mailResult.ok && mailResult.errors?.length) {
-        console.error('[api/contacto] Resend:', mailResult.errors.join(' | '));
-      }
-    } catch (mailErr) {
-      console.error('[api/contacto] Error enviando mails (no fatal):', mailErr);
-    }
-
-    return NextResponse.json(
-      {
-        ok: true,
-        message: 'Consulta registrada.',
-        contacto: { id: result.receipt.id, createdAt: result.receipt.createdAt },
+    return NextResponse.json({
+      ok: true,
+      message: 'Consulta registrada.',
+      contacto: {
+        id: result.receipt.id,
+        createdAt: result.receipt.createdAt,
       },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('Error al crear contacto:', error);
-    return NextResponse.json(
-      { error: 'No se pudo registrar el contacto. Intentalo nuevamente.' },
-      { status: 500 }
-    );
-  }
+    });
+  });
 }

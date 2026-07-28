@@ -1,106 +1,69 @@
-import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
-import { sendVerificationEmail } from '@/lib/mail';
+import { NextResponse } from 'next/server';
+
 import { issueVerificationToken } from '@/lib/auth-verification';
-import type { RegisterPayload } from '@/types/api';
-
-function validarPayload(body: unknown): { ok: true; data: RegisterPayload } | { ok: false; error: string } {
-  if (!body || typeof body !== 'object') {
-    return { ok: false, error: 'El cuerpo de la solicitud es invalido.' };
-  }
-
-  const { nombre, email, password } = body as Record<string, unknown>;
-
-  if (typeof nombre !== 'string' || nombre.trim().length < 2) {
-    return { ok: false, error: 'El nombre debe tener al menos 2 caracteres.' };
-  }
-
-  if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { ok: false, error: 'El email no es valido.' };
-  }
-
-  if (typeof password !== 'string' || password.length < 8) {
-    return { ok: false, error: 'La contrasena debe tener al menos 8 caracteres.' };
-  }
-
-  return {
-    ok: true,
-    data: {
-      nombre: nombre.trim(),
-      email: email.trim().toLowerCase(),
-      password,
-    },
-  };
-}
+import { sendVerificationEmail } from '@/lib/mail';
+import { prisma } from '@/lib/prisma';
+import { runRouteHandler } from '@/lib/route-handler';
+import { serverLogger } from '@/lib/server-logger';
+import { registerSchema } from '@/lib/validation/auth';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { parseJsonBody } from '@/lib/validation/request';
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const payload = validarPayload(body);
-
-    if (!payload.ok) {
-      return NextResponse.json({ error: payload.error }, { status: 400 });
-    }
-
-    const existe = await prisma.user.findUnique({
-      where: { email: payload.data.email },
+  return runRouteHandler(request, 'auth.register.failed', async (requestId) => {
+    const payload = await parseJsonBody(request, registerSchema, REQUEST_LIMITS.authJsonBytes);
+    const exists = await prisma.user.findUnique({
+      where: { email: payload.email },
       select: { id: true },
     });
 
-    if (existe) {
-      return NextResponse.json({ error: 'Ya existe una cuenta con ese email.' }, { status: 409 });
+    if (exists) {
+      return NextResponse.json(
+        { message: 'Si el email puede registrarse, recibirás instrucciones para verificarlo.' },
+        { status: 202 },
+      );
     }
 
-    const passwordHash = await hash(payload.data.password, 12);
+    const passwordHash = await hash(payload.password, 12);
     const verificationToken = issueVerificationToken();
-
     const user = await prisma.user.create({
       data: {
-        nombre: payload.data.nombre,
-        email: payload.data.email,
+        nombre: payload.nombre,
+        email: payload.email,
         passwordHash,
         emailVerifiedAt: null,
         verificationTokens: {
           create: {
-            email: payload.data.email,
+            email: payload.email,
             token: verificationToken.tokenHash,
             expiresAt: verificationToken.expiresAt,
           },
         },
       },
-      select: {
-        id: true,
-        nombre: true,
-        email: true,
-        rol: true,
-      },
+      select: { id: true, nombre: true, email: true, rol: true },
     });
 
-    const mailResult = await sendVerificationEmail(payload.data.email, verificationToken.rawToken);
-
+    const mailResult = await sendVerificationEmail(payload.email, verificationToken.rawToken);
     if (!mailResult.ok) {
-      await prisma.user.delete({ where: { id: user.id } });
-      console.error('[register]', mailResult.error);
-      return NextResponse.json(
-        { error: 'No se pudo enviar el correo de verificación. Intentá de nuevo más tarde.' },
-        { status: 502 }
-      );
+      serverLogger.warn('auth.register.verification_delivery_deferred', {
+        requestId,
+        userId: user.id,
+        providerErrorName: mailResult.error instanceof Error ? mailResult.error.name : 'DeliveryError',
+      });
     }
 
     return NextResponse.json(
       {
-        message:
-          !mailResult.delivered && process.env.NODE_ENV !== 'production'
-            ? 'Usuario registrado. En desarrollo el mail no se envió: revisá la consola del servidor para copiar el enlace de verificación.'
-            : 'Usuario registrado. Te enviamos un email de verificacion para activar tu cuenta.',
+        message: !mailResult.ok
+          ? 'La cuenta fue creada, pero el correo no pudo enviarse. Solicitá un nuevo enlace desde el ingreso.'
+          : !mailResult.delivered && process.env.NODE_ENV !== 'production'
+            ? 'Usuario registrado. En desarrollo el mail no se envió; podés solicitar un nuevo enlace.'
+            : 'Usuario registrado. Te enviamos un email de verificación para activar tu cuenta.',
         user,
       },
-      { status: 201 }
+      { status: 201 },
     );
-  } catch (error) {
-    console.error('Error en registro:', error);
-    return NextResponse.json({ error: 'No se pudo registrar el usuario.' }, { status: 500 });
-  }
+  });
 }
 

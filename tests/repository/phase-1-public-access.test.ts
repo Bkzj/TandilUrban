@@ -53,7 +53,7 @@ test('contact validates public existence before counters or records are written'
 
 test('cross-tenant property mutations use scoped findFirst and generic 404', () => {
   const source = read('src/app/api/panel/propiedades/[id]/route.ts');
-  assert.match(source, /requirePropertyAccess\(id\)/);
+  assert.match(source, /requirePropertyAccess\((?:id|route\.id)\)/);
   assert.doesNotMatch(source, /findUnique\(\{\s*where: \{ id \}/);
   assert.match(source, /Propiedad no encontrada\./);
 });

@@ -11,6 +11,16 @@ import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth
 import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { prisma } from '@/lib/prisma';
 import { panelPropertyScopeForUser } from '@/lib/panel-authorization';
+import {
+  fingerprintIdempotentInput,
+  hashIdempotencyKey,
+  IdempotencyConflictError,
+} from '@/lib/idempotency';
+import {
+  manualPhysicalVisitSchema,
+  physicalVisitAdjustmentSchema,
+  physicalVisitDeleteSchema,
+} from '@/lib/validation/contact';
 
 export type AjustarVisitaFisicaResult =
   | {
@@ -144,16 +154,6 @@ async function assertPropiedadAccess(propiedadId: string) {
   return { ok: true as const, user, propiedad };
 }
 
-function normalizeEmail(value?: string): string | null {
-  const email = value?.trim().toLowerCase();
-  return email ? email : null;
-}
-
-function normalizeTelefono(value?: string): string | null {
-  const telefono = value?.trim();
-  return telefono ? telefono : null;
-}
-
 function emailRespaldoDesdeTelefono(telefono: string): string {
   const digits = telefono.replace(/\D/g, '') || 'sin-numero';
   return `walkin.${digits}@panel.propea`;
@@ -245,26 +245,39 @@ export async function ajustarVisitaFisica(
   delta: 1 | -1,
   idempotencyKey: string,
 ): Promise<AjustarVisitaFisicaResult> {
-  if (!/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyKey)) {
-    return { ok: false, error: 'La clave de idempotencia es inválida.' };
+  const parsed = physicalVisitAdjustmentSchema.safeParse({ contactoId, delta, idempotencyKey });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
   }
-  const access = await assertContactoAccess(contactoId);
+  const access = await assertContactoAccess(parsed.data.contactoId);
   if (!access.ok) {
     return { ok: false, error: access.error };
   }
 
   const { user, contacto } = access;
+  const storedKey = hashIdempotencyKey(
+    `physical-adjust:${contacto.propiedad.inmobiliariaId}:${contacto.id}`,
+    parsed.data.idempotencyKey,
+  );
+  const fingerprint = fingerprintIdempotentInput('physical-adjust', {
+    contactoId: contacto.id,
+    delta: parsed.data.delta,
+  });
 
   if (delta === -1 && contacto.visitasFisicas <= 0) {
     return { ok: false, error: 'No hay visitas presenciales para restar en este lead.' };
   }
 
   const updated = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${storedKey}, 0))`;
     const replay = await tx.visitaFisicaEvento.findUnique({
-      where: { idempotencyKey },
-      select: { id: true, createdAt: true, contactoId: true },
+      where: { idempotencyKey: storedKey },
+      select: { id: true, createdAt: true, contactoId: true, idempotencyFingerprint: true },
     });
     if (replay) {
+      if (replay.contactoId !== contacto.id || replay.idempotencyFingerprint !== fingerprint) {
+        throw new IdempotencyConflictError();
+      }
       const current = await tx.contacto.findUniqueOrThrow({
         where: { id: contacto.id },
         select: { visitasFisicas: true },
@@ -273,7 +286,7 @@ export async function ajustarVisitaFisica(
     }
     const next = await tx.contacto.update({
       where: { id: contacto.id },
-      data: { visitasFisicas: { increment: delta } },
+      data: { visitasFisicas: { increment: parsed.data.delta } },
       select: { visitasFisicas: true },
     });
 
@@ -282,14 +295,21 @@ export async function ajustarVisitaFisica(
         contactoId: contacto.id,
         propiedadId: contacto.propiedad.id,
         registradoPorId: user.id,
-        delta,
-        idempotencyKey,
+        delta: parsed.data.delta,
+        idempotencyKey: storedKey,
+        idempotencyFingerprint: fingerprint,
       },
       select: { id: true, createdAt: true },
     });
 
     return { visitasFisicas: next.visitasFisicas, evento };
+  }).catch((error: unknown) => {
+    if (error instanceof IdempotencyConflictError) return null;
+    throw error;
   });
+  if (!updated) {
+    return { ok: false, error: 'La clave de idempotencia ya fue usada con otros datos.' };
+  }
 
   revalidatePath('/panel/mensajes', 'page');
   revalidatePath('/panel/propiedades', 'page');
@@ -307,7 +327,7 @@ export async function ajustarVisitaFisica(
     ...payload,
     contactoId: contacto.id,
     eventoRegistrado:
-      delta === 1
+      parsed.data.delta === 1
         ? {
             id: updated.evento.id,
             createdAt: updated.evento.createdAt.toISOString(),
@@ -320,16 +340,13 @@ export async function eliminarVisitaFisicaEvento(
   eventoId: string,
   idempotencyKey: string,
 ): Promise<AjustarVisitaFisicaResult> {
-  const id = eventoId?.trim();
-  if (!id) {
-    return { ok: false, error: 'Registro de visita inválido.' };
-  }
-  if (!/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyKey)) {
-    return { ok: false, error: 'La clave de idempotencia es inválida.' };
+  const parsed = physicalVisitDeleteSchema.safeParse({ eventoId, idempotencyKey });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
   }
 
   const evento = await prisma.visitaFisicaEvento.findUnique({
-    where: { id },
+    where: { id: parsed.data.eventoId },
     select: {
       id: true,
       delta: true,
@@ -368,13 +385,25 @@ export async function eliminarVisitaFisicaEvento(
   if (evento.contacto.visitasFisicas <= 0) {
     return { ok: false, error: 'No hay visitas para eliminar en este lead.' };
   }
+  const storedKey = hashIdempotencyKey(
+    `physical-delete:${evento.contacto.propiedad.inmobiliariaId}:${evento.contactoId}`,
+    parsed.data.idempotencyKey,
+  );
+  const fingerprint = fingerprintIdempotentInput('physical-delete', {
+    eventoId: evento.id,
+    contactoId: evento.contactoId,
+  });
 
   const updated = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${storedKey}, 0))`;
     const replay = await tx.visitaFisicaEvento.findUnique({
-      where: { idempotencyKey },
-      select: { id: true },
+      where: { idempotencyKey: storedKey },
+      select: { id: true, contactoId: true, idempotencyFingerprint: true },
     });
     if (replay) {
+      if (replay.contactoId !== evento.contactoId || replay.idempotencyFingerprint !== fingerprint) {
+        throw new IdempotencyConflictError();
+      }
       return tx.contacto.findUniqueOrThrow({
         where: { id: evento.contactoId },
         select: { visitasFisicas: true },
@@ -391,12 +420,19 @@ export async function eliminarVisitaFisicaEvento(
         propiedadId: evento.contacto.propiedad.id,
         registradoPorId: access.user.id,
         delta: -1,
-        idempotencyKey,
+        idempotencyKey: storedKey,
+        idempotencyFingerprint: fingerprint,
       },
       select: { id: true },
     });
     return contacto;
+  }).catch((error: unknown) => {
+    if (error instanceof IdempotencyConflictError) return null;
+    throw error;
   });
+  if (!updated) {
+    return { ok: false, error: 'La clave de idempotencia ya fue usada con otros datos.' };
+  }
 
   revalidatePath('/panel/mensajes', 'page');
   revalidatePath('/panel/propiedades', 'page');
@@ -419,41 +455,36 @@ export async function eliminarVisitaFisicaEvento(
 export async function registrarVisitaFisicaManual(
   payload: RegistrarVisitaManualPayload,
 ): Promise<PropiedadVisitaRegistroResult> {
-  const propiedadId = payload.propiedadId?.trim();
-  const nombre = payload.nombre?.trim();
-  const email = normalizeEmail(payload.email);
-  const telefono = normalizeTelefono(payload.telefono);
-  const idempotencyKey = payload.idempotencyKey?.trim();
-  if (!idempotencyKey || !/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyKey)) {
-    return { ok: false, error: 'La clave de idempotencia es inválida.' };
+  const parsed = manualPhysicalVisitSchema.safeParse(payload);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
   }
+  const { nombre, email, telefono } = parsed.data;
 
-  if (!nombre || nombre.length < 2) {
-    return { ok: false, error: 'El nombre es obligatorio.' };
-  }
-  if (!email && !telefono) {
-    return { ok: false, error: 'Ingresá un teléfono o un email.' };
-  }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { ok: false, error: 'El email no tiene un formato válido.' };
-  }
-  if (telefono && telefono.length < 6) {
-    return { ok: false, error: 'El teléfono debe tener al menos 6 caracteres.' };
-  }
-
-  const access = await assertPropiedadAccess(propiedadId ?? '');
+  const access = await assertPropiedadAccess(parsed.data.propiedadId);
   if (!access.ok) {
     return { ok: false, error: access.error };
   }
 
   const { user, propiedad } = access;
+  const storedKey = hashIdempotencyKey(
+    `physical-manual:${propiedad.inmobiliariaId}:${propiedad.id}`,
+    parsed.data.idempotencyKey,
+  );
+  const fingerprint = fingerprintIdempotentInput('physical-manual', {
+    propiedadId: propiedad.id,
+    nombre,
+    email,
+    telefono,
+  });
 
   const replay = await prisma.visitaFisicaEvento.findUnique({
-    where: { idempotencyKey },
+    where: { idempotencyKey: storedKey },
     select: {
       id: true,
       propiedadId: true,
       createdAt: true,
+      idempotencyFingerprint: true,
       contacto: {
         select: {
           id: true,
@@ -466,7 +497,11 @@ export async function registrarVisitaFisicaManual(
       },
     },
   });
-  if (replay && replay.propiedadId === propiedad.id) {
+  if (
+    replay &&
+    replay.propiedadId === propiedad.id &&
+    replay.idempotencyFingerprint === fingerprint
+  ) {
     return {
       ok: true,
       visitasFisicasPropiedad: await sumVisitasFisicasPropiedad(propiedad.id),
@@ -478,6 +513,9 @@ export async function registrarVisitaFisicaManual(
       },
       consultaNueva: false,
     };
+  }
+  if (replay) {
+    return { ok: false, error: 'La clave de idempotencia ya fue usada con otros datos.' };
   }
 
   const orFilters = [
@@ -504,6 +542,39 @@ export async function registrarVisitaFisicaManual(
       : null;
 
   const result = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${storedKey}, 0))`;
+    const lockedReplay = await tx.visitaFisicaEvento.findUnique({
+      where: { idempotencyKey: storedKey },
+      select: {
+        id: true,
+        propiedadId: true,
+        createdAt: true,
+        idempotencyFingerprint: true,
+        contacto: {
+          select: {
+            id: true,
+            nombre: true,
+            email: true,
+            telefono: true,
+            visitasFisicas: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+    if (lockedReplay) {
+      if (
+        lockedReplay.propiedadId !== propiedad.id ||
+        lockedReplay.idempotencyFingerprint !== fingerprint
+      ) {
+        throw new IdempotencyConflictError();
+      }
+      return {
+        contactoRow: lockedReplay.contacto,
+        evento: { id: lockedReplay.id, createdAt: lockedReplay.createdAt },
+        consultaNueva: false,
+      };
+    }
     let contactoRow: {
       id: string;
       nombre: string;
@@ -561,13 +632,20 @@ export async function registrarVisitaFisicaManual(
         propiedadId: propiedad.id,
         registradoPorId: user.id,
         delta: 1,
-        idempotencyKey,
+        idempotencyKey: storedKey,
+        idempotencyFingerprint: fingerprint,
       },
       select: { id: true, createdAt: true },
     });
 
     return { contactoRow, evento, consultaNueva };
+  }).catch((error: unknown) => {
+    if (error instanceof IdempotencyConflictError) return null;
+    throw error;
   });
+  if (!result) {
+    return { ok: false, error: 'La clave de idempotencia ya fue usada con otros datos.' };
+  }
 
   revalidatePath('/panel/mensajes', 'page');
   revalidatePath('/panel/propiedades', 'page');

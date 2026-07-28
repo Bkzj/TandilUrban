@@ -7,6 +7,7 @@ import { RolUsuario } from '@prisma/client';
 import { authorizeCredentials } from '@/lib/auth-credentials';
 import { prisma } from '@/lib/prisma';
 import { currentUserInclude, type CurrentUser, type SessionUserAugmented } from '@/types/auth';
+import { getServerEnvironment } from '@/lib/validation/environment';
 
 export { roleCanAccessPanel } from '@/lib/rbac';
 
@@ -18,7 +19,7 @@ export { currentUserInclude } from '@/types/auth';
 // =============================================================================
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: getServerEnvironment().NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
   session: { strategy: 'jwt' },
   pages: { signIn: '/login' },

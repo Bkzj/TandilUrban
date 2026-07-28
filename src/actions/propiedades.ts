@@ -6,6 +6,11 @@ import { EstadoPropiedad } from '@prisma/client';
 import { AuthError } from '@/lib/auth';
 import { requirePropertyAccess } from '@/lib/panel-authorization';
 import { prisma } from '@/lib/prisma';
+import { identifierSchema } from '@/lib/validation/common';
+import {
+  canTransitionPropertyState,
+  propertyStateSchema,
+} from '@/lib/validation/property-state';
 
 /**
  * Dispara el motor de match cuando una propiedad queda DISPONIBLE.
@@ -25,7 +30,12 @@ export async function cambiarEstadoPropiedad(
   nuevoEstado: EstadoPropiedad,
 ): Promise<CambiarEstadoPropiedadResult> {
   try {
-    const { propertyWhere } = await requirePropertyAccess(id);
+    const parsedId = identifierSchema.safeParse(id);
+    const parsedState = propertyStateSchema.safeParse(nuevoEstado);
+    if (!parsedId.success || !parsedState.success) {
+      return { ok: false, error: 'La propiedad o el estado son inválidos.' };
+    }
+    const { propertyWhere } = await requirePropertyAccess(parsedId.data);
     const propiedad = await prisma.propiedad.findFirst({
       where: propertyWhere,
       select: { id: true, estado: true },
@@ -35,17 +45,21 @@ export async function cambiarEstadoPropiedad(
 
     const estadoAnterior = propiedad.estado;
 
-    if (estadoAnterior === nuevoEstado) {
-      return { ok: true, estado: nuevoEstado };
+    if (!canTransitionPropertyState(estadoAnterior, parsedState.data)) {
+      return { ok: false, error: `No se puede pasar de ${estadoAnterior} a ${parsedState.data}.` };
+    }
+    if (estadoAnterior === parsedState.data) {
+      return { ok: true, estado: parsedState.data };
     }
 
-    await prisma.propiedad.update({
-      where: { id: propiedad.id },
-      data: { estado: nuevoEstado },
+    const update = await prisma.propiedad.updateMany({
+      where: { id: propiedad.id, estado: estadoAnterior },
+      data: { estado: parsedState.data },
     });
+    if (update.count !== 1) return { ok: false, error: 'La propiedad cambió mientras se actualizaba.' };
 
     if (
-      nuevoEstado === EstadoPropiedad.DISPONIBLE &&
+      parsedState.data === EstadoPropiedad.DISPONIBLE &&
       estadoAnterior !== EstadoPropiedad.DISPONIBLE
     ) {
       void triggerMatchEngine(id).catch(console.error);
@@ -53,7 +67,7 @@ export async function cambiarEstadoPropiedad(
 
     revalidatePath('/panel/propiedades', 'page');
 
-    return { ok: true, estado: nuevoEstado };
+    return { ok: true, estado: parsedState.data };
   } catch (e) {
     if (e instanceof AuthError) {
       return { ok: false, error: e.message };

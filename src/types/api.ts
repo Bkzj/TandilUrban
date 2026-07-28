@@ -1,54 +1,8 @@
-import type { PropiedadImagenItem } from './panel';
-import type { Currency } from './money';
+import type { RegisterInput, CreateAgentInput } from '@/lib/validation/auth';
+import type { PublicContactInput } from '@/lib/validation/contact';
+import type { CreatePropertyInput } from '@/lib/validation/property';
 
-/** Cuerpo esperado por `POST /api/auth/register`. */
-export type RegisterPayload = {
-  nombre: string;
-  email: string;
-  password: string;
-};
-
-/** Cuerpo esperado por `POST /api/contacto`. */
-export type ContactoPayload = {
-  nombre: string;
-  email: string;
-  telefono: string;
-  mensaje: string;
-  propiedadId: string;
-};
-
-/** Cuerpo esperado por `POST /api/panel/equipo`. */
-export type CreateAgentePayload = {
-  nombre: string;
-  email: string;
-  password: string;
-};
-
-/**
- * Cuerpo esperado por `POST /api/panel/propiedades`.
- * Refleja el output del onboarding lineal del panel.
- */
-export type CreatePropiedadPayload = {
-  uploadPropertyId?: string;
-  uploadToken?: string;
-  operacion: 'VENTA' | 'ALQUILER';
-  tipo: string;
-  direccion: string;
-  barrio?: string | null;
-  lat: number;
-  lng: number;
-  m2Total: number;
-  m2Cubiertos?: number | null;
-  ambientes?: number | null;
-  dormitorios: number;
-  banos: number;
-  cocheras: number;
-  moneda: Currency;
-  precio: string;
-  expensas?: string | null;
-  caracteristicas: string[];
-  imagenes: PropiedadImagenItem[];
-  planoUrl?: string | null;
-  titulo: string;
-  descripcion: string;
-};
+export type RegisterPayload = RegisterInput;
+export type ContactoPayload = PublicContactInput;
+export type CreateAgentePayload = CreateAgentInput;
+export type CreatePropiedadPayload = CreatePropertyInput;

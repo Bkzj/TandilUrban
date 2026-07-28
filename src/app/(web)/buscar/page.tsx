@@ -9,6 +9,7 @@ import {
 } from '@/lib/public-propiedad-list';
 import type { SessionUserAugmented } from '@/types/auth';
 import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
+import { searchPropertiesSchema } from '@/lib/validation/pagination';
 
 import { BuscarExplorer } from './BuscarExplorer';
 
@@ -17,60 +18,34 @@ export const metadata = {
   description: 'Explorá propiedades en mapa y listado.',
 };
 
-function firstString(v: string | string[] | undefined): string {
-  if (v === undefined) return '';
-  return Array.isArray(v) ? (v[0] ?? '') : v;
-}
-
-/** Valores del formulario (MAYÚSCULAS) para coincidir con DB y payload del panel. */
-function operacionFromParam(raw: string): string | undefined {
-  const x = raw.trim().toUpperCase();
-  if (x === 'VENTA') return 'VENTA';
-  if (x === 'ALQUILER') return 'ALQUILER';
-  const lower = raw.trim().toLowerCase();
-  if (lower === 'venta') return 'VENTA';
-  if (lower === 'alquiler') return 'ALQUILER';
-  return undefined;
-}
-
-/** Tipos en DB: Casa, Departamento, Lote, etc. Normalizamos desde URL. */
-function tipoFromParam(raw: string): string | undefined {
-  const x = raw.trim().toLowerCase();
-  if (x === 'casa') return 'Casa';
-  if (x === 'depto' || x === 'departamento') return 'Departamento';
-  if (x === 'lote') return 'Lote';
-  return undefined;
-}
-
 type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export default async function BuscarPage({ searchParams }: PageProps) {
-  const sp = (await Promise.resolve(searchParams ?? {})) as Record<
-    string,
-    string | string[] | undefined
-  >;
-  const queryRaw = firstString(sp.query).trim();
-  const operacionRaw = firstString(sp.operacion);
-  const tipoRaw = firstString(sp.tipo);
-
-  const operacionFilter = operacionFromParam(operacionRaw);
-  const tipoFilter = tipoFromParam(tipoRaw);
+  const sp = await Promise.resolve(searchParams ?? {});
+  const firstValues = Object.fromEntries(
+    Object.entries(sp).map(([key, value]) => [key, Array.isArray(value) ? value[0] : value]),
+  );
+  const parsedFilters = searchPropertiesSchema.safeParse(firstValues);
+  const filters = parsedFilters.success ? parsedFilters.data : searchPropertiesSchema.parse({});
+  const queryRaw = filters.query;
+  const operacionRaw = typeof firstValues.operacion === 'string' ? firstValues.operacion : '';
+  const tipoRaw = typeof firstValues.tipo === 'string' ? firstValues.tipo : '';
 
   const clauses: Prisma.PropiedadWhereInput[] = [
     PUBLIC_PROPERTY_WHERE,
   ];
 
-  if (operacionFilter) {
+  if (filters.operacion) {
     clauses.push({
-      operacion: { equals: operacionFilter, mode: 'insensitive' },
+      operacion: { equals: filters.operacion, mode: 'insensitive' },
     });
   }
 
-  if (tipoFilter) {
+  if (filters.tipo) {
     clauses.push({
-      tipo: { equals: tipoFilter, mode: 'insensitive' },
+      tipo: { equals: filters.tipo, mode: 'insensitive' },
     });
   }
 

@@ -11,6 +11,8 @@ import {
 } from '@/lib/property-view-service';
 import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
 import { configuredRateLimitStore } from '@/lib/rate-limit';
+import { identifierSchema } from '@/lib/validation/common';
+import { getServerEnvironment } from '@/lib/validation/environment';
 
 const VISITOR_COOKIE = 'propea_view_session';
 const MAX_BODY_BYTES = 1024;
@@ -24,12 +26,12 @@ export async function POST(
     return new NextResponse(null, { status: 413 });
   }
 
-  const { id } = await params;
-  const secret = process.env.VIEW_TRACKING_SECRET?.trim();
-  if (!secret) {
-    console.error('[property-view] tracking disabled: missing VIEW_TRACKING_SECRET');
-    return new NextResponse(null, { status: 204 });
+  const parsedId = identifierSchema.safeParse((await params).id);
+  if (!parsedId.success) {
+    return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
   }
+  const id = parsedId.data;
+  const secret = getServerEnvironment().VIEW_TRACKING_SECRET;
 
   const cookieHeader = request.headers.get('cookie') ?? '';
   const storedToken = cookieHeader

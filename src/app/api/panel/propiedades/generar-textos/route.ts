@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { GenerateContentResult } from '@google/generative-ai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AuthError } from '@/lib/auth';
+import { ApiError } from '@/lib/api-error';
 import { requirePanelTenant } from '@/lib/panel-authorization';
+import { configuredRateLimitStore } from '@/lib/rate-limit';
+import { runRouteHandler } from '@/lib/route-handler';
+import {
+  aiGeneratedTextSchema,
+  aiTextRequestSchema,
+  type AiTextRequest,
+} from '@/lib/validation/ai';
+import { getServerEnvironment } from '@/lib/validation/environment';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { parseJsonBody } from '@/lib/validation/request';
+import { parseImageDataUrl } from '@/lib/validation/upload';
 
-function handleAuthError(error: unknown): NextResponse | null {
-  if (error instanceof AuthError) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
-  }
-  return null;
-}
-
-function techLineFromPayload(payload: Record<string, unknown>): string {
+function techLineFromPayload(payload: AiTextRequest['data']): string {
   const operacion = String(payload.operacion ?? '(sin definir)');
   const tipo = String(payload.tipo ?? '(sin definir)');
   const barrio = String(payload.barrio ?? '(sin definir)');
@@ -22,9 +26,7 @@ function techLineFromPayload(payload: Record<string, unknown>): string {
   const cocheras = String(payload.cocheras ?? '0');
   const moneda = String(payload.moneda ?? '(sin definir)');
   const precio = String(payload.precio ?? '(sin definir)');
-  const caracteristicas = Array.isArray(payload.caracteristicas)
-    ? (payload.caracteristicas as unknown[]).filter((x): x is string => typeof x === 'string')
-    : [];
+  const caracteristicas = payload.caracteristicas;
   const feats =
     caracteristicas.length > 0 ? caracteristicas.join(', ') : '(ninguna cargada)';
   return `TIPO: ${tipo}, OPERACION: ${operacion}, PRECIO: ${precio}, MONEDA: ${moneda}, M2: ${m2Total}, AMBIENTES: ${ambientes}, DORMITORIOS: ${dormitorios}, BAÑOS: ${banos}, COCHERAS: ${cocheras}, BARRIO: ${barrio}, CARACTERÍSTICAS: ${feats}`;
@@ -89,27 +91,18 @@ function enforceTituloGancho(titulo: string): string {
   return t;
 }
 
-function sanitizeBase64(input: unknown): string | null {
-  if (typeof input !== 'string' || !input.trim()) return null;
-  let s = input.trim();
-  const dataUrlMatch = /^data:image\/[\w+.+-]+;base64,/i.exec(s);
-  if (dataUrlMatch) s = s.slice(dataUrlMatch[0].length);
-  return s.replace(/\s/g, '');
-}
-
 function parseTituloDescripcion(raw: string): { titulo: string; descripcion: string } {
   let text = raw.trim();
   const fence = text.match(/^```(?:json)?\s*([\s\S]*?)```$/m);
   if (fence) text = fence[1].trim();
 
-  const parsed = JSON.parse(text) as unknown;
-  if (!parsed || typeof parsed !== 'object') {
+  const decoded: unknown = JSON.parse(text);
+  const parsed = aiGeneratedTextSchema.safeParse(decoded);
+  if (!parsed.success) {
     throw new Error('Respuesta inválida del modelo.');
   }
-  const o = parsed as Record<string, unknown>;
-  const tituloRaw = typeof o.titulo === 'string' ? o.titulo.trim() : '';
-  const descripcion = typeof o.descripcion === 'string' ? o.descripcion.trim() : '';
-  const titulo = enforceTituloGancho(tituloRaw);
+  const titulo = enforceTituloGancho(parsed.data.titulo);
+  const descripcion = parsed.data.descripcion;
   if (!titulo || !descripcion) {
     throw new Error('Faltan título o descripción en la respuesta.');
   }
@@ -125,38 +118,41 @@ function responseTextSafe(result: GenerateContentResult): string {
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    await requirePanelTenant();
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey?.trim()) {
-      return NextResponse.json(
-        { error: 'El servidor no tiene configurada GEMINI_API_KEY.' },
-        { status: 503 }
-      );
+  return runRouteHandler(request, 'ai.property_text.failed', async () => {
+    const context = await requirePanelTenant();
+    const environment = getServerEnvironment();
+    const apiKey = environment.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new ApiError('EXTERNAL_UNAVAILABLE', {
+        message: 'La generación de textos con IA no está disponible.',
+      });
     }
-
-    const rawBody = await request.json();
-    if (!rawBody || typeof rawBody !== 'object') {
-      return NextResponse.json({ error: 'Cuerpo inválido.' }, { status: 400 });
+    const rate = await configuredRateLimitStore().consume(`ai:text:user:${context.user.id}`, {
+      limit: 30,
+      windowMs: 60 * 60 * 1000,
+    });
+    if (!rate.allowed) {
+      throw new ApiError('RATE_LIMITED', { retryAfterSeconds: rate.retryAfterSeconds });
     }
-
-    const body = rawBody as Record<string, unknown>;
-    const data = body.data;
-    if (!data || typeof data !== 'object') {
-      return NextResponse.json({ error: 'Falta data con el formulario de la propiedad.' }, { status: 400 });
+    const body = await parseJsonBody(
+      request,
+      aiTextRequestSchema,
+      REQUEST_LIMITS.aiTextJsonBytes,
+    );
+    const prompt = buildStrictPrompt(body.notasIA, techLineFromPayload(body.data));
+    const cover = body.portadaBase64
+      ? parseImageDataUrl(
+          `data:image/jpeg;base64,${body.portadaBase64.replace(/\s/gu, '')}`,
+          REQUEST_LIMITS.aiCoverImageBytes,
+          ['image/jpeg'],
+        )
+      : null;
+    if (body.portadaBase64 && !cover) {
+      throw new ApiError('VALIDATION_ERROR', {
+        message: 'La portada no es JPEG válido o supera el tamaño permitido.',
+      });
     }
-
-    const payload = data as Record<string, unknown>;
-    const notasIA =
-      typeof body.notasIA === 'string' ? body.notasIA : typeof body.notasIA === 'number' ? String(body.notasIA) : '';
-    const techLine = techLineFromPayload(payload);
-    const prompt = buildStrictPrompt(notasIA, techLine);
-
-    const portadaBase64 = sanitizeBase64(body.portadaBase64);
-
-    const modelName =
-      process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
+    const modelName = environment.GEMINI_MODEL ?? 'gemini-2.5-flash';
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
@@ -164,15 +160,15 @@ export async function POST(request: NextRequest) {
       generationConfig: {
         responseMimeType: 'application/json',
       },
-    });
+    }, { timeout: 20_000 });
 
     let text: string;
-    if (portadaBase64) {
+    if (cover) {
       const result = await model.generateContent([
         prompt,
         {
           inlineData: {
-            data: portadaBase64,
+            data: cover.base64,
             mimeType: 'image/jpeg',
           },
         },
@@ -186,13 +182,5 @@ export async function POST(request: NextRequest) {
     const { titulo, descripcion } = parseTituloDescripcion(text);
 
     return NextResponse.json({ titulo, descripcion });
-  } catch (error) {
-    const handled = handleAuthError(error);
-    if (handled) return handled;
-
-    console.error('[POST /api/panel/propiedades/generar-textos]', error);
-    const message =
-      error instanceof Error ? error.message : 'No se pudieron generar los textos con IA.';
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  });
 }

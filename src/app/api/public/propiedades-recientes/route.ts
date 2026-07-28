@@ -1,31 +1,19 @@
 import { NextResponse } from 'next/server';
 
-import {
-  getPublicRecentProperties,
-  MAX_RECENT_PROPERTIES,
-} from '@/lib/public-recent-properties';
+import { getPublicRecentProperties } from '@/lib/public-recent-properties';
+import { runRouteHandler } from '@/lib/route-handler';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { parseJsonBody } from '@/lib/validation/request';
+import { recentPropertiesSchema } from '@/lib/validation/upload';
 
 export async function POST(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Solicitud inválida.' }, { status: 400 });
-  }
-
-  if (!body || typeof body !== 'object' || !('ids' in body)) {
-    return NextResponse.json({ error: 'Solicitud inválida.' }, { status: 400 });
-  }
-
-  const ids = (body as { ids?: unknown }).ids;
-  if (
-    !Array.isArray(ids) ||
-    ids.length > MAX_RECENT_PROPERTIES ||
-    !ids.every((id) => typeof id === 'string' && id.trim().length > 0 && id.length <= 64)
-  ) {
-    return NextResponse.json({ error: 'Solicitud inválida.' }, { status: 400 });
-  }
-
-  const propiedades = await getPublicRecentProperties(ids);
-  return NextResponse.json({ propiedades });
+  return runRouteHandler(request, 'public.recent_properties.failed', async () => {
+    const { ids } = await parseJsonBody(
+      request,
+      recentPropertiesSchema,
+      REQUEST_LIMITS.contactJsonBytes,
+    );
+    const propiedades = await getPublicRecentProperties(ids);
+    return NextResponse.json({ propiedades });
+  });
 }

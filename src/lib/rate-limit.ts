@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
+import { getServerEnvironment } from '@/lib/validation/environment';
 
 type Bucket = { count: number; resetAt: number };
 export type RateLimitPolicy = { limit: number; windowMs: number };
@@ -56,7 +57,7 @@ export const postgresRateLimitStore: RateLimitStore = {
 const localMemoryStore = createMemoryRateLimitStore();
 
 export function configuredRateLimitStore(): RateLimitStore {
-  if (process.env.RATE_LIMIT_BACKEND === 'memory' && process.env.NODE_ENV !== 'production') {
+  if (getServerEnvironment().RATE_LIMIT_BACKEND === 'memory' && process.env.NODE_ENV !== 'production') {
     return localMemoryStore;
   }
   return postgresRateLimitStore;

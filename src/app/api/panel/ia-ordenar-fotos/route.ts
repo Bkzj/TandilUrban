@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { GenerateContentResult, Part } from '@google/generative-ai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AuthError } from '@/lib/auth';
+import { ApiError } from '@/lib/api-error';
 import { requirePanelTenant } from '@/lib/panel-authorization';
-
-function handleAuthError(error: unknown): NextResponse | null {
-  if (error instanceof AuthError) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
-  }
-  return null;
-}
+import { configuredRateLimitStore } from '@/lib/rate-limit';
+import { runRouteHandler } from '@/lib/route-handler';
+import { aiImageOrderingSchema, aiPhotoClassificationSchema } from '@/lib/validation/ai';
+import { getServerEnvironment } from '@/lib/validation/environment';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { parseJsonBody } from '@/lib/validation/request';
+import { parseImageDataUrl } from '@/lib/validation/upload';
 
 function responseTextSafe(result: GenerateContentResult): string {
   try {
@@ -47,29 +47,21 @@ function parseClasificaciones(raw: string, expectedCount: number): Clasificacion
   const fence = text.match(/^```(?:json)?\s*([\s\S]*?)```$/m);
   if (fence) text = fence[1].trim();
 
-  const parsed = JSON.parse(text) as unknown;
-  if (!Array.isArray(parsed)) {
+  const decoded: unknown = JSON.parse(text);
+  const parsed = aiPhotoClassificationSchema.safeParse(decoded);
+  if (!parsed.success) {
     throw new Error('La IA no devolvió un arreglo JSON.');
   }
 
   const map = new Map<number, { categoria: string; orden_sugerido: number }>();
-  for (const row of parsed) {
-    if (!row || typeof row !== 'object') continue;
-    const o = row as Record<string, unknown>;
-    const index = typeof o.index === 'number' && Number.isInteger(o.index) ? o.index : null;
-    const categoria =
-      typeof o.categoria === 'string' ? o.categoria.trim() : String(o.categoria ?? '').trim();
+  for (const row of parsed.data) {
+    const index = row.index;
+    const categoria = row.categoria;
     if (index === null || index < 0 || index >= expectedCount || !categoria) continue;
-
-    const tieneOrdenValido =
-      (typeof o.orden_sugerido === 'number' && Number.isFinite(o.orden_sugerido)) ||
-      (typeof o.orden_sugerido === 'string' && o.orden_sugerido.trim() !== '');
 
     map.set(index, {
       categoria,
-      orden_sugerido: tieneOrdenValido
-        ? parseOrdenSugerido(o.orden_sugerido, index)
-        : ORDEN_FALLBACK_FINAL + index,
+      orden_sugerido: parseOrdenSugerido(row.orden_sugerido, index),
     });
   }
 
@@ -127,41 +119,41 @@ Reglas del JSON:
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    await requirePanelTenant();
-
-    const apiKey = process.env.GEMINI_API_KEY?.trim();
+  return runRouteHandler(request, 'ai.photo_ordering.failed', async () => {
+    const context = await requirePanelTenant();
+    const environment = getServerEnvironment();
+    const apiKey = environment.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: 'El servidor no tiene configurada GEMINI_API_KEY.' },
-        { status: 503 }
+      throw new ApiError('EXTERNAL_UNAVAILABLE', {
+        message: 'La clasificación con IA no está disponible.',
+      });
+    }
+    const rate = await configuredRateLimitStore().consume(`ai:photos:user:${context.user.id}`, {
+      limit: 20,
+      windowMs: 60 * 60 * 1000,
+    });
+    if (!rate.allowed) {
+      throw new ApiError('RATE_LIMITED', { retryAfterSeconds: rate.retryAfterSeconds });
+    }
+    const body = await parseJsonBody(
+      request,
+      aiImageOrderingSchema,
+      REQUEST_LIMITS.aiImagesJsonBytes,
+    );
+    const imagesBase64 = body.imagesBase64.map((raw) => {
+      const image = parseImageDataUrl(
+        `data:image/jpeg;base64,${raw.replace(/\s/gu, '')}`,
+        REQUEST_LIMITS.aiImageBytes,
+        ['image/jpeg'],
       );
-    }
-
-    const rawBody = await request.json();
-    if (!rawBody || typeof rawBody !== 'object') {
-      return NextResponse.json({ error: 'Cuerpo inválido.' }, { status: 400 });
-    }
-
-    const body = rawBody as Record<string, unknown>;
-    const layoutContext = typeof body.layoutContext === 'string' ? body.layoutContext : '';
-    const imagesRaw = body.imagesBase64;
-    if (!Array.isArray(imagesRaw)) {
-      return NextResponse.json({ error: 'Falta imagesBase64 (arreglo).' }, { status: 400 });
-    }
-
-    const imagesBase64 = imagesRaw.filter((x): x is string => typeof x === 'string' && x.trim().length > 0);
-    if (imagesBase64.length === 0) {
-      return NextResponse.json({ error: 'Necesitamos al menos una imagen comprimida.' }, { status: 400 });
-    }
-    if (imagesBase64.length > 15) {
-      return NextResponse.json(
-        { error: 'Máximo 15 imágenes por solicitud (clasificación por lotes).' },
-        { status: 400 }
-      );
-    }
-
-    const modelName = process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
+      if (!image) {
+        throw new ApiError('VALIDATION_ERROR', {
+          message: 'Una imagen no es JPEG válido o supera el tamaño permitido.',
+        });
+      }
+      return image.base64;
+    });
+    const modelName = environment.GEMINI_MODEL ?? 'gemini-2.5-flash';
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
@@ -169,9 +161,9 @@ export async function POST(request: NextRequest) {
       generationConfig: {
         responseMimeType: 'application/json',
       },
-    });
+    }, { timeout: 20_000 });
 
-    const prompt = buildPrompt(layoutContext, imagesBase64.length);
+    const prompt = buildPrompt(body.layoutContext, imagesBase64.length);
     const parts: Part[] = [
       { text: prompt },
       ...imagesBase64.map((data) => ({
@@ -187,13 +179,5 @@ export async function POST(request: NextRequest) {
     const clasificaciones = parseClasificaciones(text, imagesBase64.length);
 
     return NextResponse.json({ clasificaciones });
-  } catch (error) {
-    const handled = handleAuthError(error);
-    if (handled) return handled;
-
-    console.error('[POST /api/panel/ia-ordenar-fotos]', error);
-    const message =
-      error instanceof Error ? error.message : 'No se pudieron clasificar las fotos con IA.';
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  });
 }

@@ -1,60 +1,33 @@
 import { NextResponse } from 'next/server';
-import { EstadoContacto } from '@prisma/client';
 
-import { AuthError } from '@/lib/auth';
+import { ApiError } from '@/lib/api-error';
 import { requirePanelTenant } from '@/lib/panel-authorization';
 import { prisma } from '@/lib/prisma';
-
-const ESTADOS: EstadoContacto[] = [
-  EstadoContacto.NUEVO,
-  EstadoContacto.LEIDO,
-  EstadoContacto.RESPONDIDO,
-];
+import { runRouteHandler } from '@/lib/route-handler';
+import { identifierSchema } from '@/lib/validation/common';
+import { contactStatusSchema } from '@/lib/validation/contact';
+import { REQUEST_LIMITS } from '@/lib/validation/limits';
+import { parseJsonBody } from '@/lib/validation/request';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { propertyWhere } = await requirePanelTenant();
-
-    const { id } = await params;
-    const body = (await request.json()) as { estado?: unknown };
-
-    if (
-      typeof body.estado !== 'string' ||
-      !(ESTADOS as readonly string[]).includes(body.estado)
-    ) {
-      return NextResponse.json({ error: 'Estado inválido.' }, { status: 400 });
-    }
-
-    const estado = body.estado as EstadoContacto;
-
-    const contacto = await prisma.contacto.findFirst({
-      where: { id, propiedad: { is: propertyWhere } },
-      select: {
-        id: true,
-        propiedad: {
-          select: { id: true, inmobiliariaId: true, agenteId: true },
-        },
-      },
+  return runRouteHandler(request, 'panel.contact_status.failed', async () => {
+    const context = await requirePanelTenant();
+    const parsedId = identifierSchema.safeParse((await params).id);
+    if (!parsedId.success) throw new ApiError('NOT_FOUND', { message: 'Consulta no encontrada.' });
+    const { estado } = await parseJsonBody(
+      request,
+      contactStatusSchema,
+      REQUEST_LIMITS.authJsonBytes,
+    );
+    const contact = await prisma.contacto.findFirst({
+      where: { id: parsedId.data, propiedad: { is: context.propertyWhere } },
+      select: { id: true },
     });
-
-    if (!contacto) {
-      return NextResponse.json({ error: 'Consulta no encontrada.' }, { status: 404 });
-    }
-
-    await prisma.contacto.update({
-      where: { id: contacto.id },
-      data: { estado },
-    });
-
-    return NextResponse.json({ ok: true, estado }, { status: 200 });
-  } catch (e) {
-    if (e instanceof AuthError) {
-      return NextResponse.json({ error: e.message }, { status: e.status });
-    }
-    console.error('[PATCH /api/panel/mensajes/[id]]', e);
-    return NextResponse.json({ error: 'No se pudo actualizar.' }, { status: 500 });
-  }
+    if (!contact) throw new ApiError('NOT_FOUND', { message: 'Consulta no encontrada.' });
+    await prisma.contacto.update({ where: { id: contact.id }, data: { estado } });
+    return NextResponse.json({ ok: true, estado });
+  });
 }

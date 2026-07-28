@@ -3,7 +3,8 @@ import { hash } from 'bcryptjs';
 import { Prisma, RolUsuario } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
-import { AuthError, requireInmobiliariaMain } from '@/lib/auth';
+import { AuthError } from '@/lib/auth';
+import { requireTenantAdministrator } from '@/lib/panel-authorization';
 import type { CreateAgentePayload } from '@/types/api';
 
 // =============================================================================
@@ -54,7 +55,7 @@ function validarCreate(body: unknown):
 
 export async function GET() {
   try {
-    const { inmobiliariaId } = await requireInmobiliariaMain();
+    const { inmobiliariaId } = await requireTenantAdministrator();
 
     const agentes = await prisma.user.findMany({
       where: {
@@ -87,7 +88,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { inmobiliariaId } = await requireInmobiliariaMain();
+    const { inmobiliariaId } = await requireTenantAdministrator();
 
     const body = await request.json();
     const payload = validarCreate(body);
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { inmobiliariaId } = await requireInmobiliariaMain();
+    const { inmobiliariaId } = await requireTenantAdministrator();
     const id = request.nextUrl.searchParams.get('id');
     if (!id) {
       return NextResponse.json({ error: 'Falta el id del agente.' }, { status: 400 });

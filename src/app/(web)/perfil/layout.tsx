@@ -2,12 +2,12 @@ import { redirect } from 'next/navigation';
 
 import Navbar from '@/components/Navbar';
 import { PerfilNav } from '@/components/perfil/PerfilNav';
-import { getServerAuthSession } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 
 export default async function PerfilLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerAuthSession();
+  const user = await getCurrentUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect('/login?callbackUrl=/perfil');
   }
 

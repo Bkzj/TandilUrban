@@ -1,5 +1,11 @@
+import 'server-only';
+
+import type { Prisma } from '@prisma/client';
+
 import { prisma } from '@/lib/prisma';
 import { normalizePropiedadImagenesDb } from '@/lib/normalize-propiedad-imagenes';
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
+import type { PublicPropertyOgDto } from '@/types/public-property';
 
 const OG_PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop';
@@ -55,10 +61,7 @@ export function getAppBaseUrl(): string {
   return raw.replace(/\/$/, '');
 }
 
-export async function getPropiedadOgData(id: string) {
-  const propiedad = await prisma.propiedad.findUnique({
-    where: { id },
-    select: {
+export const PUBLIC_PROPERTY_OG_SELECT = {
       id: true,
       titulo: true,
       descripcion: true,
@@ -68,7 +71,12 @@ export async function getPropiedadOgData(id: string) {
       dormitorios: true,
       banos: true,
       imagenes: true,
-    },
+} satisfies Prisma.PropiedadSelect;
+
+export async function getPropiedadOgData(id: string): Promise<PublicPropertyOgDto | null> {
+  const propiedad = await prisma.propiedad.findFirst({
+    where: { id, ...PUBLIC_PROPERTY_WHERE },
+    select: PUBLIC_PROPERTY_OG_SELECT,
   });
 
   if (!propiedad) return null;

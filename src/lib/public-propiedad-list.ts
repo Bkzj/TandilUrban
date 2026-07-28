@@ -1,5 +1,13 @@
+import 'server-only';
+
+import type { Prisma } from '@prisma/client';
+
 import { isValidMapLatLng } from '@/lib/map-coords';
 import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
+import {
+  DESTACADA_MIN_CONSULTAS,
+  DESTACADA_MIN_VISITAS,
+} from '@/lib/propiedad-destacada';
 import type { PublicPropiedadListItem } from '@/types/public-search';
 
 export const PUBLIC_LISTING_SELECT = {
@@ -21,28 +29,11 @@ export const PUBLIC_LISTING_SELECT = {
   visitas: true,
   consultas: true,
   esExclusiva: true,
-} as const;
+} satisfies Prisma.PropiedadSelect;
 
-export type PublicListingRow = {
-  id: string;
-  titulo: string;
-  direccion: string;
-  barrio: string | null;
-  precio: number;
-  moneda: string;
-  operacion: string;
-  tipo: string;
-  ambientes: number;
-  dormitorios: number;
-  banos: number;
-  m2Total: number;
-  latitud: number;
-  longitud: number;
-  imagenes: unknown;
-  visitas: number;
-  consultas: number;
-  esExclusiva: boolean;
-};
+export type PublicListingRow = Prisma.PropiedadGetPayload<{
+  select: typeof PUBLIC_LISTING_SELECT;
+}>;
 
 function coerceCoord(value: unknown): number {
   if (typeof value === 'number') return value;
@@ -76,8 +67,9 @@ export function mapRowsToPublicPropiedadList(
       latitud: isValidMapLatLng(latitud, longitud) ? latitud : 0,
       longitud: isValidMapLatLng(latitud, longitud) ? longitud : 0,
       imagenes: imagenesItemsToUrls(normalizePropiedadImagenesDb(p.imagenes)),
-      visitas: p.visitas,
-      consultas: p.consultas,
+      destacada:
+        p.visitas >= DESTACADA_MIN_VISITAS ||
+        p.consultas >= DESTACADA_MIN_CONSULTAS,
       esExclusiva: p.esExclusiva,
     };
   });

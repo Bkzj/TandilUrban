@@ -1,31 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { GenerateContentResult } from '@google/generative-ai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { RolUsuario } from '@prisma/client';
-
-import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
+import { AuthError } from '@/lib/auth';
+import { requirePanelTenant } from '@/lib/panel-authorization';
 
 function handleAuthError(error: unknown): NextResponse | null {
   if (error instanceof AuthError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
   return null;
-}
-
-/** Misma política que publicación de propiedades: solo dueño de agencia o agente asignado. */
-async function requirePanelPublisher() {
-  const user = await getCurrentUser();
-  if (!user) {
-    throw new AuthError(401, 'Tenés que iniciar sesión.');
-  }
-  assertNotPublicPortalUser(user);
-  if (
-    (user.rol === RolUsuario.INMOBILIARIA && user.inmobiliariaPerfil) ||
-    (user.rol === RolUsuario.AGENTE && user.agenciaId)
-  ) {
-    return user;
-  }
-  throw new AuthError(403, 'Tu cuenta no puede usar esta función.');
 }
 
 function techLineFromPayload(payload: Record<string, unknown>): string {
@@ -143,7 +126,7 @@ function responseTextSafe(result: GenerateContentResult): string {
 
 export async function POST(request: NextRequest) {
   try {
-    await requirePanelPublisher();
+    await requirePanelTenant();
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey?.trim()) {

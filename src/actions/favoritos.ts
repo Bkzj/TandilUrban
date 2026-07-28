@@ -2,9 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { getServerAuthSession } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import type { SessionUserAugmented } from '@/types/auth';
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
+import { togglePublicFavorite } from '@/lib/public-favorite-service';
 
 export type ToggleFavoritoResult =
   | { error: 'requires_login' }
@@ -12,43 +13,50 @@ export type ToggleFavoritoResult =
   | { isFavorito: boolean };
 
 export async function toggleFavorito(propiedadId: string): Promise<ToggleFavoritoResult> {
-  const session = await getServerAuthSession();
-  const userId = (session?.user as SessionUserAugmented | undefined)?.id;
+  const user = await getCurrentUser();
+  const userId = user?.id;
 
   if (!userId) {
     return { error: 'requires_login' };
   }
 
-  const propiedad = await prisma.propiedad.findUnique({
-    where: { id: propiedadId },
-    select: { id: true },
+  const result = await togglePublicFavorite(userId, propiedadId, {
+    publicPropertyExists: async (id) => {
+      const propiedad = await prisma.propiedad.findFirst({
+        where: { id, ...PUBLIC_PROPERTY_WHERE },
+        select: { id: true },
+      });
+      return propiedad !== null;
+    },
+    isFavorite: async (id, propertyId) => {
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+          favoritos: {
+            where: { id: propertyId },
+            select: { id: true },
+          },
+        },
+      });
+      return (user?.favoritos.length ?? 0) > 0;
+    },
+    setFavorite: async (id, propertyId, favorite) => {
+      await prisma.user.update({
+        where: { id },
+        data: {
+          favoritos: favorite
+            ? { connect: { id: propertyId } }
+            : { disconnect: { id: propertyId } },
+        },
+      });
+    },
   });
-  if (!propiedad) {
-    return { error: 'Propiedad no encontrada.' };
+
+  if (!result.ok) {
+    return { error: 'La propiedad no está disponible.' };
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      favoritos: {
-        where: { id: propiedadId },
-        select: { id: true },
-      },
-    },
-  });
-
-  const yaEsFavorito = (user?.favoritos.length ?? 0) > 0;
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      favoritos: yaEsFavorito
-        ? { disconnect: { id: propiedadId } }
-        : { connect: { id: propiedadId } },
-    },
-  });
-
-  const isFavorito = !yaEsFavorito;
+  const isFavorito = result.isFavorite;
 
   revalidatePath('/');
   revalidatePath('/buscar');

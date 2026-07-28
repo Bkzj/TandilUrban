@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import type { RecentPropertyDto } from '@/types/public-property';
 
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=600&auto=format&fit=crop';
@@ -13,10 +15,50 @@ type RecentlyViewedProps = {
 
 export function RecentlyViewed({ excludeId }: RecentlyViewedProps) {
   const { recentProperties } = useRecentlyViewed();
+  const [verifiedItems, setVerifiedItems] = useState<RecentPropertyDto[]>([]);
 
+  useEffect(() => {
+    const ids = recentProperties.map(({ id }) => id);
+    if (ids.length === 0) {
+      return;
+    }
+
+    const controller = new AbortController();
+    void fetch('/api/public/propiedades-recientes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) return [];
+        const payload: unknown = await response.json();
+        if (!payload || typeof payload !== 'object' || !('propiedades' in payload)) return [];
+        const propiedades = (payload as { propiedades?: unknown }).propiedades;
+        return Array.isArray(propiedades) ? propiedades : [];
+      })
+      .then((items: unknown[]) => {
+        const verified = items.filter(
+          (item): item is RecentPropertyDto =>
+            item != null &&
+            typeof item === 'object' &&
+            typeof (item as Record<string, unknown>).id === 'string' &&
+            typeof (item as Record<string, unknown>).titulo === 'string' &&
+            typeof (item as Record<string, unknown>).precio === 'string' &&
+            typeof (item as Record<string, unknown>).tipoOperacion === 'string' &&
+            typeof (item as Record<string, unknown>).imagen === 'string',
+        );
+        setVerifiedItems(verified);
+      })
+      .catch(() => setVerifiedItems([]));
+
+    return () => controller.abort();
+  }, [recentProperties]);
+
+  const visibleItems = recentProperties.length === 0 ? [] : verifiedItems;
   const items = excludeId
-    ? recentProperties.filter((p) => p.id !== excludeId)
-    : recentProperties;
+    ? visibleItems.filter((p) => p.id !== excludeId)
+    : visibleItems;
 
   if (items.length === 0) return null;
 

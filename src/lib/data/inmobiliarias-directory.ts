@@ -1,5 +1,5 @@
-import { EstadoPropiedad } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
 import type { InmobiliariaDirectoryItem } from '@/types/inmobiliaria-directory';
 
 export type InmobiliariasDirectoryData = {
@@ -61,7 +61,7 @@ export async function getInmobiliariasDirectory(): Promise<InmobiliariasDirector
         select: {
           agentes: true,
           propiedades: {
-            where: { estado: EstadoPropiedad.DISPONIBLE },
+            where: PUBLIC_PROPERTY_WHERE,
           },
         },
       },

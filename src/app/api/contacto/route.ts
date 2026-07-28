@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { enviarMailNotificacionLead } from '@/lib/resend';
 import type { ContactoPayload } from '@/types/api';
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
+import { createPublicContactInquiry } from '@/lib/public-contact-service';
 
 function validarPayload(body: unknown): { ok: true; data: ContactoPayload } | { ok: false; error: string } {
   if (!body || typeof body !== 'object') {
@@ -52,60 +54,63 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: payload.error }, { status: 400 });
     }
 
-    const propiedad = await prisma.propiedad.findUnique({
-      where: { id: payload.data.propiedadId },
-      select: {
-        id: true,
-        titulo: true,
-        agenteId: true,
-        inmobiliaria: {
+    const result = await createPublicContactInquiry(payload.data, {
+      findPublicProperty: async (propertyId) => {
+        const propiedad = await prisma.propiedad.findFirst({
+          where: { id: propertyId, ...PUBLIC_PROPERTY_WHERE },
           select: {
-            user: { select: { email: true } },
+            id: true,
+            titulo: true,
+            agente: { select: { email: true } },
+            inmobiliaria: {
+              select: {
+                user: { select: { email: true } },
+              },
+            },
           },
-        },
+        });
+        return propiedad
+          ? {
+              id: propiedad.id,
+              titulo: propiedad.titulo,
+              agenteEmail: propiedad.agente?.email ?? null,
+              adminEmail: propiedad.inmobiliaria.user.email,
+            }
+          : null;
+      },
+      persistInquiry: async (propertyId, data) => {
+        const [, contacto] = await prisma.$transaction([
+          prisma.propiedad.update({
+            where: { id: propertyId },
+            data: { consultas: { increment: 1 } },
+          }),
+          prisma.contacto.create({
+            data: {
+              nombre: data.nombre,
+              email: data.email,
+              telefono: data.telefono,
+              mensaje: data.mensaje,
+              propiedadId: propertyId,
+            },
+            select: { id: true, createdAt: true },
+          }),
+        ]);
+        return contacto;
       },
     });
 
-    if (!propiedad) {
-      return NextResponse.json({ error: 'La propiedad indicada no existe.' }, { status: 404 });
+    if (!result.ok) {
+      return NextResponse.json({ error: 'La propiedad no está disponible.' }, { status: 404 });
     }
-
-    const agenteEmail =
-      propiedad.agenteId != null
-        ? (
-            await prisma.user.findUnique({
-              where: { id: propiedad.agenteId },
-              select: { email: true },
-            })
-          )?.email
-        : null;
-
-    const adminEmail = propiedad.inmobiliaria.user.email;
-
-    const [, contacto] = await prisma.$transaction([
-      prisma.propiedad.update({
-        where: { id: propiedad.id },
-        data: { consultas: { increment: 1 } },
-      }),
-      prisma.contacto.create({
-        data: {
-          nombre: payload.data.nombre,
-          email: payload.data.email,
-          telefono: payload.data.telefono,
-          mensaje: payload.data.mensaje,
-          propiedadId: payload.data.propiedadId,
-        },
-      }),
-    ]);
 
     try {
       const mailResult = await enviarMailNotificacionLead({
-        agenteEmail,
-        adminEmail,
+        agenteEmail: result.property.agenteEmail,
+        adminEmail: result.property.adminEmail,
         clienteEmail: payload.data.email,
         nombreLead: payload.data.nombre,
         telefonoLead: payload.data.telefono,
-        propiedadTitulo: propiedad.titulo,
+        propiedadTitulo: result.property.titulo,
         mensaje: payload.data.mensaje,
       });
 
@@ -120,7 +125,7 @@ export async function POST(request: Request) {
       {
         ok: true,
         message: 'Consulta registrada.',
-        contacto: { id: contacto.id, createdAt: contacto.createdAt },
+        contacto: { id: result.receipt.id, createdAt: result.receipt.createdAt },
       },
       { status: 200 }
     );

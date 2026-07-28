@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { EstadoPropiedad } from '@prisma/client';
 
-import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
-import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
+import { AuthError } from '@/lib/auth';
+import { requirePropertyAccess } from '@/lib/panel-authorization';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -24,11 +24,36 @@ export async function cambiarEstadoPropiedad(
   id: string,
   nuevoEstado: EstadoPropiedad,
 ): Promise<CambiarEstadoPropiedadResult> {
-  const user = await getCurrentUser();
-  if (!user) return { ok: false, error: 'Tenés que iniciar sesión.' };
-
   try {
-    assertNotPublicPortalUser(user);
+    const { propertyWhere } = await requirePropertyAccess(id);
+    const propiedad = await prisma.propiedad.findFirst({
+      where: propertyWhere,
+      select: { id: true, estado: true },
+    });
+
+    if (!propiedad) return { ok: false, error: 'Propiedad no encontrada.' };
+
+    const estadoAnterior = propiedad.estado;
+
+    if (estadoAnterior === nuevoEstado) {
+      return { ok: true, estado: nuevoEstado };
+    }
+
+    await prisma.propiedad.update({
+      where: { id: propiedad.id },
+      data: { estado: nuevoEstado },
+    });
+
+    if (
+      nuevoEstado === EstadoPropiedad.DISPONIBLE &&
+      estadoAnterior !== EstadoPropiedad.DISPONIBLE
+    ) {
+      void triggerMatchEngine(id).catch(console.error);
+    }
+
+    revalidatePath('/panel/propiedades', 'page');
+
+    return { ok: true, estado: nuevoEstado };
   } catch (e) {
     if (e instanceof AuthError) {
       return { ok: false, error: e.message };
@@ -36,35 +61,4 @@ export async function cambiarEstadoPropiedad(
     throw e;
   }
 
-  const propiedad = await prisma.propiedad.findUnique({
-    where: { id },
-    select: { id: true, inmobiliariaId: true, agenteId: true, estado: true },
-  });
-
-  if (!propiedad) return { ok: false, error: 'Propiedad no encontrada.' };
-  if (!userCanModifyPropiedad(user, propiedad)) {
-    return { ok: false, error: 'No tenés permiso sobre esta propiedad.' };
-  }
-
-  const estadoAnterior = propiedad.estado;
-
-  if (estadoAnterior === nuevoEstado) {
-    return { ok: true, estado: nuevoEstado };
-  }
-
-  await prisma.propiedad.update({
-    where: { id },
-    data: { estado: nuevoEstado },
-  });
-
-  if (
-    nuevoEstado === EstadoPropiedad.DISPONIBLE &&
-    estadoAnterior !== EstadoPropiedad.DISPONIBLE
-  ) {
-    void triggerMatchEngine(id).catch(console.error);
-  }
-
-  revalidatePath('/panel/propiedades', 'page');
-
-  return { ok: true, estado: nuevoEstado };
 }

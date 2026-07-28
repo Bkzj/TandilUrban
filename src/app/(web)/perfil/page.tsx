@@ -1,21 +1,11 @@
-import { getServerAuthSession } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import type { SessionUserAugmented } from '@/types/auth';
+import { getCurrentUser } from '@/lib/auth';
 
 export const metadata = {
   title: 'Mi perfil | Propea Group',
 };
 
 export default async function PerfilPage() {
-  const session = await getServerAuthSession();
-  const userId = (session?.user as SessionUserAugmented | undefined)?.id;
-
-  const user = userId
-    ? await prisma.user.findUnique({
-        where: { id: userId },
-        select: { nombre: true, telefono: true, email: true },
-      })
-    : null;
+  const user = await getCurrentUser();
 
   return (
     <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">

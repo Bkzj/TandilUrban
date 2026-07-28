@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { EstadoContacto } from '@prisma/client';
 
-import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
-import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
+import { AuthError } from '@/lib/auth';
+import { requirePanelTenant } from '@/lib/panel-authorization';
 import { prisma } from '@/lib/prisma';
 
 const ESTADOS: EstadoContacto[] = [
@@ -16,19 +16,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Tenés que iniciar sesión.' }, { status: 401 });
-    }
-
-    try {
-      assertNotPublicPortalUser(user);
-    } catch (e) {
-      if (e instanceof AuthError) {
-        return NextResponse.json({ error: e.message }, { status: e.status });
-      }
-      throw e;
-    }
+    const { propertyWhere } = await requirePanelTenant();
 
     const { id } = await params;
     const body = (await request.json()) as { estado?: unknown };
@@ -42,8 +30,8 @@ export async function PATCH(
 
     const estado = body.estado as EstadoContacto;
 
-    const contacto = await prisma.contacto.findUnique({
-      where: { id },
+    const contacto = await prisma.contacto.findFirst({
+      where: { id, propiedad: { is: propertyWhere } },
       select: {
         id: true,
         propiedad: {
@@ -56,10 +44,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Consulta no encontrada.' }, { status: 404 });
     }
 
-    if (!userCanModifyPropiedad(user, contacto.propiedad)) {
-      return NextResponse.json({ error: 'No tenés permiso para actualizar esta consulta.' }, { status: 403 });
-    }
-
     await prisma.contacto.update({
       where: { id: contacto.id },
       data: { estado },
@@ -67,6 +51,9 @@ export async function PATCH(
 
     return NextResponse.json({ ok: true, estado }, { status: 200 });
   } catch (e) {
+    if (e instanceof AuthError) {
+      return NextResponse.json({ error: e.message }, { status: e.status });
+    }
     console.error('[PATCH /api/panel/mensajes/[id]]', e);
     return NextResponse.json({ error: 'No se pudo actualizar.' }, { status: 500 });
   }

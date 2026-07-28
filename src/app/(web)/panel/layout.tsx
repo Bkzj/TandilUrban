@@ -1,19 +1,17 @@
 import { redirect } from 'next/navigation';
 
 import PanelHeader from '@/components/panel/PanelHeader';
-import { getServerAuthSession } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { roleCanAccessPanel } from '@/lib/rbac';
-import type { SessionUserAugmented } from '@/types/auth';
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerAuthSession();
+  const user = await getCurrentUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect('/login?callbackUrl=/panel');
   }
 
-  const role = (session.user as SessionUserAugmented).role;
-  if (!roleCanAccessPanel(role)) {
+  if (!roleCanAccessPanel(user.rol)) {
     redirect('/?error=unauthorized');
   }
 

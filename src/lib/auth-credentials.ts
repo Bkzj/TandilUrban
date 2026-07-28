@@ -6,6 +6,7 @@ const DUMMY_PASSWORD_HASH =
 type CredentialsAccount = {
   passwordHash: string;
   emailVerifiedAt: Date | null;
+  activo: boolean;
 };
 
 type CredentialsUser = CredentialsAccount & {
@@ -21,7 +22,7 @@ export async function isCredentialsLoginAllowed(
   password: string,
 ): Promise<boolean> {
   const passwordValid = await compare(password, account?.passwordHash ?? DUMMY_PASSWORD_HASH);
-  return Boolean(account && account.emailVerifiedAt !== null && passwordValid);
+  return Boolean(account && account.activo && account.emailVerifiedAt !== null && passwordValid);
 }
 
 export async function authorizeCredentials(

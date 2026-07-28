@@ -149,7 +149,7 @@ export function DestacadoPropertyCard({
 
               <div className="flex items-center justify-between border-t border-black/[0.04] pt-2.5">
                 <span className="text-[0.65rem] text-text-secondary/70">
-                  {propiedad.visitas > 0 ? `${propiedad.visitas} visitas` : 'Selección curada'}
+                  {propiedad.destacada ? 'Propiedad destacada' : 'Selección curada'}
                 </span>
                 <span
                   className={`inline-flex items-center gap-0.5 font-semibold text-naranja transition-all ${HOVER_MS} ${EASE_OUT} group-hover:gap-1.5 ${isSm ? 'text-[0.65rem]' : 'text-xs'}`}

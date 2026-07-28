@@ -22,10 +22,7 @@ function formatPrecio(p: PublicPropiedadListItem): string {
 export function FeaturedPropertyCard({ propiedad, isFavoritoInicial = false }: Props) {
   const img = propiedad.imagenes[0]?.trim() || PLACEHOLDER;
   const useNativeImg = img.startsWith('data:');
-  const visitasLabel =
-    propiedad.visitas > 0
-      ? `${propiedad.visitas.toLocaleString('es-AR')} visitas`
-      : 'Selección curada';
+  const visitasLabel = propiedad.destacada ? 'Propiedad destacada' : 'Selección curada';
 
   return (
     <article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-3xl bg-white shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl">

@@ -10,7 +10,7 @@ test('the Credentials provider authorization contract rejects unverified users g
     { email: 'USER@EXAMPLE.COM', password: 'correct-password' },
     async (email) => ({
       id: 'user-a', nombre: 'Usuario', email, avatarUrl: null, rol: 'USUARIO_NORMAL',
-      passwordHash, emailVerifiedAt: null,
+      passwordHash, emailVerifiedAt: null, activo: true,
     }),
   );
   assert.equal(result, null);

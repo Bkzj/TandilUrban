@@ -1,4 +1,4 @@
-import { EstadoPropiedad, type Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 import { getServerAuthSession } from '@/lib/auth';
 import { getFavoritePropiedadIds } from '@/lib/favoritos';
@@ -8,6 +8,7 @@ import {
   PUBLIC_LISTING_SELECT,
 } from '@/lib/public-propiedad-list';
 import type { SessionUserAugmented } from '@/types/auth';
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
 
 import { BuscarExplorer } from './BuscarExplorer';
 
@@ -58,15 +59,7 @@ export default async function BuscarPage({ searchParams }: PageProps) {
   const tipoFilter = tipoFromParam(tipoRaw);
 
   const clauses: Prisma.PropiedadWhereInput[] = [
-    {
-      estado: {
-        in: [
-          EstadoPropiedad.DISPONIBLE,
-          EstadoPropiedad.RESERVADA,
-          EstadoPropiedad.PAUSADA,
-        ],
-      },
-    },
+    PUBLIC_PROPERTY_WHERE,
   ];
 
   if (operacionFilter) {

@@ -10,6 +10,7 @@ import {
 import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
 import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { prisma } from '@/lib/prisma';
+import { panelPropertyScopeForUser } from '@/lib/panel-authorization';
 
 export type AjustarVisitaFisicaResult =
   | {
@@ -69,8 +70,9 @@ async function assertContactoAccess(contactoId: string) {
     return { ok: false as const, error: 'Consulta inválida.' };
   }
 
-  const contacto = await prisma.contacto.findUnique({
-    where: { id },
+  const propertyWhere = panelPropertyScopeForUser(user);
+  const contacto = propertyWhere ? await prisma.contacto.findFirst({
+    where: { id, propiedad: { is: propertyWhere } },
     select: {
       id: true,
       nombre: true,
@@ -85,7 +87,7 @@ async function assertContactoAccess(contactoId: string) {
         },
       },
     },
-  });
+  }) : null;
 
   if (!contacto) {
     return { ok: false as const, error: 'Consulta no encontrada.' };
@@ -118,8 +120,9 @@ async function assertPropiedadAccess(propiedadId: string) {
     return { ok: false as const, error: 'Propiedad inválida.' };
   }
 
-  const propiedad = await prisma.propiedad.findUnique({
-    where: { id },
+  const propertyWhere = panelPropertyScopeForUser(user);
+  const propiedad = propertyWhere ? await prisma.propiedad.findFirst({
+    where: { AND: [{ id }, propertyWhere] },
     select: {
       id: true,
       inmobiliariaId: true,
@@ -127,7 +130,7 @@ async function assertPropiedadAccess(propiedadId: string) {
       visitas: true,
       consultas: true,
     },
-  });
+  }) : null;
 
   if (!propiedad) {
     return { ok: false as const, error: 'Propiedad no encontrada.' };
@@ -574,8 +577,9 @@ export async function getSeguimientoPropiedad(
     throw e;
   }
 
-  const prop = await prisma.propiedad.findUnique({
-    where: { id: propiedadId },
+  const propertyWhere = panelPropertyScopeForUser(user);
+  const prop = propertyWhere ? await prisma.propiedad.findFirst({
+    where: { AND: [{ id: propiedadId }, propertyWhere] },
     select: {
       id: true,
       inmobiliariaId: true,
@@ -583,7 +587,7 @@ export async function getSeguimientoPropiedad(
       visitas: true,
       consultas: true,
     },
-  });
+  }) : null;
 
   if (!prop) {
     return { ok: false, error: 'Propiedad no encontrada.' };

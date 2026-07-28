@@ -6,7 +6,6 @@ import { FavoriteButton } from '@/components/public/FavoriteButton';
 import { getServerAuthSession } from '@/lib/auth';
 import { getPropiedadesSimilares } from '@/lib/data/propiedades-similares';
 import { getFavoritePropiedadIds, isPropiedadFavorita } from '@/lib/favoritos';
-import { prisma } from '@/lib/prisma';
 import type { SessionUserAugmented } from '@/types/auth';
 import { buildPropiedadOgImageUrl, getPropiedadOgData } from '@/lib/propiedad-og';
 import { getPropiedadPublicDetail } from '@/lib/propiedad-public-detail';
@@ -22,7 +21,7 @@ import { RecentlyViewed } from '@/components/public/RecentlyViewed';
 import ExpandableText from '@/components/public/ExpandableText';
 import ExpandableAmenities from '@/components/public/ExpandableAmenities';
 import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
-import type { RecentProperty } from '@/hooks/useRecentlyViewed';
+import type { RecentPropertyDto } from '@/types/public-property';
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -58,7 +57,7 @@ export default async function PropiedadPage({ params }: PageProps) {
   const session = await getServerAuthSession();
   const userId = (session?.user as SessionUserAugmented | undefined)?.id;
 
-  const [isFavoritoInicial, favoritoIds, propiedadesSimilares, agente] = await Promise.all([
+  const [isFavoritoInicial, favoritoIds, propiedadesSimilares] = await Promise.all([
     isPropiedadFavorita(userId, propiedad.id),
     userId ? getFavoritePropiedadIds(userId) : Promise.resolve(new Set<string>()),
     getPropiedadesSimilares(
@@ -68,20 +67,15 @@ export default async function PropiedadPage({ params }: PageProps) {
       propiedad.latitud,
       propiedad.longitud,
     ),
-    propiedad.agenteId != null
-      ? prisma.user.findUnique({
-          where: { id: propiedad.agenteId },
-          select: { id: true, nombre: true, avatarUrl: true },
-        })
-      : Promise.resolve(null),
   ]);
 
   const agenciaNombre = propiedad.inmobiliaria?.nombreAgencia ?? 'Agencia Independiente';
-  const contactoComercial = agente?.nombre ?? 'Consultá con la agencia';
-  const profileUserId = propiedad.agenteId ?? propiedad.inmobiliaria?.userId ?? null;
-  const logoInmobiliaria =
-    propiedad.inmobiliaria?.logoUrl ?? propiedad.inmobiliaria?.logoAgencia ?? null;
-  const tieneAgente = agente != null;
+  const contactoComercial = propiedad.agente?.nombre ?? 'Consultá con la agencia';
+  const profileUserId =
+    propiedad.agente?.publicProfileUserId ??
+    propiedad.inmobiliaria.publicProfileUserId;
+  const logoInmobiliaria = propiedad.inmobiliaria.logoUrl;
+  const tieneAgente = propiedad.agente != null;
 
   const precioFmt =
     propiedad.precio != null
@@ -99,7 +93,7 @@ export default async function PropiedadPage({ params }: PageProps) {
     !(propiedad.latitud === 0 && propiedad.longitud === 0);
 
   const imagenUrls = imagenesItemsToUrls(normalizePropiedadImagenesDb(propiedad.imagenes));
-  const recentEntry: RecentProperty = {
+  const recentEntry: RecentPropertyDto = {
     id: propiedad.id,
     titulo: propiedad.titulo,
     precio: precioFmt,
@@ -200,7 +194,7 @@ export default async function PropiedadPage({ params }: PageProps) {
                 agenciaNombre={agenciaNombre}
                 contactoNombre={contactoComercial}
                 logoUrl={logoInmobiliaria}
-                agenteAvatarUrl={agente?.avatarUrl ?? null}
+                agenteAvatarUrl={propiedad.agente?.avatarUrl ?? null}
                 tieneAgente={tieneAgente}
               />
               <h3 className="mb-4 rounded-xl bg-naranja px-4 py-3 text-center text-xl font-bold text-white">

@@ -2,10 +2,11 @@
 
 import { useEffect } from 'react';
 
-import { useRecentlyViewed, type RecentProperty } from '@/hooks/useRecentlyViewed';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import type { RecentPropertyDto } from '@/types/public-property';
 
 type PropiedadPageTrackerProps = {
-  entry: RecentProperty;
+  entry: RecentPropertyDto;
 };
 
 export function PropiedadPageTracker({ entry }: PropiedadPageTrackerProps) {

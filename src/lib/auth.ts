@@ -67,10 +67,11 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const userId = (session?.user as SessionUserAugmented | undefined)?.id;
   if (!userId) return null;
 
-  return prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     include: currentUserInclude,
   });
+  return user?.activo ? user : null;
 }
 
 /**

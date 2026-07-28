@@ -1,7 +1,7 @@
 import { RolUsuario } from '@prisma/client';
 
-/** Staff B2B: puede ver `/panel`. Excluye `USUARIO_NORMAL`. */
+/** Panel de tenant: sólo inmobiliarias y agentes. ADMIN usa guard global separado. */
 export function roleCanAccessPanel(rol: string | RolUsuario | undefined): boolean {
   const r = String(rol ?? '');
-  return r === RolUsuario.ADMIN || r === RolUsuario.INMOBILIARIA || r === RolUsuario.AGENTE;
+  return r === RolUsuario.INMOBILIARIA || r === RolUsuario.AGENTE;
 }

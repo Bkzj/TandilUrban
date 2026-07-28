@@ -60,6 +60,7 @@ model User {
   twoFactorEnabled Boolean    @default(false)
   twoFactorSecret  String?
   emailVerifiedAt  DateTime?
+  activo           Boolean    @default(true)
 
   // 1-1: el MAIN de la inmobiliaria (único dueño)
   inmobiliariaPerfil Inmobiliaria? @relation("PerfilInmobiliaria")

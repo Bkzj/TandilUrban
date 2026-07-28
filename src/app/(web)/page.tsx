@@ -1,4 +1,3 @@
-import { EstadoPropiedad } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { HomeHeroBlock } from '@/components/HomeHeroBlock';
 import { HomeAgenciesPreview } from '@/components/web/HomeAgenciesPreview';
@@ -15,8 +14,7 @@ import {
 } from '@/lib/public-propiedad-list';
 import type { SessionUserAugmented } from '@/types/auth';
 import type { PublicPropiedadListItem } from '@/types/public-search';
-
-const DISPONIBLE = { estado: EstadoPropiedad.DISPONIBLE };
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
 
 export default async function Home() {
   const session = await getServerAuthSession();
@@ -25,19 +23,19 @@ export default async function Home() {
   const [exclusivasRows, estandarRows, barriosRows, favoritoIdSet, inmobiliariasData] =
     await Promise.all([
       prisma.propiedad.findMany({
-        where: { ...DISPONIBLE, esExclusiva: true },
+        where: { ...PUBLIC_PROPERTY_WHERE, esExclusiva: true },
         orderBy: { createdAt: 'desc' },
         take: 3,
         select: PUBLIC_LISTING_SELECT,
       }),
       prisma.propiedad.findMany({
-        where: { ...DISPONIBLE, esExclusiva: false },
+        where: { ...PUBLIC_PROPERTY_WHERE, esExclusiva: false },
         orderBy: { createdAt: 'desc' },
         take: 6,
         select: PUBLIC_LISTING_SELECT,
       }),
       prisma.propiedad.findMany({
-        where: { ...DISPONIBLE, barrio: { not: null } },
+        where: { ...PUBLIC_PROPERTY_WHERE, barrio: { not: null } },
         select: { barrio: true },
         distinct: ['barrio'],
       }),

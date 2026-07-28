@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
+import type { Prisma } from '@prisma/client';
 
-import { getCurrentUser, roleCanAccessPanel } from '@/lib/auth';
+import { AuthError } from '@/lib/auth';
 import { renderInformePdfFromUrl } from '@/lib/panel-informe-pdf';
 import type { InformePdfVariant } from '@/types/informe-pdf';
-import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { prisma } from '@/lib/prisma';
+import { requirePropertyAccess } from '@/lib/panel-authorization';
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -18,17 +19,22 @@ export async function GET(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const variant = parseVariant(new URL(request.url).searchParams.get('variant'));
 
-  const user = await getCurrentUser();
-  if (!user || !roleCanAccessPanel(user.rol)) {
-    return NextResponse.json({ error: 'No autorizado.' }, { status: 401 });
+  let propertyWhere: Prisma.PropiedadWhereInput;
+  try {
+    ({ propertyWhere } = await requirePropertyAccess(id));
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    throw error;
   }
 
-  const propiedad = await prisma.propiedad.findUnique({
-    where: { id },
+  const propiedad = await prisma.propiedad.findFirst({
+    where: propertyWhere,
     select: { id: true, inmobiliariaId: true, agenteId: true },
   });
 
-  if (!propiedad || !userCanModifyPropiedad(user, propiedad)) {
+  if (!propiedad) {
     return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
   }
 

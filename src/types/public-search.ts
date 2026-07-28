@@ -15,7 +15,6 @@ export type PublicPropiedadListItem = {
   latitud: number;
   longitud: number;
   imagenes: string[];
-  visitas: number;
-  consultas: number;
+  destacada: boolean;
   esExclusiva: boolean;
 };

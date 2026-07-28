@@ -1,76 +1,19 @@
-import { EstadoPropiedad, RolUsuario } from '@/generated/prisma';
+import 'server-only';
+
+import { RolUsuario } from '@prisma/client';
+
 import { prisma } from '@/lib/prisma';
-import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
+import {
+  mapRowsToPublicPropiedadList,
+  PUBLIC_LISTING_SELECT,
+} from '@/lib/public-propiedad-list';
 import type { InmobiliariaProfilePublic } from '@/types/inmobiliaria-profile';
-import type { PublicPropiedadListItem } from '@/types/public-search';
-
-const PUBLIC_LISTING_SELECT = {
-  id: true,
-  titulo: true,
-  direccion: true,
-  barrio: true,
-  precio: true,
-  moneda: true,
-  operacion: true,
-  tipo: true,
-  ambientes: true,
-  dormitorios: true,
-  banos: true,
-  m2Total: true,
-  latitud: true,
-  longitud: true,
-  imagenes: true,
-  visitas: true,
-  consultas: true,
-  esExclusiva: true,
-} as const;
-
-type ListingRow = {
-  id: string;
-  titulo: string;
-  direccion: string;
-  barrio: string | null;
-  precio: number;
-  moneda: string;
-  operacion: string;
-  tipo: string;
-  ambientes: number;
-  dormitorios: number;
-  banos: number;
-  m2Total: number;
-  latitud: number;
-  longitud: number;
-  imagenes: unknown;
-  visitas: number;
-  consultas: number;
-  esExclusiva: boolean;
-};
-
-function mapListingRows(rows: ListingRow[]): PublicPropiedadListItem[] {
-  return rows.map((p) => ({
-    id: p.id,
-    titulo: p.titulo,
-    direccion: p.direccion,
-    barrio: p.barrio,
-    precio: p.precio,
-    moneda: p.moneda,
-    operacion: p.operacion,
-    tipo: p.tipo,
-    ambientes: p.ambientes,
-    dormitorios: p.dormitorios,
-    banos: p.banos,
-    m2Total: p.m2Total,
-    latitud: p.latitud,
-    longitud: p.longitud,
-    imagenes: imagenesItemsToUrls(normalizePropiedadImagenesDb(p.imagenes)),
-    visitas: p.visitas,
-    consultas: p.consultas,
-    esExclusiva: p.esExclusiva,
-  }));
-}
 
 /**
- * Perfil público B2B por ID de usuario (dueño de inmobiliaria o agente).
+ * Perfil público B2B por ID público de perfil (dueño de inmobiliaria o agente).
+ * Los datos de contacto se aprueban expresamente porque son el canal comercial
+ * mostrado por esta página.
  */
 export async function getInmobiliariaProfile(
   userId: string,
@@ -90,7 +33,7 @@ export async function getInmobiliariaProfile(
           logoUrl: true,
           logoAgencia: true,
           propiedades: {
-            where: { estado: EstadoPropiedad.DISPONIBLE },
+            where: PUBLIC_PROPERTY_WHERE,
             orderBy: { createdAt: 'desc' },
             select: PUBLIC_LISTING_SELECT,
           },
@@ -104,7 +47,7 @@ export async function getInmobiliariaProfile(
         },
       },
       propiedadesComoAgente: {
-        where: { estado: EstadoPropiedad.DISPONIBLE },
+        where: PUBLIC_PROPERTY_WHERE,
         orderBy: { createdAt: 'desc' },
         select: PUBLIC_LISTING_SELECT,
       },
@@ -125,22 +68,25 @@ export async function getInmobiliariaProfile(
       telefono: user.telefono,
       rol: 'INMOBILIARIA',
       agenciaNombre: perfil.nombreAgencia,
-      propiedades: mapListingRows(perfil.propiedades),
+      propiedades: mapRowsToPublicPropiedadList(perfil.propiedades),
     };
   }
 
-  if (user.rol === RolUsuario.AGENTE) {
+  if (user.rol === RolUsuario.AGENTE && user.agencia) {
     return {
       userId: user.id,
       displayName: user.nombre,
-      subtitle: user.agencia?.nombreAgencia ?? null,
-      avatarUrl: user.avatarUrl ?? user.agencia?.logoAgencia ?? null,
-      logoUrl: user.agencia?.logoAgencia ?? null,
+      subtitle: user.agencia.nombreAgencia,
+      avatarUrl:
+        user.avatarUrl ??
+        user.agencia.logoUrl ??
+        user.agencia.logoAgencia,
+      logoUrl: user.agencia.logoUrl ?? user.agencia.logoAgencia,
       email: user.email,
       telefono: user.telefono,
       rol: 'AGENTE',
-      agenciaNombre: user.agencia?.nombreAgencia ?? null,
-      propiedades: mapListingRows(user.propiedadesComoAgente),
+      agenciaNombre: user.agencia.nombreAgencia,
+      propiedades: mapRowsToPublicPropiedadList(user.propiedadesComoAgente),
     };
   }
 

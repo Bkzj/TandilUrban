@@ -6,11 +6,11 @@ import { onPropiedadPublicada } from '@/lib/match-engine';
 import { scheduleAssetCleanup, schedulePropertyDeletion } from '@/lib/cloudinary-cleanup';
 import { normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import { resolvePropertyAssets } from '@/lib/panel-property-assets';
-import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { validarPropiedadPayload } from '@/lib/panel-propiedad-payload';
 import { computeEsExclusiva } from '@/lib/propiedad-exclusiva';
 import { prisma } from '@/lib/prisma';
-import { AuthError, assertNotPublicPortalUser, getCurrentUser } from '@/lib/auth';
+import { AuthError } from '@/lib/auth';
+import { requirePropertyAccess } from '@/lib/panel-authorization';
 
 function handleAuthError(error: unknown): NextResponse | null {
   if (error instanceof AuthError) {
@@ -26,14 +26,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Tenés que iniciar sesión.' }, { status: 401 });
-    }
-
-    assertNotPublicPortalUser(user);
-
     const { id } = await params;
+    const { propertyWhere } = await requirePropertyAccess(id);
     const body = (await request.json()) as { estado?: unknown };
     if (typeof body.estado !== 'string' || !ESTADOS_VALIDOS.includes(body.estado)) {
       return NextResponse.json({ error: 'Estado inválido.' }, { status: 400 });
@@ -41,20 +35,13 @@ export async function PATCH(
 
     const nuevoEstado = body.estado as EstadoPropiedad;
 
-    const propiedad = await prisma.propiedad.findUnique({
-      where: { id },
+    const propiedad = await prisma.propiedad.findFirst({
+      where: propertyWhere,
       select: { id: true, inmobiliariaId: true, agenteId: true, estado: true },
     });
 
     if (!propiedad) {
       return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
-    }
-
-    if (!userCanModifyPropiedad(user, propiedad)) {
-      return NextResponse.json(
-        { error: 'No tenés permiso para modificar esta propiedad.' },
-        { status: 403 }
-      );
     }
 
     const estadoAnterior = propiedad.estado;
@@ -85,28 +72,15 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Tenés que iniciar sesión.' }, { status: 401 });
-    }
-
-    assertNotPublicPortalUser(user);
-
     const { id } = await params;
-    const propiedad = await prisma.propiedad.findUnique({
-      where: { id },
+    const { propertyWhere } = await requirePropertyAccess(id);
+    const propiedad = await prisma.propiedad.findFirst({
+      where: propertyWhere,
       select: { id: true, inmobiliariaId: true, agenteId: true, imagenes: true, planoUrl: true },
     });
 
     if (!propiedad) {
       return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
-    }
-
-    if (!userCanModifyPropiedad(user, propiedad)) {
-      return NextResponse.json(
-        { error: 'No tenés permiso para modificar esta propiedad.' },
-        { status: 403 }
-      );
     }
 
     const body = await request.json();
@@ -187,28 +161,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Tenés que iniciar sesión.' }, { status: 401 });
-    }
-
-    assertNotPublicPortalUser(user);
-
     const { id } = await params;
-    const propiedad = await prisma.propiedad.findUnique({
-      where: { id },
+    const { propertyWhere } = await requirePropertyAccess(id);
+    const propiedad = await prisma.propiedad.findFirst({
+      where: propertyWhere,
       select: { id: true, inmobiliariaId: true, agenteId: true },
     });
 
     if (!propiedad) {
       return NextResponse.json({ error: 'Propiedad no encontrada.' }, { status: 404 });
-    }
-
-    if (!userCanModifyPropiedad(user, propiedad)) {
-      return NextResponse.json(
-        { error: 'No tenés permiso para eliminar esta propiedad.' },
-        { status: 403 }
-      );
     }
 
     await schedulePropertyDeletion({

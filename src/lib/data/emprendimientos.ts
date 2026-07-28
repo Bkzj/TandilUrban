@@ -1,4 +1,4 @@
-import { EstadoPropiedad, type Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 import { EMPRENDIMIENTOS_EDITORIALES } from '@/constants/emprendimientos';
 import { prisma } from '@/lib/prisma';
@@ -7,12 +7,7 @@ import {
   PUBLIC_LISTING_SELECT,
 } from '@/lib/public-propiedad-list';
 import type { EmprendimientosPageData } from '@/types/emprendimientos';
-
-const PUBLIC_WHERE: Prisma.PropiedadWhereInput = {
-  estado: {
-    in: [EstadoPropiedad.DISPONIBLE, EstadoPropiedad.RESERVADA],
-  },
-};
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
 
 const POZO_KEYWORDS = ['pozo', 'emprendimiento', 'desarrollo', 'torre', 'barrio privado'];
 
@@ -30,7 +25,7 @@ export async function getEmprendimientosPageData(): Promise<EmprendimientosPageD
     prisma.propiedad.findMany({
       where: {
         AND: [
-          PUBLIC_WHERE,
+          PUBLIC_PROPERTY_WHERE,
           {
             OR: [
               { tipo: { in: ['Local', 'Oficina'], mode: 'insensitive' } },
@@ -47,7 +42,7 @@ export async function getEmprendimientosPageData(): Promise<EmprendimientosPageD
     }),
     prisma.propiedad.findMany({
       where: {
-        AND: [PUBLIC_WHERE, pozoKeywordClause()],
+        AND: [PUBLIC_PROPERTY_WHERE, pozoKeywordClause()],
       },
       orderBy: { createdAt: 'desc' },
       take: 8,
@@ -56,7 +51,7 @@ export async function getEmprendimientosPageData(): Promise<EmprendimientosPageD
     prisma.propiedad.findMany({
       where: {
         AND: [
-          PUBLIC_WHERE,
+          PUBLIC_PROPERTY_WHERE,
           { tipo: { in: ['Departamento', 'Casa'], mode: 'insensitive' } },
           { operacion: { equals: 'VENTA', mode: 'insensitive' } },
         ],

@@ -1,4 +1,4 @@
-import { EstadoPropiedad, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 import {
@@ -6,6 +6,10 @@ import {
   PUBLIC_LISTING_SELECT,
 } from '@/lib/public-propiedad-list';
 import type { PublicPropiedadListItem } from '@/types/public-search';
+import {
+  PUBLIC_PROPERTY_STATES,
+  PUBLIC_PROPERTY_WHERE,
+} from '@/lib/public-property-policy';
 
 /**
  * Recomendaciones mixtas: mismo tipo/operación y/o propiedades a ≤700 m (radar).
@@ -24,7 +28,8 @@ export async function getPropiedadesSimilares(
   if (latitud != null && longitud != null && Number.isFinite(latitud) && Number.isFinite(longitud)) {
     const cercanos = await prisma.$queryRaw<{ id: string }[]>`
       SELECT id FROM "Propiedad"
-      WHERE id != ${propiedadActualId} AND estado = 'DISPONIBLE'
+      WHERE id != ${propiedadActualId}
+      AND estado::text IN (${Prisma.join(PUBLIC_PROPERTY_STATES)})
       AND (
         6371000 * acos(
           cos(radians(${latitud})) * cos(radians(latitud)) *
@@ -51,7 +56,7 @@ export async function getPropiedadesSimilares(
 
   const rows = await prisma.propiedad.findMany({
     where: {
-      estado: EstadoPropiedad.DISPONIBLE,
+      ...PUBLIC_PROPERTY_WHERE,
       id: { not: propiedadActualId },
       OR: orConditions,
     },

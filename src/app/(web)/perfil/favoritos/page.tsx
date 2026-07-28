@@ -2,22 +2,22 @@ import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
 
 import { PropertyGrid } from '@/components/public/PropertyGrid';
-import { getServerAuthSession } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { getFavoritePropiedadIds } from '@/lib/favoritos';
 import {
   mapRowsToPublicPropiedadList,
   PUBLIC_LISTING_SELECT,
 } from '@/lib/public-propiedad-list';
 import { prisma } from '@/lib/prisma';
-import type { SessionUserAugmented } from '@/types/auth';
+import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
 
 export const metadata = {
   title: 'Mis favoritos | Propea Group',
 };
 
 export default async function PerfilFavoritosPage() {
-  const session = await getServerAuthSession();
-  const userId = (session?.user as SessionUserAugmented | undefined)?.id;
+  const user = await getCurrentUser();
+  const userId = user?.id;
 
   if (!userId) {
     return null;
@@ -29,6 +29,7 @@ export default async function PerfilFavoritosPage() {
     where: { id: userId },
     select: {
       favoritos: {
+        where: PUBLIC_PROPERTY_WHERE,
         orderBy: { updatedAt: 'desc' },
         select: PUBLIC_LISTING_SELECT,
       },

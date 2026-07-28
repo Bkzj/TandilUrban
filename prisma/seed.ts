@@ -21,8 +21,8 @@ type RestoredProperty = {
   descripcion: string;
   operacion: string;
   tipo: string;
-  precio: number;
-  moneda: string;
+  precio: string;
+  moneda: 'ARS' | 'USD';
   m2Total: number;
   m2Cubiertos: number;
   ambientes: number;
@@ -31,7 +31,7 @@ type RestoredProperty = {
   barrio: string;
   latitud: number;
   longitud: number;
-  expensas: number | null;
+  expensas: string | null;
   caracteristicas: string[];
   imagenes: { url: string; public_id: string; categoria: string }[];
 };
@@ -151,9 +151,9 @@ async function main() {
         estado: 'DISPONIBLE',
         tipo: p.tipo,
         operacion: p.operacion,
-        precio: p.precio,
+        precio: String(p.precio),
         moneda: p.moneda,
-        expensas: p.expensas,
+        expensas: p.expensas === null ? null : String(p.expensas),
         direccion: p.direccion,
         barrio: p.barrio,
         latitud: p.latitud,

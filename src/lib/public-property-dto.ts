@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client';
 
+import { decimalToMoneyText } from '@/lib/money';
 import type { PublicPropertyDetailDto } from '@/types/public-property';
 
 export const PUBLIC_PROPERTY_DETAIL_SELECT = {
@@ -51,7 +52,7 @@ export function toPublicPropertyDetailDto(
     descripcion: row.descripcion,
     operacion: row.operacion,
     tipo: row.tipo,
-    precio: row.precio,
+    precio: decimalToMoneyText(row.precio),
     moneda: row.moneda,
     direccion: row.direccion,
     barrio: row.barrio,

@@ -1,4 +1,5 @@
 import type { PropertyFormData } from '@/types/panel';
+import { isValidMoneyTextInput } from '@/lib/money-format';
 
 import type { StepKey } from './constants';
 
@@ -19,7 +20,7 @@ export function isStepValid(step: StepKey, data: PropertyFormData): boolean {
       );
     }
     case 'precio':
-      return Number(data.precio) > 0;
+      return isValidMoneyTextInput(data.precio);
     case 'caracteristicas':
       return true;
     case 'imagenes':

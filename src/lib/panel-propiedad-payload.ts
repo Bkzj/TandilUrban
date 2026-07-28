@@ -1,9 +1,10 @@
 import type { CreatePropiedadPayload } from '@/types/api';
 import type { PropiedadImagenItem } from '@/types/panel';
+import { validateMoneyText } from '@/lib/money';
+import { isCurrency } from '@/types/money';
 
 const TIPOS_VALIDOS = new Set(['Casa', 'Departamento', 'Lote', 'Local', 'Oficina']);
 const OPERACIONES_VALIDAS = new Set(['VENTA', 'ALQUILER']);
-const MONEDAS_VALIDAS = new Set(['USD', 'ARS']);
 
 function asPositiveNumber(v: unknown): number | null {
   if (typeof v === 'number' && Number.isFinite(v) && v > 0) return v;
@@ -73,12 +74,12 @@ export function validarPropiedadPayload(
   if (typeof b.descripcion !== 'string' || b.descripcion.trim().length < 10) {
     return { ok: false, error: 'La descripción debe tener al menos 10 caracteres.' };
   }
-  if (typeof b.moneda !== 'string' || !MONEDAS_VALIDAS.has(b.moneda)) {
+  if (!isCurrency(b.moneda)) {
     return { ok: false, error: 'La moneda es inválida.' };
   }
 
-  const precio = asPositiveNumber(b.precio);
-  if (precio === null) {
+  const precio = validateMoneyText(b.precio);
+  if (!precio.ok) {
     return { ok: false, error: 'El precio debe ser un número positivo.' };
   }
   const m2Total = asPositiveNumber(b.m2Total);
@@ -91,7 +92,13 @@ export function validarPropiedadPayload(
   const dormitorios = asNonNegativeNumber(b.dormitorios) ?? 0;
   const banos = asNonNegativeNumber(b.banos) ?? 0;
   const cocheras = asNonNegativeNumber(b.cocheras) ?? 0;
-  const expensas = asNonNegativeNumber(b.expensas);
+  const expensas =
+    b.expensas === null || b.expensas === undefined || b.expensas === ''
+      ? null
+      : validateMoneyText(b.expensas, { allowZero: true });
+  if (expensas !== null && !expensas.ok) {
+    return { ok: false, error: 'Las expensas deben ser decimales no negativos con hasta 2 decimales.' };
+  }
 
   const imagenesParsed = parseImagenesPayload(b.imagenes);
   if (imagenesParsed === null) {
@@ -131,9 +138,9 @@ export function validarPropiedadPayload(
       dormitorios,
       banos,
       cocheras,
-      moneda: b.moneda as 'USD' | 'ARS',
-      precio,
-      expensas,
+      moneda: b.moneda,
+      precio: precio.value,
+      expensas: expensas?.value ?? null,
       caracteristicas,
       imagenes: imagenesParsed,
       planoUrl,

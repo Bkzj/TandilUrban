@@ -47,7 +47,7 @@ export function TopProperties({ topPropiedades }: TopPropertiesProps) {
                     aria-hidden
                   />
                   <span className="absolute right-3 top-3 rounded bg-black/50 px-2 py-1 text-xs font-semibold tabular-nums text-white backdrop-blur-sm">
-                    {propiedad.visitas.toLocaleString('es-AR')} visitas
+                    {propiedad.visitas.toLocaleString('es-AR')} visualizaciones
                   </span>
                   <div className="absolute bottom-0 left-0 p-4 pr-16">
                     <p className="text-[0.65rem] font-bold uppercase tracking-wide text-emerald-300/90">

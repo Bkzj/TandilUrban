@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FavoriteButton } from '@/components/public/FavoriteButton';
 import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaBadge';
 import type { PublicPropiedadListItem } from '@/types/public-search';
+import { formatMoneyAmount } from '@/lib/money-format';
 
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop';
@@ -24,7 +25,7 @@ export function EmprendimientoPropiedadCard({
 }: Props) {
   const img = propiedad.imagenes[0]?.trim() || PLACEHOLDER;
   const direccionLine = [propiedad.direccion, propiedad.barrio].filter(Boolean).join(' · ');
-  const precioFmt = `${propiedad.moneda} ${propiedad.precio.toLocaleString('es-AR')}`;
+  const precioFmt = `${propiedad.moneda} ${formatMoneyAmount(propiedad.precio)}`;
   const badgeClass =
     badgeTone === 'naranja' ? 'bg-naranja text-white' : 'bg-verde text-white';
 

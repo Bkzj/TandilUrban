@@ -11,6 +11,7 @@ import {
   registrarVisitaFisicaManual,
 } from '@/actions/contacto';
 import type { PanelConsultaPreview, PanelPropiedadTableRow, PanelVisitanteFisicoPreview } from '@/types/panel';
+import { formatMoneyAmount } from '@/lib/money-format';
 
 import { DeletePropertyButton } from './DeletePropertyButton';
 
@@ -39,12 +40,6 @@ function diasEnMercado(createdIso: string): number {
 function convRatePct(visitas: number, consultas: number): number {
   if (visitas <= 0) return 0;
   return (consultas / visitas) * 100;
-}
-
-function formatValorM2(precio: number, m2Total: number, moneda: string): string {
-  if (m2Total <= 0) return '—';
-  const valor = Math.round(precio / m2Total);
-  return `${moneda} ${valor.toLocaleString('es-AR')}`;
 }
 
 function fmtVisitaDate(iso: string): string {
@@ -106,7 +101,9 @@ export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Pro
   const consultas = propiedad.consultas ?? 0;
   const dias = diasEnMercado(propiedad.createdAt);
   const conv = convRatePct(visitas, consultas);
-  const valorM2 = formatValorM2(propiedad.precio, propiedad.m2Total, propiedad.moneda);
+  const valorM2 = propiedad.valorM2
+    ? `${propiedad.moneda} ${formatMoneyAmount(propiedad.valorM2)}`
+    : '—';
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -162,7 +159,7 @@ export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Pro
     setRegisteringId(consulta.id);
 
     startTransition(async () => {
-      const result = await ajustarVisitaFisica(consulta.id, 1);
+      const result = await ajustarVisitaFisica(consulta.id, 1, crypto.randomUUID());
       setRegisteringId(null);
 
       if (!result.ok) {
@@ -211,6 +208,7 @@ export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Pro
         nombre,
         email: email || undefined,
         telefono: telefono || undefined,
+        idempotencyKey: crypto.randomUUID(),
       });
 
       if (!result.ok) {
@@ -245,7 +243,7 @@ export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Pro
     setDeletingId(visitante.id);
 
     startTransition(async () => {
-      const result = await eliminarVisitaFisicaEvento(visitante.id);
+      const result = await eliminarVisitaFisicaEvento(visitante.id, crypto.randomUUID());
       setDeletingId(null);
 
       if (!result.ok) {
@@ -306,7 +304,7 @@ export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Pro
             {propiedad.operacion} · {propiedad.tipo}
           </p>
           <p className="mt-3 text-2xl font-bold tabular-nums text-white">
-            {propiedad.moneda} {propiedad.precio.toLocaleString('es-AR')}
+            {propiedad.moneda} {formatMoneyAmount(propiedad.precio)}
           </p>
 
           <div className="mb-6 mt-6 grid grid-cols-2 gap-3 md:grid-cols-3">

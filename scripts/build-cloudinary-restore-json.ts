@@ -35,16 +35,16 @@ function inferMeta(slug: string, title: string) {
   const tipo =
     s.includes('dpto') || s.includes('depto') ? 'Departamento' : 'Casa';
 
-  let precio = 150000;
+  let precio = '150000.00';
   let moneda = 'USD';
   if (s.includes('usd-180k')) {
-    precio = 180000;
+    precio = '180000.00';
     moneda = 'USD';
   } else if (s.includes('ud-1000')) {
-    precio = 1000;
+    precio = '1000.00';
     moneda = 'USD';
   } else if (operacion === 'Alquiler') {
-    precio = 450000;
+    precio = '450000.00';
     moneda = 'ARS';
   }
 

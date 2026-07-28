@@ -4,8 +4,8 @@ export type PublicPropiedadListItem = {
   titulo: string;
   direccion: string;
   barrio: string | null;
-  precio: number;
-  moneda: string;
+  precio: string;
+  moneda: Currency;
   operacion: string;
   tipo: string;
   ambientes: number;
@@ -18,3 +18,4 @@ export type PublicPropiedadListItem = {
   destacada: boolean;
   esExclusiva: boolean;
 };
+import type { Currency } from './money';

@@ -1,4 +1,5 @@
 import type { PropiedadImagenItem } from './panel';
+import type { Currency } from './money';
 
 /** Cuerpo esperado por `POST /api/auth/register`. */
 export type RegisterPayload = {
@@ -42,9 +43,9 @@ export type CreatePropiedadPayload = {
   dormitorios: number;
   banos: number;
   cocheras: number;
-  moneda: 'USD' | 'ARS';
-  precio: number;
-  expensas?: number | null;
+  moneda: Currency;
+  precio: string;
+  expensas?: string | null;
   caracteristicas: string[];
   imagenes: PropiedadImagenItem[];
   planoUrl?: string | null;

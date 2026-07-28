@@ -34,6 +34,16 @@ enum EstadoContacto {
   RESPONDIDO
 }
 
+enum OrigenContacto {
+  PUBLICO
+  PANEL_MANUAL
+}
+
+enum Moneda {
+  ARS
+  USD
+}
+
 enum CloudinaryAssetStatus {
   DRAFT
   BOUND
@@ -105,6 +115,7 @@ model Inmobiliaria {
   propiedades            Propiedad[]
   cloudinaryAssets       CloudinaryAsset[]
   cloudinaryDeletionJobs CloudinaryDeletionJob[]
+  propiedadVistas        PropiedadVista[]
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
 }
@@ -122,9 +133,9 @@ model Propiedad {
   estado          EstadoPropiedad @default(DISPONIBLE)
   tipo            String
   operacion       String
-  precio          Float
-  moneda          String          @default("USD")
-  expensas        Float?
+  precio          Decimal         @db.Decimal(18, 2)
+  moneda          Moneda          @default(USD)
+  expensas        Decimal?        @db.Decimal(18, 2)
   direccion       String
   barrio          String?
   latitud         Float
@@ -149,10 +160,15 @@ model Propiedad {
    */
   esExclusiva     Boolean         @default(false)
 
-  visitas   Int @default(0)
-  consultas Int @default(0)
+  /**
+   * Cache reconciliable de PropiedadVista medida. No incluye el valor histórico.
+   */
+  visitas          Int @default(0)
+  legacyVisitCount Int @default(0)
+  consultas        Int @default(0)
 
   contactos             Contacto[]
+  vistas                PropiedadVista[]
   visitasFisicasEventos VisitaFisicaEvento[]
   favoritadosPor        User[]               @relation("UsuarioFavoritos")
   createdAt             DateTime             @default(now())
@@ -164,6 +180,24 @@ model Propiedad {
   @@index([operacion])
   @@index([barrio])
   @@index([agenteId])
+}
+
+/**
+ * Visualización pública calificada. La clave anónima es un HMAC rotativo;
+ * nunca contiene IP, user-agent ni identificadores de usuario en claro.
+ */
+model PropiedadVista {
+  id             String       @id @default(cuid())
+  propiedadId    String
+  propiedad      Propiedad    @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  inmobiliariaId String
+  inmobiliaria   Inmobiliaria @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
+  anonymousKey   String
+  createdAt      DateTime     @default(now())
+
+  @@index([propiedadId, createdAt])
+  @@index([inmobiliariaId, createdAt])
+  @@index([propiedadId, anonymousKey, createdAt])
 }
 
 model CloudinaryAsset {
@@ -241,16 +275,19 @@ model Contacto {
   propiedadId    String
   propiedad      Propiedad      @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
   estado         EstadoContacto @default(NUEVO)
+  origen         OrigenContacto @default(PUBLICO)
   /**
    * Visitas presenciales coordinadas para este lead.
    */
   visitasFisicas Int            @default(0)
+  idempotencyKey String?        @unique
   createdAt      DateTime       @default(now())
 
   visitasFisicasEventos VisitaFisicaEvento[]
 
   @@index([propiedadId])
   @@index([estado])
+  @@index([propiedadId, origen, createdAt])
 }
 
 /**
@@ -268,6 +305,7 @@ model VisitaFisicaEvento {
    * +1 al sumar visita, -1 al restar.
    */
   delta           Int
+  idempotencyKey  String?   @unique
   createdAt       DateTime  @default(now())
 
   @@index([contactoId])

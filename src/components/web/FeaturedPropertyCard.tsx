@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { FavoriteButton } from '@/components/public/FavoriteButton';
 import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaBadge';
 import type { PublicPropiedadListItem } from '@/types/public-search';
+import { formatMoneyAmount } from '@/lib/money-format';
 
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2070&auto=format&fit=crop';
@@ -16,7 +17,7 @@ type Props = {
 };
 
 function formatPrecio(p: PublicPropiedadListItem): string {
-  return `${p.moneda} ${p.precio.toLocaleString('es-AR')}`;
+  return `${p.moneda} ${formatMoneyAmount(p.precio)}`;
 }
 
 export function FeaturedPropertyCard({ propiedad, isFavoritoInicial = false }: Props) {

@@ -35,8 +35,9 @@ export type PanelPropiedadTableRow = {
   imagenes: PropiedadImagenItem[];
   operacion: string;
   tipo: string;
-  precio: number;
-  moneda: string;
+  precio: string;
+  moneda: Currency;
+  valorM2: string | null;
   visitas: number;
   consultas: number;
   m2Total: number;
@@ -81,7 +82,7 @@ export type Agente = {
 
 export type Operacion = 'VENTA' | 'ALQUILER';
 export type TipoInmueble = 'Casa' | 'Departamento' | 'Lote' | 'Local' | 'Oficina';
-export type Moneda = 'USD' | 'ARS';
+export type Moneda = Currency;
 
 export type PropertyFormData = {
   operacion: Operacion | '';
@@ -114,3 +115,4 @@ export type StepProps = {
   onNext: () => void;
   isEditMode?: boolean;
 };
+import type { Currency } from './money';

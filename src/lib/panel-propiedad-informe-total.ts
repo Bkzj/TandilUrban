@@ -6,6 +6,8 @@ import { buildPropiedadEngagement } from '@/lib/panel-seguimiento';
 import { resolvePanelTenantInmobiliariaId } from '@/lib/panel-tenant';
 import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import { prisma } from '@/lib/prisma';
+import { decimalToMoneyText, divideMoney } from '@/lib/money';
+import { buildConversionMetric } from '@/lib/panel-analytics';
 
 export type PropiedadInformeTotalConsulta = {
   id: string;
@@ -34,9 +36,9 @@ export type PropiedadInformeTotalData = {
     tipo: string;
     operacion: string;
     estado: string;
-    precio: number;
-    moneda: string;
-    expensas: number | null;
+    precio: string;
+    moneda: 'ARS' | 'USD';
+    expensas: string | null;
     direccion: string;
     barrio: string | null;
     m2Total: number;
@@ -65,7 +67,7 @@ export type PropiedadInformeTotalData = {
   visitasFisicasTotal: number;
   diasEnMercado: number;
   valorM2: string;
-  convRatePct: number;
+  convRatePct: string | null;
   engagement: ReturnType<typeof buildPropiedadEngagement>;
   consultas: PropiedadInformeTotalConsulta[];
   visitasPresenciales: PropiedadInformeTotalVisita[];
@@ -147,14 +149,33 @@ export async function getPropiedadInformeTotalData(
   if (!prop) return null;
 
   const visitasFisicasTotal = prop.contactos.reduce((sum, c) => sum + c.visitasFisicas, 0);
+  const conversionTo = new Date();
+  const conversionFrom = new Date(conversionTo.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const [periodViews, periodContacts] = await Promise.all([
+    prisma.propiedadVista.count({
+      where: { propiedadId: prop.id, createdAt: { gte: conversionFrom, lt: conversionTo } },
+    }),
+    prisma.contacto.count({
+      where: {
+        propiedadId: prop.id,
+        origen: 'PUBLICO',
+        createdAt: { gte: conversionFrom, lt: conversionTo },
+      },
+    }),
+  ]);
   const diasEnMercado = Math.max(
     0,
     Math.floor((Date.now() - prop.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
   );
-  const convRatePct = prop.visitas > 0 ? (prop.consultas / prop.visitas) * 100 : 0;
+  const convRatePct = buildConversionMetric({
+    contacts: periodContacts,
+    views: periodViews,
+    from: conversionFrom,
+    to: conversionTo,
+  }).value;
   const valorM2 =
     prop.m2Total > 0
-      ? `${prop.moneda} ${Math.round(prop.precio / prop.m2Total).toLocaleString('es-AR')}`
+      ? `${prop.moneda} ${divideMoney(prop.precio, prop.m2Total)}`
       : '—';
   const imagenes = imagenesItemsToUrls(normalizePropiedadImagenesDb(prop.imagenes));
   const consultasNuevas = prop.contactos.filter((c) => c.estado === 'NUEVO').length;
@@ -167,9 +188,9 @@ export async function getPropiedadInformeTotalData(
       tipo: prop.tipo,
       operacion: prop.operacion,
       estado: prop.estado,
-      precio: prop.precio,
+      precio: decimalToMoneyText(prop.precio),
       moneda: prop.moneda,
-      expensas: prop.expensas,
+      expensas: prop.expensas ? decimalToMoneyText(prop.expensas) : null,
       direccion: prop.direccion,
       barrio: prop.barrio,
       m2Total: prop.m2Total,

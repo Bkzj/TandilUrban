@@ -5,12 +5,14 @@ import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaB
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { formatMoneyAmount } from '@/lib/money-format';
+import type { Currency } from '@/types/money';
 
 interface PropertyCardProps {
   id: string; // Agregamos el ID
   titulo: string;
-  precio: number;
-  moneda: string;
+  precio: string;
+  moneda: Currency;
   operacion: string;
   ambientes: number;
   m2Total: number;
@@ -79,7 +81,7 @@ export default function PropertyCard({
 
         <div className="p-6 flex flex-col flex-grow">
           <h3 className="mb-2 line-clamp-1 text-xl font-bold text-text-primary">{titulo}</h3>
-          <div className="text-2xl font-light text-naranja mb-4">{moneda} {precio.toLocaleString('es-AR')}</div>
+          <div className="text-2xl font-light text-naranja mb-4">{moneda} {formatMoneyAmount(precio)}</div>
           <div className="mb-4 h-[1px] w-full bg-border-light"></div>
           <div className="mt-auto flex items-center justify-between text-sm text-text-secondary">
             <div className="flex items-center gap-1"><span>📐</span> {m2Total} m²</div>

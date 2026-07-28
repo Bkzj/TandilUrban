@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { EstadoPropiedad, RolUsuario } from '@prisma/client';
+import { EstadoPropiedad, Prisma, RolUsuario } from '@prisma/client';
 
 import {
   isPublicPropertyState,
@@ -30,7 +30,7 @@ test('public detail DTO returns only approved fields and a narrow inmobiliaria s
     descripcion: 'Descripción',
     operacion: 'VENTA',
     tipo: 'Casa',
-    precio: 100,
+    precio: new Prisma.Decimal('100.00'),
     moneda: 'USD',
     direccion: 'Dirección',
     barrio: 'Centro',

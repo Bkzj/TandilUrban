@@ -5,7 +5,7 @@ export type PropiedadEngagementMetrics = {
   visitasFisicasLead: number;
   visitasFisicasPropiedad: number;
   /** Vista web + consultas×2 + visitas físicas de la propiedad×3 */
-  indiceInteres: number;
+  actividadRegistrada: number;
 };
 
 export type VisitaFisicaHistorialItem = {
@@ -16,12 +16,12 @@ export type VisitaFisicaHistorialItem = {
   registradoPorNombre: string;
 };
 
-export function calcularIndiceInteres(
+export function calcularActividadRegistrada(
   visitasWeb: number,
   consultas: number,
   visitasFisicasPropiedad: number,
 ): number {
-  return visitasWeb + consultas * 2 + visitasFisicasPropiedad * 3;
+  return visitasWeb + consultas + visitasFisicasPropiedad;
 }
 
 export function buildPropiedadEngagement(
@@ -35,6 +35,6 @@ export function buildPropiedadEngagement(
     consultas,
     visitasFisicasLead,
     visitasFisicasPropiedad,
-    indiceInteres: calcularIndiceInteres(visitasWeb, consultas, visitasFisicasPropiedad),
+    actividadRegistrada: calcularActividadRegistrada(visitasWeb, consultas, visitasFisicasPropiedad),
   };
 }

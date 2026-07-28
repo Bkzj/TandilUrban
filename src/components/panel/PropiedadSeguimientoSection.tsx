@@ -82,10 +82,10 @@ export function PropiedadSeguimientoSection({ propiedadId, visitasWeb, consultas
         <Metric label="Vistas web" value={visitasWeb} />
         <Metric label="Consultas" value={consultas} />
         <Metric label="Visitas fís. (total)" value={visitasFisicasPropiedad} highlight />
-        <Metric label="Índice de interés" value={displayEngagement.indiceInteres} highlight />
+        <Metric label="Actividad registrada" value={displayEngagement.actividadRegistrada} highlight />
       </div>
       <p className="mt-2 text-[0.65rem] text-white/50">
-        Vistas + consultas×2 + visitas físicas×3
+        Suma de visualizaciones, consultas y visitas físicas; no representa personas únicas.
       </p>
 
       <div className="mt-3">

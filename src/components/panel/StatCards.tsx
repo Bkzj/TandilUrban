@@ -18,25 +18,26 @@ const BASE_CARDS = [
   },
   {
     key: 'visitasTotales' as const,
-    label: 'Visitas totales',
+    label: 'Visualizaciones (30 días)',
     icon: MousePointerClick,
     iconClass: 'text-verde-light bg-white/10',
   },
   {
     key: 'totalConsultas' as const,
-    label: 'Total consultas',
+    label: 'Consultas (30 días)',
     icon: MessageCircle,
     iconClass: 'text-emerald-400 bg-white/10',
   },
 ] as const;
 
-function formatTasaConversion(consultas: number, visitas: number): string {
-  if (visitas <= 0) return '0%';
-  return `${((consultas / visitas) * 100).toFixed(1)}%`;
+function formatTasaConversion(stats: PanelAnalyticsStats): string {
+  if (stats.conversion.status === 'unavailable') return 'Sin datos';
+  if (stats.conversion.status === 'insufficient_data') return 'Muestra insuficiente';
+  return `${stats.conversion.value}%`;
 }
 
 export function StatCards({ stats }: StatCardsProps) {
-  const tasaLabel = formatTasaConversion(stats.totalConsultas, stats.visitasTotales);
+  const tasaLabel = formatTasaConversion(stats);
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

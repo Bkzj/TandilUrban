@@ -45,3 +45,35 @@ test('non-public or nonexistent property creates no contact and increments no co
   assert.deepEqual(result, { ok: false, reason: 'property_not_available' });
   assert.equal(writes, 0);
 });
+
+test('public contact forwards a stable idempotency key to the transactional repository', async () => {
+  const seen = new Set<string>();
+  let counterIncrements = 0;
+  const persistInquiry = async (
+    _propertyId: string,
+    _payload: typeof payload,
+    idempotencyKey?: string,
+  ) => {
+    assert.equal(idempotencyKey, 'contact-request-0001');
+    if (!seen.has(idempotencyKey)) {
+      seen.add(idempotencyKey);
+      counterIncrements += 1;
+    }
+    return { id: 'contact-stable', createdAt: new Date('2026-07-28T12:00:00Z') };
+  };
+  const dependencies = {
+    findPublicProperty: async () => ({
+      id: 'property-a',
+      titulo: 'Casa',
+      agenteEmail: null,
+      adminEmail: 'admin@example.com',
+    }),
+    persistInquiry,
+  };
+
+  const first = await createPublicContactInquiry(payload, dependencies, 'contact-request-0001');
+  const retry = await createPublicContactInquiry(payload, dependencies, 'contact-request-0001');
+  assert.equal(first.ok, true);
+  assert.equal(retry.ok, true);
+  assert.equal(counterIncrements, 1);
+});

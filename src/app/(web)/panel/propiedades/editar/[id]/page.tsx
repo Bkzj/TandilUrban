@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { RolUsuario } from '@prisma/client';
+import { RolUsuario, type Prisma } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 import { normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
@@ -31,9 +31,9 @@ function mapToFormData(
     dormitorios: number;
     banos: number;
     cocheras: number;
-    moneda: string;
-    precio: number;
-    expensas: number | null;
+    moneda: 'ARS' | 'USD';
+    precio: Prisma.Decimal;
+    expensas: Prisma.Decimal | null;
     caracteristicas: string[];
     imagenes: unknown;
     planoUrl: string | null;

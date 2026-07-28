@@ -43,9 +43,9 @@ type DemoPropiedad = {
   descripcion: string;
   operacion: 'VENTA' | 'ALQUILER';
   tipo: string;
-  precio: number;
-  moneda: string;
-  expensas: number | null;
+  precio: string;
+  moneda: 'ARS' | 'USD';
+  expensas: string | null;
   direccion: string;
   barrio: string;
   latitud: number;
@@ -70,7 +70,7 @@ const DEMO_PROPIEDADES: DemoPropiedad[] = [
       'Residencia de autor en barrio cerrado con seguridad 24 h, pileta climatizada, quincho con parrilla y vista a la sierra. Ideal familia ejecutiva.',
     operacion: 'VENTA',
     tipo: 'Casa',
-    precio: 320_000,
+    precio: '320000.00',
     moneda: 'USD',
     expensas: null,
     direccion: 'Calle Los Eucaliptos 890, Barrio Las Acacias',
@@ -95,7 +95,7 @@ const DEMO_PROPIEDADES: DemoPropiedad[] = [
       'Propiedad única a metros del dique. Deck de madera, living con hogar y suite principal con vestidor. Oportunidad de inversión turística.',
     operacion: 'VENTA',
     tipo: 'Casa',
-    precio: 150_000,
+    precio: '150000.00',
     moneda: 'USD',
     expensas: null,
     direccion: 'Camino al Dique km 2,5',
@@ -120,9 +120,9 @@ const DEMO_PROPIEDADES: DemoPropiedad[] = [
       'Piso alto con amenities: gimnasio, SUM y terraza verde. Cochera fija y baulera. Excelente rentabilidad en alquiler temporario.',
     operacion: 'VENTA',
     tipo: 'Departamento',
-    precio: 185_000,
+    precio: '185000.00',
     moneda: 'USD',
-    expensas: 95_000,
+    expensas: '95000.00',
     direccion: 'Av. Rivadavia 512, Piso 9',
     barrio: 'Centro',
     latitud: -37.3219,
@@ -145,7 +145,7 @@ const DEMO_PROPIEDADES: DemoPropiedad[] = [
       'Arquitectura de sierra con grandes ventanales, parrilla techada y espacio home office. Barrio residencial de baja densidad.',
     operacion: 'ALQUILER',
     tipo: 'Casa',
-    precio: 450_000,
+    precio: '450000.00',
     moneda: 'ARS',
     expensas: null,
     direccion: 'Pasaje Los Robles 145',
@@ -170,9 +170,9 @@ const DEMO_PROPIEDADES: DemoPropiedad[] = [
       'Unidad lista para habitar con diseño industrial-chic. Ideal profesional o pareja. Contrato anual con ajuste trimestral.',
     operacion: 'ALQUILER',
     tipo: 'Departamento',
-    precio: 380_000,
+    precio: '380000.00',
     moneda: 'ARS',
-    expensas: 42_000,
+    expensas: '42000.00',
     direccion: 'San Martín 780, Loft B',
     barrio: 'Centro',
     latitud: -37.3235,
@@ -195,7 +195,7 @@ const DEMO_PROPIEDADES: DemoPropiedad[] = [
       'Chalet en proceso de reserva con seña confirmada. Doble altura en living, suite en planta baja y dependencia de servicio.',
     operacion: 'VENTA',
     tipo: 'Casa',
-    precio: 280_000,
+    precio: '280000.00',
     moneda: 'USD',
     expensas: null,
     direccion: 'Calle Las Tipas 320, Barrio Las Acacias',
@@ -475,9 +475,9 @@ async function main() {
         estado: p.estado,
         tipo: p.tipo,
         operacion: p.operacion,
-        precio: p.precio,
+        precio: String(p.precio),
         moneda: p.moneda,
-        expensas: p.expensas,
+        expensas: p.expensas === null ? null : String(p.expensas),
         direccion: p.direccion,
         barrio: p.barrio,
         latitud: p.latitud,

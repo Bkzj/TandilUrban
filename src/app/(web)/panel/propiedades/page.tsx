@@ -4,6 +4,7 @@ import { RolUsuario } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 import { normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
+import { decimalToMoneyText, divideMoney } from '@/lib/money';
 import { resolvePanelTenantInmobiliariaId } from '@/lib/panel-tenant';
 import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/auth';
 import type { CurrentUser } from '@/types/auth';
@@ -106,8 +107,9 @@ export default async function PanelPropiedadesPage() {
     imagenes: normalizePropiedadImagenesDb(p.imagenes),
     operacion: p.operacion,
     tipo: p.tipo,
-    precio: p.precio,
+    precio: decimalToMoneyText(p.precio),
     moneda: p.moneda,
+    valorM2: divideMoney(p.precio, p.m2Total),
     m2Total: p.m2Total,
     visitas: p.visitas,
     consultas: p.consultas,

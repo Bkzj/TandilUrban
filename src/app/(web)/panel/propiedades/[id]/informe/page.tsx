@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { RolUsuario } from '@prisma/client';
+import { RolUsuario, type Prisma } from '@prisma/client';
 
 import { PropiedadInformePrintButton } from '@/components/panel/PropiedadInformePrintButton';
 import { getCurrentUser, roleCanAccessPanel } from '@/lib/auth';
@@ -9,6 +9,7 @@ import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propied
 import { resolvePanelTenantInmobiliariaId } from '@/lib/panel-tenant';
 import { prisma } from '@/lib/prisma';
 import type { CurrentUser } from '@/types/auth';
+import { decimalToMoneyText, formatMoneyAmount } from '@/lib/money';
 
 export const metadata = {
   title: 'Informe de valoración | Propea Group',
@@ -16,8 +17,8 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-function formatPrecio(precio: number, moneda: string): string {
-  return `${moneda} ${precio.toLocaleString('es-AR', { maximumFractionDigits: 0 })}`;
+function formatPrecio(precio: Prisma.Decimal, moneda: string): string {
+  return `${moneda} ${formatMoneyAmount(decimalToMoneyText(precio))}`;
 }
 
 type PageProps = {
@@ -177,7 +178,7 @@ export default async function PropiedadInformePage({ params }: PageProps) {
         <section className="mt-8 rounded-lg border-2 border-naranja/30 bg-naranja/5 p-6 print:mt-6 print:break-inside-avoid">
           <h3 className="text-xs font-bold uppercase tracking-wider text-naranja">Valoración de mercado</h3>
           <p className="mt-2 text-3xl font-bold text-gray-900">{formatPrecio(prop.precio, prop.moneda)}</p>
-          {prop.expensas != null && prop.expensas > 0 ? (
+          {prop.expensas != null && prop.expensas.gt(0) ? (
             <p className="mt-1 text-sm text-gray-600">
               Expensas: {formatPrecio(prop.expensas, prop.moneda)}
             </p>

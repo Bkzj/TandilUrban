@@ -16,8 +16,8 @@ export type PublicPropertyDetailDto = {
   descripcion: string;
   operacion: string;
   tipo: string;
-  precio: number;
-  moneda: string;
+  precio: string;
+  moneda: Currency;
   direccion: string;
   barrio: string | null;
   latitud: number;
@@ -53,3 +53,4 @@ export type RecentPropertyDto = {
   tipoOperacion: string;
   imagen: string;
 };
+import type { Currency } from './money';

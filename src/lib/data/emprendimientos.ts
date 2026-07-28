@@ -56,7 +56,7 @@ export async function getEmprendimientosPageData(): Promise<EmprendimientosPageD
           { operacion: { equals: 'VENTA', mode: 'insensitive' } },
         ],
       },
-      orderBy: { precio: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: 4,
       select: PUBLIC_LISTING_SELECT,
     }),

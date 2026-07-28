@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { enviarMailNotificacionLead } from '@/lib/resend';
@@ -47,6 +48,10 @@ function validarPayload(body: unknown): { ok: true; data: ContactoPayload } | { 
 
 export async function POST(request: Request) {
   try {
+    const idempotencyHeader = request.headers.get('idempotency-key')?.trim();
+    if (idempotencyHeader && !/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyHeader)) {
+      return NextResponse.json({ error: 'La clave de idempotencia es inválida.' }, { status: 400 });
+    }
     const body = await request.json();
     const payload = validarPayload(body);
 
@@ -78,32 +83,68 @@ export async function POST(request: Request) {
             }
           : null;
       },
-      persistInquiry: async (propertyId, data) => {
-        const [, contacto] = await prisma.$transaction([
-          prisma.propiedad.update({
-            where: { id: propertyId },
-            data: { consultas: { increment: 1 } },
-          }),
-          prisma.contacto.create({
-            data: {
-              nombre: data.nombre,
-              email: data.email,
-              telefono: data.telefono,
-              mensaje: data.mensaje,
-              propiedadId: propertyId,
-            },
-            select: { id: true, createdAt: true },
-          }),
-        ]);
-        return contacto;
+      persistInquiry: async (propertyId, data, idempotencyKey) => {
+        if (idempotencyKey) {
+          const existing = await prisma.contacto.findUnique({
+            where: { idempotencyKey },
+            select: { id: true, createdAt: true, propiedadId: true },
+          });
+          if (existing?.propiedadId === propertyId) {
+            return { id: existing.id, createdAt: existing.createdAt, created: false };
+          }
+          if (existing) throw new Error('Idempotency key scope mismatch.');
+        }
+        try {
+          return await prisma.$transaction(async (tx) => {
+            const contacto = await tx.contacto.create({
+              data: {
+                nombre: data.nombre,
+                email: data.email,
+                telefono: data.telefono,
+                mensaje: data.mensaje,
+                propiedadId: propertyId,
+                origen: 'PUBLICO',
+                idempotencyKey,
+              },
+              select: { id: true, createdAt: true },
+            });
+            await tx.propiedad.update({
+              where: { id: propertyId },
+              data: { consultas: { increment: 1 } },
+              select: { id: true },
+            });
+            return { ...contacto, created: true };
+          });
+        } catch (error) {
+          if (idempotencyKey && error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+            const existing = await prisma.contacto.findUnique({
+              where: { idempotencyKey },
+              select: { id: true, createdAt: true, propiedadId: true },
+            });
+            if (existing?.propiedadId === propertyId) {
+              return { id: existing.id, createdAt: existing.createdAt, created: false };
+            }
+          }
+          throw error;
+        }
       },
-    });
+    }, idempotencyHeader);
 
     if (!result.ok) {
       return NextResponse.json({ error: 'La propiedad no está disponible.' }, { status: 404 });
     }
 
     try {
+      if (result.receipt.created === false) {
+        return NextResponse.json(
+          {
+            ok: true,
+            message: 'Consulta registrada.',
+            contacto: { id: result.receipt.id, createdAt: result.receipt.createdAt },
+          },
+          { status: 200 },
+        );
+      }
       const mailResult = await enviarMailNotificacionLead({
         agenteEmail: result.property.agenteEmail,
         adminEmail: result.property.adminEmail,

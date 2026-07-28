@@ -3,6 +3,7 @@ import 'server-only';
 import type { Prisma } from '@prisma/client';
 
 import { isValidMapLatLng } from '@/lib/map-coords';
+import { decimalToMoneyText } from '@/lib/money';
 import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import {
   DESTACADA_MIN_CONSULTAS,
@@ -56,7 +57,7 @@ export function mapRowsToPublicPropiedadList(
       titulo: p.titulo,
       direccion: p.direccion,
       barrio: p.barrio,
-      precio: p.precio,
+      precio: decimalToMoneyText(p.precio),
       moneda: p.moneda,
       operacion: p.operacion,
       tipo: p.tipo,

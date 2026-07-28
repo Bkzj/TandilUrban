@@ -6,6 +6,8 @@ import { renderMatchNotificationHtml } from '@/lib/match-notification-html';
 import { enviarMatchNotificationEmail } from '@/lib/match-notification-mail';
 import { normalizePropiedadImagenesDb } from '@/lib/normalize-propiedad-imagenes';
 import { prisma } from '@/lib/prisma';
+import { decimalToMoneyText, formatMoneyAmount } from '@/lib/money';
+import type { Currency } from '@/types/money';
 
 /** Datos mínimos de una propiedad recién publicada para el motor de match. */
 export type PropiedadParaMatch = {
@@ -15,8 +17,8 @@ export type PropiedadParaMatch = {
   barrio: string | null;
   agenteId: string | null;
   titulo: string;
-  precio: number;
-  moneda: string;
+  precio: string;
+  moneda: Currency;
   imagenPrincipalUrl: string | null;
 };
 
@@ -30,8 +32,8 @@ export function propiedadPublicUrl(propiedadId: string): string {
   return `${getAppBase()}/propiedades/${propiedadId}`;
 }
 
-export function formatPrecioMatch(moneda: string, precio: number): string {
-  return `${moneda} ${precio.toLocaleString('es-AR', { maximumFractionDigits: 0 })}`;
+export function formatPrecioMatch(moneda: Currency, precio: string): string {
+  return `${moneda} ${formatMoneyAmount(precio)}`;
 }
 
 export function toPropiedadParaMatch(row: {
@@ -41,8 +43,8 @@ export function toPropiedadParaMatch(row: {
   barrio: string | null;
   agenteId: string | null;
   titulo: string;
-  precio: number;
-  moneda: string;
+  precio: Prisma.Decimal;
+  moneda: Currency;
   imagenes: unknown;
 }): PropiedadParaMatch {
   const imagenes = normalizePropiedadImagenesDb(row.imagenes);
@@ -55,7 +57,7 @@ export function toPropiedadParaMatch(row: {
     barrio: row.barrio?.trim() || null,
     agenteId: row.agenteId,
     titulo: row.titulo,
-    precio: row.precio,
+    precio: decimalToMoneyText(row.precio),
     moneda: row.moneda,
     imagenPrincipalUrl,
   };

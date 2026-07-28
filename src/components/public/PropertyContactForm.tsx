@@ -42,7 +42,10 @@ export function PropertyContactForm({ propiedadId }: PropertyContactFormProps) {
     try {
       const res = await fetch('/api/contacto', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': crypto.randomUUID(),
+        },
         body: JSON.stringify({
           nombre,
           email,

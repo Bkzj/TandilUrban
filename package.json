@@ -12,6 +12,7 @@
     "test:integration": "tsx --test \"tests/integration/**/*.test.ts\"",
     "check:secrets": "node scripts/check-secrets.mjs",
     "jobs:cloudinary-cleanup": "tsx scripts/process-cloudinary-cleanup.ts",
+    "analytics:reconcile": "tsx scripts/reconcile-analytics-counters.ts",
     "archive:source": "node scripts/create-source-archive.mjs",
     "test:archive": "node scripts/validate-source-archive.mjs",
     "postinstall": "prisma generate",

@@ -30,6 +30,7 @@ export type RegistrarVisitaManualPayload = {
   nombre: string;
   email?: string;
   telefono?: string;
+  idempotencyKey: string;
 };
 
 export type PropiedadVisitaRegistroResult =
@@ -242,7 +243,11 @@ async function buildSeguimientoPayload(
 export async function ajustarVisitaFisica(
   contactoId: string,
   delta: 1 | -1,
+  idempotencyKey: string,
 ): Promise<AjustarVisitaFisicaResult> {
+  if (!/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyKey)) {
+    return { ok: false, error: 'La clave de idempotencia es inválida.' };
+  }
   const access = await assertContactoAccess(contactoId);
   if (!access.ok) {
     return { ok: false, error: access.error };
@@ -255,6 +260,17 @@ export async function ajustarVisitaFisica(
   }
 
   const updated = await prisma.$transaction(async (tx) => {
+    const replay = await tx.visitaFisicaEvento.findUnique({
+      where: { idempotencyKey },
+      select: { id: true, createdAt: true, contactoId: true },
+    });
+    if (replay) {
+      const current = await tx.contacto.findUniqueOrThrow({
+        where: { id: contacto.id },
+        select: { visitasFisicas: true },
+      });
+      return { visitasFisicas: current.visitasFisicas, evento: replay };
+    }
     const next = await tx.contacto.update({
       where: { id: contacto.id },
       data: { visitasFisicas: { increment: delta } },
@@ -267,6 +283,7 @@ export async function ajustarVisitaFisica(
         propiedadId: contacto.propiedad.id,
         registradoPorId: user.id,
         delta,
+        idempotencyKey,
       },
       select: { id: true, createdAt: true },
     });
@@ -301,10 +318,14 @@ export async function ajustarVisitaFisica(
 
 export async function eliminarVisitaFisicaEvento(
   eventoId: string,
+  idempotencyKey: string,
 ): Promise<AjustarVisitaFisicaResult> {
   const id = eventoId?.trim();
   if (!id) {
     return { ok: false, error: 'Registro de visita inválido.' };
+  }
+  if (!/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyKey)) {
+    return { ok: false, error: 'La clave de idempotencia es inválida.' };
   }
 
   const evento = await prisma.visitaFisicaEvento.findUnique({
@@ -349,12 +370,32 @@ export async function eliminarVisitaFisicaEvento(
   }
 
   const updated = await prisma.$transaction(async (tx) => {
-    await tx.visitaFisicaEvento.delete({ where: { id: evento.id } });
-    return tx.contacto.update({
+    const replay = await tx.visitaFisicaEvento.findUnique({
+      where: { idempotencyKey },
+      select: { id: true },
+    });
+    if (replay) {
+      return tx.contacto.findUniqueOrThrow({
+        where: { id: evento.contactoId },
+        select: { visitasFisicas: true },
+      });
+    }
+    const contacto = await tx.contacto.update({
       where: { id: evento.contactoId },
       data: { visitasFisicas: { decrement: 1 } },
       select: { visitasFisicas: true },
     });
+    await tx.visitaFisicaEvento.create({
+      data: {
+        contactoId: evento.contactoId,
+        propiedadId: evento.contacto.propiedad.id,
+        registradoPorId: access.user.id,
+        delta: -1,
+        idempotencyKey,
+      },
+      select: { id: true },
+    });
+    return contacto;
   });
 
   revalidatePath('/panel/mensajes', 'page');
@@ -382,6 +423,10 @@ export async function registrarVisitaFisicaManual(
   const nombre = payload.nombre?.trim();
   const email = normalizeEmail(payload.email);
   const telefono = normalizeTelefono(payload.telefono);
+  const idempotencyKey = payload.idempotencyKey?.trim();
+  if (!idempotencyKey || !/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyKey)) {
+    return { ok: false, error: 'La clave de idempotencia es inválida.' };
+  }
 
   if (!nombre || nombre.length < 2) {
     return { ok: false, error: 'El nombre es obligatorio.' };
@@ -402,6 +447,38 @@ export async function registrarVisitaFisicaManual(
   }
 
   const { user, propiedad } = access;
+
+  const replay = await prisma.visitaFisicaEvento.findUnique({
+    where: { idempotencyKey },
+    select: {
+      id: true,
+      propiedadId: true,
+      createdAt: true,
+      contacto: {
+        select: {
+          id: true,
+          nombre: true,
+          email: true,
+          telefono: true,
+          visitasFisicas: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+  if (replay && replay.propiedadId === propiedad.id) {
+    return {
+      ok: true,
+      visitasFisicasPropiedad: await sumVisitasFisicasPropiedad(propiedad.id),
+      visitasFisicasLead: replay.contacto.visitasFisicas,
+      evento: { id: replay.id, createdAt: replay.createdAt.toISOString() },
+      contacto: {
+        ...replay.contacto,
+        createdAt: replay.contacto.createdAt.toISOString(),
+      },
+      consultaNueva: false,
+    };
+  }
 
   const orFilters = [
     email ? { email } : null,
@@ -459,6 +536,7 @@ export async function registrarVisitaFisicaManual(
           telefono,
           mensaje: 'Visita presencial registrada manualmente desde el panel.',
           propiedadId: propiedad.id,
+          origen: 'PANEL_MANUAL',
           visitasFisicas: 1,
         },
         select: {
@@ -470,6 +548,11 @@ export async function registrarVisitaFisicaManual(
           createdAt: true,
         },
       });
+      await tx.propiedad.update({
+        where: { id: propiedad.id },
+        data: { consultas: { increment: 1 } },
+        select: { id: true },
+      });
     }
 
     const evento = await tx.visitaFisicaEvento.create({
@@ -478,6 +561,7 @@ export async function registrarVisitaFisicaManual(
         propiedadId: propiedad.id,
         registradoPorId: user.id,
         delta: 1,
+        idempotencyKey,
       },
       select: { id: true, createdAt: true },
     });
@@ -512,7 +596,7 @@ export async function registrarVisitaFisicaManual(
 
 /** @deprecated Usar ajustarVisitaFisica(contactoId, 1) */
 export async function registrarVisitaFisica(contactoId: string) {
-  return ajustarVisitaFisica(contactoId, 1);
+  return ajustarVisitaFisica(contactoId, 1, crypto.randomUUID());
 }
 
 export type SeguimientoLeadResult =

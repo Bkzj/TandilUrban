@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import type { PanelPropiedadEstado, PanelPropiedadTableRow } from '@/types/panel';
+import { formatMoneyAmount } from '@/lib/money-format';
 
 import { panelGlassTable } from '@/components/panel/panel-theme';
 
@@ -105,7 +106,7 @@ export function PropertiesClientTable({ propiedades: initialPropiedades }: Props
                         {prop.operacion} · {prop.tipo}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 align-middle tabular-nums !text-white/90">
-                        {prop.moneda} {prop.precio.toLocaleString('es-AR')}
+                        {prop.moneda} {formatMoneyAmount(prop.precio)}
                       </td>
                       <td className="hidden px-4 py-3 align-middle md:table-cell !text-white/80">
                         <span className="block text-xs uppercase tracking-wide !text-white/50">

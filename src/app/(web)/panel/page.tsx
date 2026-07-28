@@ -6,9 +6,9 @@ import { StatCards } from '@/components/panel/StatCards';
 import { TopProperties } from '@/components/panel/TopProperties';
 import PanelTabs from '@/components/panel/PanelTabs';
 import { panelGlassCardPadded as GLASS_CARD } from '@/components/panel/panel-theme';
-import { getCurrentUser, isInmobiliariaMain, roleCanAccessPanel } from '@/lib/auth';
+import { AuthError, isInmobiliariaMain } from '@/lib/auth';
 import { getPanelAnalytics } from '@/lib/panel-analytics';
-import type { CurrentUser } from '@/types/auth';
+import { requirePanelTenant } from '@/lib/panel-authorization';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,9 +19,13 @@ type PanelPageProps = {
 };
 
 export default async function PanelPage({ searchParams }: PanelPageProps) {
-  const user: CurrentUser | null = await getCurrentUser();
-  if (!user) redirect('/login?callbackUrl=/panel');
-  if (!roleCanAccessPanel(user.rol)) redirect('/?error=unauthorized');
+  const context = await requirePanelTenant().catch((error: unknown) => {
+    if (error instanceof AuthError && error.status === 401) {
+      redirect('/login?callbackUrl=/panel');
+    }
+    redirect('/?error=unauthorized');
+  });
+  const user = context.user;
 
   const sp = await Promise.resolve(searchParams ?? {});
   const publishedFlag = Array.isArray(sp.published) ? sp.published[0] : sp.published;
@@ -32,7 +36,7 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
   const rolDisplay = canManageTeam ? 'Administrador' : isAgente ? 'Cuenta' : user.rol;
   const nombre = user.nombre.split(' ')[0];
 
-  const analytics = await getPanelAnalytics(user);
+  const analytics = await getPanelAnalytics(context);
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -55,7 +59,7 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
           Hola, {nombre}
         </h1>
         <p className="mt-2 text-lg font-light text-white/75">
-          Métricas y rendimiento de tu cartera en tiempo real.
+          Métricas medidas de tu cartera durante los últimos 30 días.
         </p>
       </header>
 
@@ -70,16 +74,16 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
                   Analytics
                 </p>
                 <h2 className="mt-1 text-xl font-semibold text-white sm:text-2xl">
-                  Embudo de conversión
+                  Actividad medida
                 </h2>
                 <p className="mt-1 text-sm text-gray-400">
-                  Impresiones estimadas en listados, visitas a fichas y consultas recibidas.
+                  Visualizaciones calificadas y consultas recibidas en el mismo período.
                 </p>
               </div>
               <AnalyticsFunnel data={analytics.funnel} />
             </div>
 
-            <PricePerSqmChart data={analytics.precioM2PorZona} />
+            <PricePerSqmChart data={analytics.precioM2PorMoneda} />
           </section>
 
           <section className="grid grid-cols-1 lg:grid-cols-3">

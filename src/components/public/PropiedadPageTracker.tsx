@@ -14,6 +14,15 @@ export function PropiedadPageTracker({ entry }: PropiedadPageTrackerProps) {
 
   useEffect(() => {
     addProperty(entry);
+    void fetch(`/api/public/propiedades/${encodeURIComponent(entry.id)}/vista`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      keepalive: true,
+      headers: { 'content-type': 'application/json' },
+      body: '{}',
+    }).catch(() => {
+      // La analítica nunca debe impedir ni degradar la ficha pública.
+    });
   }, [addProperty, entry]);
 
   return null;

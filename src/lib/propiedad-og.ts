@@ -2,6 +2,7 @@ import 'server-only';
 
 import type { Prisma } from '@prisma/client';
 
+import { decimalToMoneyText, formatMoneyAmount } from '@/lib/money';
 import { prisma } from '@/lib/prisma';
 import { normalizePropiedadImagenesDb } from '@/lib/normalize-propiedad-imagenes';
 import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
@@ -86,7 +87,7 @@ export async function getPropiedadOgData(id: string): Promise<PublicPropertyOgDt
 
   const precioFmt =
     propiedad.precio != null
-      ? `${propiedad.moneda} ${propiedad.precio.toLocaleString('es-AR')}`
+      ? `${propiedad.moneda} ${formatMoneyAmount(decimalToMoneyText(propiedad.precio))}`
       : 'Valor a consultar';
 
   const operacionLabel = String(propiedad.operacion).toUpperCase();

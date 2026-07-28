@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Check, Flame, MapPin, Trash2 } from 'lucide-react';
+import { Check, MapPin, Trash2 } from 'lucide-react';
 
 import { ajustarVisitaFisica, eliminarVisitaFisicaEvento } from '@/actions/contacto';
 import type { PropiedadEngagementMetrics, VisitaFisicaHistorialItem } from '@/lib/panel-seguimiento';
-
-const INTEREST_FORMULA = 'Vistas + consultas×2 + visitas físicas de la propiedad×3';
 
 function fmtTimelineDate(iso: string): string {
   try {
@@ -18,13 +16,6 @@ function fmtTimelineDate(iso: string): string {
   } catch {
     return iso;
   }
-}
-
-function getInterestDisplay(score: number): { label: string; progress: number } {
-  const progress = Math.min(100, Math.round((score / 250) * 100));
-  if (score >= 150) return { label: 'Alto', progress: Math.max(progress, 55) };
-  if (score >= 60) return { label: 'Medio', progress };
-  return { label: 'Bajo', progress: Math.max(progress, 8) };
 }
 
 type Props = {
@@ -76,7 +67,7 @@ export function SeguimientoVisitasPanel({
     onVisitasLeadChange?.(optimisticLead);
 
     startTransition(async () => {
-      const result = await ajustarVisitaFisica(contactoId, 1);
+      const result = await ajustarVisitaFisica(contactoId, 1, crypto.randomUUID());
       if (!result.ok) {
         setVisitasLead(prevLead);
         onVisitasLeadChange?.(prevLead);
@@ -92,7 +83,7 @@ export function SeguimientoVisitasPanel({
     setDeletingEventId(eventoId);
 
     startTransition(async () => {
-      const result = await eliminarVisitaFisicaEvento(eventoId);
+      const result = await eliminarVisitaFisicaEvento(eventoId, crypto.randomUUID());
       setDeletingEventId(null);
       if (!result.ok) {
         setError(result.error);
@@ -102,8 +93,7 @@ export function SeguimientoVisitasPanel({
     });
   }
 
-  const interest = getInterestDisplay(engagement.indiceInteres);
-  const visitasTimeline = historialLead.filter((item) => item.delta > 0);
+  const visitasTimeline = historialLead;
 
   return (
     <section className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md md:p-5">
@@ -132,25 +122,10 @@ export function SeguimientoVisitasPanel({
         </>
       ) : null}
 
-      <div
-        className="mt-5 flex flex-col gap-3 rounded-xl border border-green-900/30 bg-[#0A2A1A]/50 p-4 sm:flex-row sm:items-center sm:justify-between"
-        title={INTEREST_FORMULA}
-      >
-        <p className="flex items-center text-sm font-semibold text-white">
-          <Flame className="mr-2 h-4 w-4 shrink-0 text-orange-500" aria-hidden />
-          Nivel de interés: {interest.label}{' '}
-          <span className="ml-1 font-normal text-white/70">({engagement.indiceInteres} pts)</span>
-        </p>
-        <div className="flex w-full items-center gap-3 sm:w-40">
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-naranja to-emerald-400 transition-all duration-500"
-              style={{ width: `${interest.progress}%` }}
-            />
-          </div>
-          <span className="text-xs tabular-nums text-white/55">{interest.progress}%</span>
-        </div>
-      </div>
+      <p className="mt-5 rounded-xl border border-green-900/30 bg-[#0A2A1A]/50 p-4 text-sm text-white">
+        Actividad registrada: {engagement.actividadRegistrada}. Suma descriptiva de
+        visualizaciones, consultas y visitas físicas; no representa personas únicas.
+      </p>
 
       <div className="mt-5">
         <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -188,13 +163,15 @@ export function SeguimientoVisitasPanel({
                     <Check className="h-3 w-3" aria-hidden />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm text-white">Visita presencial realizada</p>
+                    <p className="text-sm text-white">
+                      {item.delta > 0 ? 'Visita presencial realizada' : 'Visita presencial anulada'}
+                    </p>
                     <p className="mt-0.5 text-xs text-gray-400">
                       {fmtTimelineDate(item.createdAt)} · Agente: {item.registradoPorNombre}
                     </p>
                   </div>
                 </div>
-                <button
+                {item.delta > 0 ? <button
                   type="button"
                   title="Eliminar registro"
                   disabled={isPending && deletingEventId === item.id}
@@ -203,7 +180,7 @@ export function SeguimientoVisitasPanel({
                 >
                   <Trash2 className="h-4 w-4" aria-hidden />
                   <span className="sr-only">Eliminar registro</span>
-                </button>
+                </button> : null}
               </li>
             ))
           )}

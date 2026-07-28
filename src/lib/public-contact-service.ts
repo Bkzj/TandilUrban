@@ -10,6 +10,7 @@ export type PublicContactProperty = {
 export type PublicContactReceipt = {
   id: string;
   createdAt: Date;
+  created?: boolean;
 };
 
 export type PublicContactServiceDependencies = {
@@ -17,6 +18,7 @@ export type PublicContactServiceDependencies = {
   persistInquiry: (
     propertyId: string,
     payload: ContactoPayload,
+    idempotencyKey?: string,
   ) => Promise<PublicContactReceipt>;
 };
 
@@ -31,10 +33,11 @@ export type PublicContactServiceResult =
 export async function createPublicContactInquiry(
   payload: ContactoPayload,
   dependencies: PublicContactServiceDependencies,
+  idempotencyKey?: string,
 ): Promise<PublicContactServiceResult> {
   const property = await dependencies.findPublicProperty(payload.propiedadId);
   if (!property) return { ok: false, reason: 'property_not_available' };
 
-  const receipt = await dependencies.persistInquiry(property.id, payload);
+  const receipt = await dependencies.persistInquiry(property.id, payload, idempotencyKey);
   return { ok: true, property, receipt };
 }

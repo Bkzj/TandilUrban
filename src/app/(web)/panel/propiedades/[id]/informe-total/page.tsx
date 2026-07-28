@@ -10,7 +10,6 @@ import {
   Camera,
   Car,
   Eye,
-  Flame,
   Hash,
   Heart,
   Layers,
@@ -35,6 +34,7 @@ import {
   labelEstadoPropiedad,
 } from '@/lib/panel-propiedad-informe-total';
 import type { CurrentUser } from '@/types/auth';
+import { formatMoneyAmount } from '@/lib/money-format';
 
 export const metadata = {
   title: 'Informe integral de propiedad | Propea Group',
@@ -47,8 +47,8 @@ const VERDE_MID = '#0d3d24';
 const DORADO = '#B4853F';
 const DORADO_LIGHT = '#d4a574';
 
-function formatPrecio(precio: number, moneda: string): string {
-  return `${moneda} ${precio.toLocaleString('es-AR', { maximumFractionDigits: 0 })}`;
+function formatPrecio(precio: string, moneda: string): string {
+  return `${moneda} ${formatMoneyAmount(precio)}`;
 }
 
 function fmtDate(iso: string): string {
@@ -73,13 +73,6 @@ function shortRef(id: string): string {
   return id.slice(-8).toUpperCase();
 }
 
-function interestLevel(score: number): { label: string; pct: number; color: string } {
-  const pct = Math.min(100, Math.round((score / 250) * 100));
-  if (score >= 150) return { label: 'Alto', pct: Math.max(pct, 55), color: '#059669' };
-  if (score >= 60) return { label: 'Medio', pct, color: DORADO };
-  return { label: 'Bajo', pct: Math.max(pct, 8), color: '#94a3b8' };
-}
-
 type PageProps = {
   params: Promise<{ id: string }>;
 };
@@ -96,7 +89,6 @@ export default async function PropiedadInformeTotalPage({ params }: PageProps) {
   const { propiedad, consultas, visitasPresenciales } = data;
   const hoy = new Intl.DateTimeFormat('es-AR', { dateStyle: 'long' }).format(new Date());
   const ubicacion = [propiedad.direccion, propiedad.barrio].filter(Boolean).join(' · ');
-  const interest = interestLevel(data.engagement.indiceInteres);
   const ref = shortRef(propiedad.id);
 
   const funnelMax = Math.max(propiedad.visitas, propiedad.consultas, data.visitasFisicasTotal, 1);
@@ -109,7 +101,7 @@ export default async function PropiedadInformeTotalPage({ params }: PageProps) {
   const coverStats = [
     { icon: Eye, label: 'Vistas web', value: String(propiedad.visitas) },
     { icon: MessageSquare, label: 'Consultas', value: String(propiedad.consultas) },
-    { icon: TrendingUp, label: 'Conversión', value: `${data.convRatePct.toFixed(1)}%` },
+    { icon: TrendingUp, label: 'Conversión 30 días', value: data.convRatePct ? `${data.convRatePct}%` : 'Sin datos' },
     { icon: Users, label: 'Visitas físicas', value: String(data.visitasFisicasTotal) },
     { icon: Heart, label: 'Favoritos', value: String(data.favoritosCount) },
     { icon: Ruler, label: 'Valor / m²', value: data.valorM2 },
@@ -246,7 +238,7 @@ export default async function PropiedadInformeTotalPage({ params }: PageProps) {
               <p className="mt-1 text-3xl font-bold tabular-nums text-gray-900 md:text-4xl">
                 {formatPrecio(propiedad.precio, propiedad.moneda)}
               </p>
-              {propiedad.expensas != null && propiedad.expensas > 0 ? (
+              {propiedad.expensas != null && propiedad.expensas !== '0.00' ? (
                 <p className="mt-1 text-sm text-gray-500">
                   + Expensas {formatPrecio(propiedad.expensas, propiedad.moneda)}
                 </p>
@@ -364,37 +356,15 @@ export default async function PropiedadInformeTotalPage({ params }: PageProps) {
               className="flex flex-col justify-between rounded-2xl border p-5 lg:col-span-2 print:break-inside-avoid"
               style={{ borderColor: `${DORADO}40`, background: `${DORADO}08` }}
             >
-              <div>
-                <div className="flex items-center gap-2">
-                  <Flame className="h-5 w-5" style={{ color: DORADO }} aria-hidden />
-                  <p className="text-xs font-bold uppercase tracking-wider text-gray-600">
-                    Nivel de interés
-                  </p>
-                </div>
-                <div className="mt-4 flex items-end gap-3">
-                  <p className="text-5xl font-bold tabular-nums text-gray-900">{interest.label}</p>
-                  <p className="mb-1.5 text-sm text-gray-500">{data.engagement.indiceInteres} pts</p>
-                </div>
-              </div>
-              <div className="mt-6">
-                <div className="relative h-4 overflow-hidden rounded-full bg-white/80">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{
-                      width: `${interest.pct}%`,
-                      background: `linear-gradient(90deg, ${interest.color}, ${interest.color}99)`,
-                    }}
-                  />
-                </div>
-                <div className="mt-3 flex justify-between text-[0.65rem] text-gray-400">
-                  <span>Bajo</span>
-                  <span>Medio</span>
-                  <span>Alto</span>
-                </div>
-                <p className="mt-3 text-[0.65rem] leading-relaxed text-gray-400">
-                  Vistas + consultas×2 + visitas físicas×3
-                </p>
-              </div>
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                Actividad registrada
+              </p>
+              <p className="mt-4 text-5xl font-bold tabular-nums text-gray-900">
+                {data.engagement.actividadRegistrada}
+              </p>
+              <p className="mt-3 text-[0.65rem] leading-relaxed text-gray-400">
+                Suma simple de visualizaciones, consultas y visitas físicas. No representa personas únicas.
+              </p>
             </div>
           </div>
 

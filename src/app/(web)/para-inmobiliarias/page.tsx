@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar';
 export const metadata: Metadata = {
   title: 'Para Inmobiliarias | Propea Group',
   description:
-    'Sumá tu inmobiliaria a Propea Group: dashboards en tiempo real, Open Graph para WhatsApp y vidriera digital B2B.',
+    'Sumá tu inmobiliaria a Propea Group: métricas medidas, Open Graph para WhatsApp y vidriera digital B2B.',
 };
 
 const DEMO_MAILTO =
@@ -57,7 +57,7 @@ export default function ParaInmobiliariasPage() {
             Llevá tu Inmobiliaria al próximo nivel.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-gray-300 sm:text-xl">
-            El único portal de Tandil con Inteligencia de Mercado, Dashboards en tiempo real y SEO
+            El portal de Tandil con inteligencia de mercado medida, paneles por período y SEO
             optimizado para WhatsApp.
           </p>
           <a

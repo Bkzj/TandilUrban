@@ -6,6 +6,7 @@ import { FavoriteButton } from '@/components/public/FavoriteButton';
 import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaBadge';
 import { isPropiedadDestacada } from '@/lib/propiedad-destacada';
 import type { PublicPropiedadListItem } from '@/types/public-search';
+import { formatMoneyAmount } from '@/lib/money-format';
 
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop';
@@ -26,7 +27,7 @@ export function PropertyCardPublic({
   const destacada = variant === 'featured' || isPropiedadDestacada(propiedad);
   const featuredCard = variant === 'featured';
   const direccionLine = [propiedad.direccion, propiedad.barrio].filter(Boolean).join(' · ');
-  const precioFmt = `${propiedad.moneda} ${propiedad.precio.toLocaleString('es-AR')}`;
+  const precioFmt = `${propiedad.moneda} ${formatMoneyAmount(propiedad.precio)}`;
 
   return (
     <article className="group relative">

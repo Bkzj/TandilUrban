@@ -1,24 +1,29 @@
-import { EstadoPropiedad, RolUsuario } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import { prisma } from '@/lib/prisma';
-import { resolvePanelTenantInmobiliariaId } from '@/lib/panel-tenant';
-import type { CurrentUser } from '@/types/auth';
+import type { PanelTenantAuthorizationContext } from '@/lib/panel-authorization';
+import type { Currency } from '@/types/money';
 
-export type ChartNameValueDatum = {
-  name: string;
-  value: number;
-};
-
-export type FunnelDatum = ChartNameValueDatum;
-export type PrecioM2ZonaDatum = ChartNameValueDatum;
-
+export const ANALYTICS_PERIOD_DAYS = 30;
+export const CONVERSION_MINIMUM_VIEWS = 10;
 const MAX_ZONAS_EN_GRAFICO = 5;
+
+export type ChartNameValueDatum = { name: string; value: number };
+export type FunnelDatum = ChartNameValueDatum;
+export type PrecioM2ZonaDatum = { name: string; value: string };
+
+export type AnalyticsMetric = {
+  value: string | null;
+  status: 'measured' | 'insufficient_data' | 'unavailable';
+  period: { from: string; to: string };
+};
 
 export type PanelAnalyticsStats = {
   totalPropiedades: number;
   totalConsultas: number;
   visitasTotales: number;
+  conversion: AnalyticsMetric;
 };
 
 export type TopPropiedadItem = {
@@ -30,178 +35,188 @@ export type TopPropiedadItem = {
 
 export type PrecioM2PorZonaResult = {
   zonas: PrecioM2ZonaDatum[];
-  promedioGeneral: number;
-  moneda: string;
+  promedioGeneral: string;
+  moneda: Currency;
 };
 
 export type PanelAnalyticsData = {
   stats: PanelAnalyticsStats;
   funnel: FunnelDatum[];
   topPropiedades: TopPropiedadItem[];
-  precioM2PorZona: PrecioM2PorZonaResult;
+  precioM2PorMoneda: PrecioM2PorZonaResult[];
+  period: { from: string; to: string };
 };
 
-type VentaZonaRow = {
+export type VentaZonaAggregateRow = {
   barrio: string | null;
-  precio: number;
-  m2Total: number;
-  moneda: string;
+  moneda: Currency;
+  totalPrecio: Prisma.Decimal | string;
+  totalM2: number;
 };
-
-function buildPropiedadScope(user: CurrentUser, tenantInmobiliariaId: string) {
-  const isAgente = user.rol === RolUsuario.AGENTE && Boolean(user.agenciaId);
-  return {
-    inmobiliariaId: tenantInmobiliariaId,
-    ...(isAgente ? { agenteId: user.id } : {}),
-  };
-}
 
 function normalizeZonaLabel(barrio: string | null): string {
-  const trimmed = barrio?.trim();
-  if (!trimmed) return 'Sin zona';
-  return trimmed;
+  return barrio?.trim() || 'Sin zona';
 }
 
-function collapseZonasMenores(
-  sorted: PrecioM2ZonaDatum[],
-  rowsByZona: Map<string, { precio: number; m2: number }>,
-): PrecioM2ZonaDatum[] {
-  if (sorted.length <= MAX_ZONAS_EN_GRAFICO) return sorted;
-
-  const topNames = new Set(sorted.slice(0, MAX_ZONAS_EN_GRAFICO).map((z) => z.name));
-  let otrosPrecio = 0;
-  let otrosM2 = 0;
-
-  for (const [name, agg] of rowsByZona.entries()) {
-    if (topNames.has(name)) continue;
-    otrosPrecio += agg.precio;
-    otrosM2 += agg.m2;
-  }
-
-  const top = sorted.slice(0, MAX_ZONAS_EN_GRAFICO);
-  if (otrosM2 > 0) {
-    top.push({ name: 'Otros', value: Math.round(otrosPrecio / otrosM2) });
-  }
-  return top;
+function ratioText(amount: Prisma.Decimal, m2: number): string {
+  return amount.div(new Prisma.Decimal(m2.toString())).toDecimalPlaces(2).toFixed(2);
 }
 
-/**
- * Precio promedio por m² en venta por zona: Σ precio / Σ m² por barrio.
- * Solo operación VENTA (evita mezclar alquileres con ventas).
- */
-export function buildPrecioM2PorZona(rows: VentaZonaRow[]): PrecioM2PorZonaResult {
-  const ventaRows = rows.filter((r) => r.precio > 0 && r.m2Total > 0);
+/** Calcula Σ precio / Σ m² por zona, siempre dentro de un grupo de moneda. */
+export function buildPrecioM2PorMoneda(
+  rows: VentaZonaAggregateRow[],
+): PrecioM2PorZonaResult[] {
+  const currencies: Currency[] = ['ARS', 'USD'];
+  return currencies.flatMap((currency) => {
+    const currencyRows = rows.filter(
+      (row) => row.moneda === currency && row.totalM2 > 0 && new Prisma.Decimal(row.totalPrecio).gt(0),
+    );
+    if (currencyRows.length === 0) return [];
 
-  if (ventaRows.length === 0) {
-    return { zonas: [], promedioGeneral: 0, moneda: 'USD' };
-  }
+    let totalPrecio = new Prisma.Decimal(0);
+    let totalM2 = 0;
+    const zones = currencyRows.map((row) => {
+      const amount = new Prisma.Decimal(row.totalPrecio);
+      totalPrecio = totalPrecio.plus(amount);
+      totalM2 += row.totalM2;
+      return {
+        name: normalizeZonaLabel(row.barrio),
+        value: ratioText(amount, row.totalM2),
+        amount,
+        m2: row.totalM2,
+      };
+    });
+    zones.sort((left, right) => new Prisma.Decimal(right.value).comparedTo(left.value));
 
-  const moneda = ventaRows[0]?.moneda ?? 'USD';
-  const byZona = new Map<string, { precio: number; m2: number }>();
-  let totalPrecio = 0;
-  let totalM2 = 0;
+    const visible = zones.slice(0, MAX_ZONAS_EN_GRAFICO);
+    const remaining = zones.slice(MAX_ZONAS_EN_GRAFICO);
+    if (remaining.length > 0) {
+      const otherAmount = remaining.reduce(
+        (sum, zone) => sum.plus(zone.amount),
+        new Prisma.Decimal(0),
+      );
+      const otherM2 = remaining.reduce((sum, zone) => sum + zone.m2, 0);
+      visible.push({
+        name: 'Otros',
+        value: ratioText(otherAmount, otherM2),
+        amount: otherAmount,
+        m2: otherM2,
+      });
+    }
 
-  for (const row of ventaRows) {
-    const label = normalizeZonaLabel(row.barrio);
-    const current = byZona.get(label) ?? { precio: 0, m2: 0 };
-    current.precio += row.precio;
-    current.m2 += row.m2Total;
-    byZona.set(label, current);
-    totalPrecio += row.precio;
-    totalM2 += row.m2Total;
-  }
-
-  const sorted = [...byZona.entries()]
-    .map(([name, { precio, m2 }]) => ({
-      name,
-      value: Math.round(precio / m2),
-    }))
-    .sort((a, b) => b.value - a.value);
-
-  const zonas = collapseZonasMenores(sorted, byZona);
-  const promedioGeneral = totalM2 > 0 ? Math.round(totalPrecio / totalM2) : 0;
-
-  return { zonas, promedioGeneral, moneda };
+    return [{
+      moneda: currency,
+      zonas: visible.map(({ name, value }) => ({ name, value })),
+      promedioGeneral: ratioText(totalPrecio, totalM2),
+    }];
+  });
 }
 
-/** Métricas B2B del tenant (inmobiliaria completa o cartera del agente). */
-export async function getPanelAnalytics(user: CurrentUser): Promise<PanelAnalyticsData | null> {
-  const tenantInmobiliariaId = resolvePanelTenantInmobiliariaId(user);
-  if (!tenantInmobiliariaId) return null;
+export function buildConversionMetric(input: {
+  contacts: number;
+  views: number;
+  from: Date;
+  to: Date;
+}): AnalyticsMetric {
+  const period = { from: input.from.toISOString(), to: input.to.toISOString() };
+  if (input.views === 0) return { value: null, status: 'unavailable', period };
+  if (input.views < CONVERSION_MINIMUM_VIEWS) {
+    return { value: null, status: 'insufficient_data', period };
+  }
+  const value = new Prisma.Decimal(input.contacts)
+    .div(input.views)
+    .times(100)
+    .toDecimalPlaces(2)
+    .toFixed(2);
+  return { value, status: 'measured', period };
+}
 
-  const wherePropiedad = buildPropiedadScope(user, tenantInmobiliariaId);
+/** Métricas medidas del tenant o de la cartera asignada al agente durante los últimos 30 días. */
+export async function getPanelAnalytics(
+  context: PanelTenantAuthorizationContext,
+): Promise<PanelAnalyticsData> {
+  const to = new Date();
+  const from = new Date(to.getTime() - ANALYTICS_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+  const period = { from: from.toISOString(), to: to.toISOString() };
+  const wherePropiedad = context.propertyWhere;
+  const eventScope = {
+    createdAt: { gte: from, lt: to },
+    propiedad: { is: wherePropiedad },
+  };
 
-  const [totalPropiedades, aggregates, totalConsultas, activas, topRows, ventaZonaRows] =
+  const [totalPropiedades, visitasTotales, totalConsultas, topGroups, ventaGroups] =
     await Promise.all([
       prisma.propiedad.count({ where: wherePropiedad }),
-      prisma.propiedad.aggregate({
-        where: wherePropiedad,
-        _sum: { visitas: true, consultas: true },
-      }),
+      prisma.propiedadVista.count({ where: eventScope }),
       prisma.contacto.count({
-        where: { propiedad: { is: wherePropiedad } },
-      }),
-      prisma.propiedad.count({
-        where: { ...wherePropiedad, estado: EstadoPropiedad.DISPONIBLE },
-      }),
-      prisma.propiedad.findMany({
-        where: wherePropiedad,
-        orderBy: { visitas: 'desc' },
-        take: 4,
-        select: {
-          id: true,
-          titulo: true,
-          visitas: true,
-          imagenes: true,
+        where: {
+          createdAt: { gte: from, lt: to },
+          origen: 'PUBLICO',
+          propiedad: { is: wherePropiedad },
         },
       }),
-      prisma.propiedad.findMany({
+      prisma.propiedadVista.groupBy({
+        by: ['propiedadId'],
+        where: eventScope,
+        _count: { _all: true },
+        orderBy: { _count: { propiedadId: 'desc' } },
+        take: 4,
+      }),
+      prisma.propiedad.groupBy({
+        by: ['barrio', 'moneda'],
         where: {
           ...wherePropiedad,
           operacion: { equals: 'VENTA', mode: 'insensitive' },
         },
-        select: {
-          barrio: true,
-          precio: true,
-          m2Total: true,
-          moneda: true,
-        },
+        _sum: { precio: true, m2Total: true },
       }),
     ]);
 
-  const visitasTotales = aggregates._sum.visitas ?? 0;
-  const consultasRegistradas = aggregates._sum.consultas ?? 0;
-
-  const impresionesEstimadas = Math.round(
-    Math.max(visitasTotales * 2.8, visitasTotales + activas * 30, totalPropiedades * 20, 1),
-  );
-
-  const consultasFunnel = Math.max(totalConsultas, consultasRegistradas);
-
-  const topPropiedades: TopPropiedadItem[] = topRows.map((p) => {
-    const urls = imagenesItemsToUrls(normalizePropiedadImagenesDb(p.imagenes));
-    return {
-      id: p.id,
-      titulo: p.titulo,
-      visitas: p.visitas,
+  const topRows = topGroups.length === 0
+    ? []
+    : await prisma.propiedad.findMany({
+        where: { ...wherePropiedad, id: { in: topGroups.map((row) => row.propiedadId) } },
+        select: { id: true, titulo: true, imagenes: true },
+      });
+  const topById = new Map(topRows.map((row) => [row.id, row]));
+  const topPropiedades = topGroups.flatMap((group) => {
+    const row = topById.get(group.propiedadId);
+    if (!row) return [];
+    const urls = imagenesItemsToUrls(normalizePropiedadImagenesDb(row.imagenes));
+    return [{
+      id: row.id,
+      titulo: row.titulo,
+      visitas: group._count._all,
       imagen: urls[0] ?? '',
-    };
+    }];
   });
 
-  const precioM2PorZona = buildPrecioM2PorZona(ventaZonaRows);
+  const precioM2PorMoneda = buildPrecioM2PorMoneda(
+    ventaGroups.flatMap((row) =>
+      row._sum.precio && row._sum.m2Total
+        ? [{
+            barrio: row.barrio,
+            moneda: row.moneda,
+            totalPrecio: row._sum.precio,
+            totalM2: row._sum.m2Total,
+          }]
+        : [],
+    ),
+  );
 
   return {
     stats: {
       totalPropiedades,
       totalConsultas,
       visitasTotales,
+      conversion: buildConversionMetric({ contacts: totalConsultas, views: visitasTotales, from, to }),
     },
     funnel: [
-      { name: 'Impresiones', value: impresionesEstimadas },
-      { name: 'Visitas', value: visitasTotales },
-      { name: 'Consultas', value: consultasFunnel },
+      { name: 'Visualizaciones', value: visitasTotales },
+      { name: 'Consultas', value: totalConsultas },
     ],
     topPropiedades,
-    precioM2PorZona,
+    precioM2PorMoneda,
+    period,
   };
 }

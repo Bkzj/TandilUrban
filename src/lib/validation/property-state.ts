@@ -14,12 +14,6 @@ export function canTransitionPropertyState(from: EstadoPropiedad, to: EstadoProp
   return ALLOWED_TRANSITIONS[from].includes(to);
 }
 
-export function requirePropertyStateTransition(from: EstadoPropiedad, to: EstadoPropiedad): void {
-  if (!canTransitionPropertyState(from, to)) {
-    throw new Error('PROPERTY_STATE_TRANSITION_NOT_ALLOWED');
-  }
-}
-
 export const propertyStateUpdateSchema = z
   .object({
     estado: propertyStateSchema,

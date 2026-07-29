@@ -57,10 +57,6 @@ export const CERCANIAS_CATEGORY_LABELS: Record<CercaniasCategoryKey, string> = {
   seguridad: 'Seguridad',
 };
 
-export function isTransportLineKey(key: string): boolean {
-  return key.startsWith('linea-');
-}
-
 export function getTransportLineId(line: Pick<TransporteCercano, 'id' | 'linea' | 'nombre'>): string {
   return line.id;
 }
@@ -76,12 +72,6 @@ export function categoriasPuntoConDatos(categorias: PoisCercanosResult): Exclude
 /** Estado inicial del mapa: puntos activos, colectivos apagados. */
 export function categoriasPuntoActivasIniciales(categorias: PoisCercanosResult): string[] {
   return categoriasPuntoConDatos(categorias);
-}
-
-export function categoriasConDatos(categorias: PoisCercanosResult): CercaniasCategoryKey[] {
-  const out: CercaniasCategoryKey[] = categoriasPuntoConDatos(categorias);
-  if (categorias.transporte.length > 0) out.push('transporte');
-  return out;
 }
 
 /** Normaliza paths del JSON a array de trazos [lat,lng][]. */

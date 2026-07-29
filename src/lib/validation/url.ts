@@ -4,8 +4,6 @@ import { z } from 'zod';
 
 import { REQUEST_LIMITS } from '@/lib/validation/limits';
 
-const MANAGED_IMAGE_HOSTS = new Set(['res.cloudinary.com']);
-
 function isPrivateIpv4(hostname: string): boolean {
   const parts = hostname.split('.').map(Number);
   if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
@@ -56,19 +54,6 @@ export function parseSafeHttpsUrl(
   return url.toString();
 }
 
-export const publicWebsiteUrlSchema = z
-  .string()
-  .trim()
-  .max(REQUEST_LIMITS.urlChars)
-  .transform((value, context) => {
-    const parsed = parseSafeHttpsUrl(value, { allowLocalDevelopment: true });
-    if (!parsed) {
-      context.addIssue({ code: 'custom', message: 'La URL no es válida o no está permitida.' });
-      return z.NEVER;
-    }
-    return parsed;
-  });
-
 export const propertyMediaUrlSchema = z
   .string()
   .trim()
@@ -79,19 +64,6 @@ export const propertyMediaUrlSchema = z
     });
     if (!parsed) {
       context.addIssue({ code: 'custom', message: 'La URL de imagen no está permitida.' });
-      return z.NEVER;
-    }
-    return parsed;
-  });
-
-export const cloudinaryMediaUrlSchema = z
-  .string()
-  .trim()
-  .max(REQUEST_LIMITS.urlChars)
-  .transform((value, context) => {
-    const parsed = parseSafeHttpsUrl(value, { allowedHosts: MANAGED_IMAGE_HOSTS });
-    if (!parsed) {
-      context.addIssue({ code: 'custom', message: 'La URL administrada no es válida.' });
       return z.NEVER;
     }
     return parsed;

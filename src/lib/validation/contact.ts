@@ -49,8 +49,6 @@ export const manualPhysicalVisitSchema = z
     path: ['email'],
   });
 
-export type ManualPhysicalVisitInput = z.infer<typeof manualPhysicalVisitSchema>;
-
 export const physicalVisitAdjustmentSchema = z
   .object({
     contactoId: identifierSchema,

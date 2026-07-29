@@ -124,8 +124,3 @@ export const createPropertySchema = z
       context.addIssue({ code: 'custom', message: 'No se permiten archivos duplicados.', path: ['imagenes'] });
     }
   });
-
-export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
-
-export const updatePropertySchema = createPropertySchema;
-export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>;

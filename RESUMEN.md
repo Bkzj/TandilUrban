@@ -57,7 +57,6 @@ Modelo **SaaS B2B**: las inmobiliarias se crean por base de datos; el registro p
 | `/login`, `/register` | ✅ | Auth con diseño de marca |
 | `/perfil` | ✅ | Datos del usuario |
 | `/perfil/favoritos` | ✅ | Propiedades guardadas |
-| `/perfil/seguridad` | ✅ | Cambio de contraseña / seguridad |
 
 ### 3.2 Ficha de propiedad (`/propiedades/[id]`)
 
@@ -118,7 +117,7 @@ Al guardar: POST/PATCH en API panel; borrado de assets huérfanos en Cloudinary 
 - `PropertyQuickView`, `PropertiesClientTable`, `DeletePropertyButton`
 - `LeadsTable`, `LeadQuickView`
 - `EquipoManager`
-- `MetricCard`, `StatCards`, `AnalyticsFunnel`, `PricePerSqmChart`, `TopProperties`
+- `StatCards`, `AnalyticsFunnel`, `PricePerSqmChart`, `TopProperties`
 
 ---
 
@@ -131,7 +130,7 @@ Al guardar: POST/PATCH en API panel; borrado de assets huérfanos en Cloudinary 
 | `AGENTE` | Hijo de agencia — `agenciaId` → misma inmobiliaria |
 | `USUARIO_NORMAL` | Cliente portal — registro público **forzado** en API |
 
-Helpers en `src/lib/auth.ts`: `getCurrentUser`, `requireInmobiliariaMain`, `isInmobiliariaMain`, `requireAgencyPublishingContext` (multi-tenant al publicar).
+Helpers en `src/lib/auth.ts`: `getCurrentUser`, `isInmobiliariaMain`, `requireAgencyPublishingContext` (multi-tenant al publicar).
 
 Registro: verificación por email (token + Resend). Login con feedback animado (sin Three.js).
 
@@ -141,7 +140,7 @@ Registro: verificación por email (token + Resend). Login con feedback animado (
 
 | Modelo | Uso principal |
 |--------|----------------|
-| `User` | Cuentas, roles, avatar, 2FA (campos preparados), favoritos M:N |
+| `User` | Cuentas, roles, avatar, campos 2FA reservados sin flujo activo, favoritos M:N |
 | `Inmobiliaria` | Agencia: nombre, CUIT, dirección, `logoUrl`, `bio`, `destacada` |
 | `Propiedad` | Ficha completa, `imagenes` JSONB, métricas `visitas` / `consultas`, `agenteId` opcional |
 | `Contacto` | Lead desde ficha: estado `NUEVO` / `LEIDO` / `RESPONDIDO`, teléfono |
@@ -193,7 +192,7 @@ Estados de propiedad: `DISPONIBLE`, `RESERVADA`, `VENDIDA`, `PAUSADA`.
 
 ### Resend
 
-- Verificación, reset password, notificación de nuevo lead
+- Verificación y notificación de nuevo lead
 - Variables: `RESEND_API_KEY`, `RESEND_FROM`, `APP_URL` / `NEXTAUTH_URL`
 
 ### Datos geoespaciales

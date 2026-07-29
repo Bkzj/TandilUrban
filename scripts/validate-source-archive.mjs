@@ -23,6 +23,7 @@ try {
     ['npx', ['prisma', 'validate']],
     ['npx', ['prisma', 'generate']],
     ['npm', ['run', 'check:secrets']],
+    ['npm', ['run', 'check:dead-code']],
     ['npm', ['test']],
     ['npm', ['run', 'test:integration']],
     ['npm', ['run', 'lint']],

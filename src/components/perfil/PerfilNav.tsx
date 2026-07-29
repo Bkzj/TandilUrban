@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 const LINKS: { href: string; label: string; exact?: boolean }[] = [
   { href: '/perfil', label: 'Mi Perfil', exact: true },
   { href: '/perfil/favoritos', label: 'Favoritos' },
-  { href: '/perfil/seguridad', label: 'Seguridad' },
 ];
 
 function isActive(pathname: string, href: string, exact?: boolean): boolean {

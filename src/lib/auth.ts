@@ -91,30 +91,9 @@ export class AuthError extends Error {
     this.status = status;
   }
 }
-
 /** 403 HTTP si es cuenta solo de portal público. */
 export function assertNotPublicPortalUser(user: CurrentUser): void {
   if (user.rol === RolUsuario.USUARIO_NORMAL) {
     throw new AuthError(403, 'Las cuentas de usuario público no pueden acceder al panel.');
   }
-}
-
-/**
- * Garantiza que el usuario logueado es MAIN. Tira `AuthError` 401/403 si no.
- * Útil para endpoints (route handlers) — devuelve `inmobiliariaId` listo para queries.
- */
-export async function requireInmobiliariaMain() {
-  const user = await getCurrentUser();
-  if (!user) {
-    throw new AuthError(401, 'Tenés que iniciar sesión.');
-  }
-  assertNotPublicPortalUser(user);
-  if (!isInmobiliariaMain(user) || !user.inmobiliariaPerfil) {
-    throw new AuthError(403, 'Solo el administrador de la inmobiliaria puede acceder.');
-  }
-  return {
-    user,
-    inmobiliaria: user.inmobiliariaPerfil,
-    inmobiliariaId: user.inmobiliariaPerfil.id,
-  };
 }

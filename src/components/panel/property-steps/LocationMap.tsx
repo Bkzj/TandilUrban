@@ -63,5 +63,3 @@ export function LocationMap({ center, onMarkerDrag }: LocationMapProps) {
     </div>
   );
 }
-
-export default LocationMap;

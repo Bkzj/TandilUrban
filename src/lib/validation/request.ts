@@ -80,14 +80,3 @@ export function validateRouteParams<S extends z.ZodType>(params: unknown, schema
   if (!parsed.success) throw validationError(parsed.error);
   return parsed.data;
 }
-
-export function parseFormData<S extends z.ZodType>(formData: FormData, schema: S): z.infer<S> {
-  const input: Record<string, FormDataEntryValue | FormDataEntryValue[]> = {};
-  for (const key of new Set(formData.keys())) {
-    const values = formData.getAll(key);
-    input[key] = values.length === 1 ? values[0] : values;
-  }
-  const parsed = schema.safeParse(input);
-  if (!parsed.success) throw validationError(parsed.error);
-  return parsed.data;
-}

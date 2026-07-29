@@ -239,7 +239,6 @@ async function buildSeguimientoPayload(
     historialPropiedad,
   };
 }
-
 export async function ajustarVisitaFisica(
   contactoId: string,
   delta: 1 | -1,
@@ -672,11 +671,6 @@ export async function registrarVisitaFisicaManual(
   };
 }
 
-/** @deprecated Usar ajustarVisitaFisica(contactoId, 1) */
-export async function registrarVisitaFisica(contactoId: string) {
-  return ajustarVisitaFisica(contactoId, 1, crypto.randomUUID());
-}
-
 export type SeguimientoLeadResult =
   | {
       ok: true;
@@ -710,62 +704,5 @@ export async function getSeguimientoLead(contactoId: string): Promise<Seguimient
     engagement: payload.engagement,
     historialLead: payload.historialLead,
     historialPropiedad: payload.historialPropiedad,
-  };
-}
-
-export type SeguimientoPropiedadResult =
-  | {
-      ok: true;
-      visitasFisicasPropiedad: number;
-      engagement: PropiedadEngagementMetrics;
-      historialPropiedad: VisitaFisicaHistorialItem[];
-    }
-  | { ok: false; error: string };
-
-export async function getSeguimientoPropiedad(
-  propiedadId: string,
-): Promise<SeguimientoPropiedadResult> {
-  const user = await getCurrentUser();
-  if (!user) {
-    return { ok: false, error: 'Tenés que iniciar sesión.' };
-  }
-
-  try {
-    assertNotPublicPortalUser(user);
-  } catch (e) {
-    if (e instanceof AuthError) {
-      return { ok: false, error: e.message };
-    }
-    throw e;
-  }
-
-  const propertyWhere = panelPropertyScopeForUser(user);
-  const prop = propertyWhere ? await prisma.propiedad.findFirst({
-    where: { AND: [{ id: propiedadId }, propertyWhere] },
-    select: {
-      id: true,
-      inmobiliariaId: true,
-      agenteId: true,
-      visitas: true,
-      consultas: true,
-    },
-  }) : null;
-
-  if (!prop) {
-    return { ok: false, error: 'Propiedad no encontrada.' };
-  }
-
-  if (!userCanModifyPropiedad(user, prop)) {
-    return { ok: false, error: 'No tenés permiso sobre esta propiedad.' };
-  }
-
-  const visitasFisicasPropiedad = await sumVisitasFisicasPropiedad(prop.id);
-  const historialPropiedad = await fetchHistorialPropiedad(prop.id);
-
-  return {
-    ok: true,
-    visitasFisicasPropiedad,
-    engagement: buildPropiedadEngagement(prop.visitas, prop.consultas, 0, visitasFisicasPropiedad),
-    historialPropiedad,
   };
 }

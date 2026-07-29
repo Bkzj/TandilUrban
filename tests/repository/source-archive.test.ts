@@ -20,7 +20,9 @@ test('source ZIP includes operational sources and excludes local/generated artif
     'database/schema.prisma',
     'database/migrations/20260722090000_cloudinary_asset_registry/migration.sql',
     'database/migrations/20260722090000_cloudinary_asset_registry/rollback.sql',
+    'database/preflight/phase4-legacy-candidates.sql',
     'docs/security-audit-remediation.md',
+    'scripts/check-dead-code.mjs',
     '.github/workflows/ci.yml',
   ]) assert.ok(entries.has(required), `missing ${required}`);
   assert.ok([...entries].some((file) => /^database\/migrations\/[^/]+\/migration\.sql$/.test(file)));

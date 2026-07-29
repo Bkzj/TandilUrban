@@ -31,7 +31,7 @@ Módulos:
 - `validation/analytics.ts`: variantes de informe.
 - `validation/url.ts`: URLs HTTPS, hosts privados y assets.
 - `validation/environment.ts`: configuración por ambiente.
-- `validation/request.ts`: lectura limitada de JSON, query, FormData y params.
+- `validation/request.ts`: lectura limitada de JSON, query y params.
 
 `parseJsonBody` controla `Content-Length`, lee el stream con un contador, cancela
 al exceder el máximo, y recién entonces decodifica UTF-8 y parsea JSON. Los

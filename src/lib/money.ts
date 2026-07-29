@@ -1,6 +1,5 @@
 import { Prisma } from '@prisma/client';
 
-import type { Currency, MoneyDto } from '@/types/money';
 export { formatMoneyAmount } from '@/lib/money-format';
 
 const MONEY_PATTERN = /^(0|[1-9]\d{0,15})(?:\.(\d{1,2}))?$/;
@@ -32,10 +31,6 @@ export function validateMoneyText(input: unknown, options: { allowZero?: boolean
 
 export function decimalToMoneyText(value: Prisma.Decimal | string): string {
   return new Prisma.Decimal(value).toFixed(2);
-}
-
-export function toMoneyDto(value: Prisma.Decimal | string, currency: Currency): MoneyDto {
-  return { amount: decimalToMoneyText(value), currency };
 }
 
 export function divideMoney(

@@ -111,5 +111,3 @@ export function ExplorerMap({ visibleProperties }: ExplorerMapProps) {
     </div>
   );
 }
-
-export default ExplorerMap;

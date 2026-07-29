@@ -9,8 +9,6 @@ const MAX_ITEMS = 6;
 const EMPTY: RecentPropertyDto[] = [];
 let cachedRaw: string | null | undefined;
 let cachedItems: RecentPropertyDto[] = EMPTY;
-export type RecentProperty = RecentPropertyDto;
-
 function readStorage(): RecentPropertyDto[] {
   if (typeof window === 'undefined') return EMPTY;
   try {

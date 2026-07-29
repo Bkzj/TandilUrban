@@ -14,10 +14,7 @@ export const registerSchema = z
   })
   .strict();
 
-export type RegisterInput = z.infer<typeof registerSchema>;
-
 export const createAgentSchema = registerSchema;
-export type CreateAgentInput = z.infer<typeof createAgentSchema>;
 
 export const resendVerificationSchema = z
   .object({

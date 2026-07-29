@@ -1,4 +1,4 @@
-import type { ContactoPayload } from '@/types/api';
+import type { PublicContactInput } from '@/lib/validation/contact';
 
 export type PublicContactProperty = {
   id: string;
@@ -17,7 +17,7 @@ export type PublicContactServiceDependencies = {
   findPublicProperty: (propertyId: string) => Promise<PublicContactProperty | null>;
   persistInquiry: (
     propertyId: string,
-    payload: ContactoPayload,
+    payload: PublicContactInput,
     idempotencyKey?: string,
   ) => Promise<PublicContactReceipt>;
 };
@@ -31,7 +31,7 @@ export type PublicContactServiceResult =
     };
 
 export async function createPublicContactInquiry(
-  payload: ContactoPayload,
+  payload: PublicContactInput,
   dependencies: PublicContactServiceDependencies,
   idempotencyKey?: string,
 ): Promise<PublicContactServiceResult> {

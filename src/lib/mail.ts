@@ -19,11 +19,6 @@ export function buildAuthVerificationLink(token: string): string {
   return `${getAppBase()}/api/auth/verify?token=${encodeURIComponent(token)}`;
 }
 
-/** Base para pantalla futura de restablecer contraseña (mismo degradado en desarrollo que el registro). */
-export function buildAuthPasswordResetLink(token: string): string {
-  return `${getAppBase()}/restablecer-contrasena?token=${encodeURIComponent(token)}`;
-}
-
 function logDevFallback(kind: string, extra?: unknown): void {
   console.warn('\n⚠️ [DEV FALLBACK] Correo de auth no enviado por Resend (sandbox / error).');
   console.warn(`⚠️ [DEV FALLBACK] ${kind}.`);
@@ -104,29 +99,6 @@ export async function sendVerificationEmail(
       <p>Si no solicitaste este registro, podés ignorar este correo.</p>
     `,
     devLinkLabel: 'Link de verificación',
-    fallbackUrlForLog: link,
-  });
-}
-
-/**
- * Pendiente de conectar desde un futuro POST /api/auth/forgot-password (o similar).
- * Misma política que la verificación: en desarrollo no bloquea el flujo ante errores de Resend.
- */
-export async function sendPasswordResetEmail(
-  email: string,
-  token: string
-): Promise<SendAuthEmailResult> {
-  const link = buildAuthPasswordResetLink(token);
-  return sendWithResendOrDevFallback({
-    to: email,
-    subject: 'Restablecé tu contraseña — Propea Group',
-    html: `
-      <p>Hola,</p>
-      <p>Recibimos una solicitud para restablecer tu contraseña. Usá este enlace:</p>
-      <p><a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a></p>
-      <p>Si no fuiste vos, ignorá este correo.</p>
-    `,
-    devLinkLabel: 'Link de restablecer contraseña',
     fallbackUrlForLog: link,
   });
 }

@@ -18,12 +18,6 @@ export const identifierSchema = z
   .transform(normalizeSingleLine)
   .pipe(z.string().min(1).max(64).regex(/^[A-Za-z0-9_-]+$/u, 'Identificador inválido.'));
 
-export const optionalIdentifierSchema = z
-  .string()
-  .transform(normalizeSingleLine)
-  .pipe(z.string().max(64).regex(/^[A-Za-z0-9_-]*$/u, 'Identificador inválido.'))
-  .optional();
-
 export const normalizedNameSchema = z
   .string()
   .transform(normalizeSingleLine)

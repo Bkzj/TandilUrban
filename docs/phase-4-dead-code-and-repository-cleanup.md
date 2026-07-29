@@ -215,3 +215,11 @@ Riesgos restantes:
 - la consolidación de código duplicado queda expresamente fuera de alcance.
 
 Fase 5 no fue iniciada.
+
+## Resolución posterior en Fase 5
+
+La Fase 5 consolidó los heroes editoriales, primitivas acotadas de tarjetas,
+tiles/pin Leaflet, pasos de selección, formato monetario, feedback de
+autenticación y escape HTML. Las tarjetas con interacción de dominio distinta,
+los overlays de mapas y los flujos Cloudinary permanecieron separados a
+propósito. Véase `docs/phase-5-component-reuse-and-maintainability.md`.

@@ -7,26 +7,17 @@ import { signOut, useSession } from 'next-auth/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, Menu, User, X } from 'lucide-react';
 
-import { roleCanAccessPanel } from '@/lib/rbac';
+import {
+  buildNavbarAccess,
+  FAVORITES_HREF,
+  NAVBAR_LEFT_LINKS,
+  NAVBAR_MOBILE_LINKS,
+  NAVBAR_RIGHT_LINKS,
+} from '@/lib/navbar-navigation';
 import type { SessionUserAugmented } from '@/types/auth';
-
-const LEFT_LINKS = [
-  { href: '/buscar', label: 'Propiedades' },
-  { href: '/emprendimientos', label: 'Emprendimientos' },
-] as const;
-
-const RIGHT_LINKS = [
-  { href: '/inmobiliarias', label: 'Inmobiliarias' },
-  { href: '/buscar', label: 'Mapa' },
-] as const;
-
-const MOBILE_NAV_LINKS = [...LEFT_LINKS, ...RIGHT_LINKS] as const;
 
 const NAV_LINK_CLASS =
   'text-base font-semibold text-gray-800 transition-colors hover:text-emerald-800';
-
-const FAVORITES_HREF = '/perfil/favoritos';
-const FAVORITES_LOGIN = `/login?callbackUrl=${encodeURIComponent(FAVORITES_HREF)}`;
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -85,10 +76,11 @@ export default function Navbar() {
       : null;
 
   const sessionRole = (session?.user as SessionUserAugmented | undefined)?.role;
-  const showPanelLink = Boolean(session && roleCanAccessPanel(sessionRole));
+  const navigationAccess = buildNavbarAccess(Boolean(session), sessionRole);
+  const showPanelLink = navigationAccess.showPanelLink;
 
   const closeMobileNav = () => setMobileNavOpen(false);
-  const favoritesHref = session ? FAVORITES_HREF : FAVORITES_LOGIN;
+  const favoritesHref = navigationAccess.favoritesHref;
 
   const iconBtnClass =
     'flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-800 transition hover:border-gray-300 hover:text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-200';
@@ -112,7 +104,7 @@ export default function Navbar() {
             </button>
 
             <div className="hidden items-center gap-8 md:flex">
-              {LEFT_LINKS.map((link) => (
+              {NAVBAR_LEFT_LINKS.map((link) => (
                 <Link key={link.href} href={link.href} className={NAV_LINK_CLASS}>
                   {link.label}
                 </Link>
@@ -133,7 +125,7 @@ export default function Navbar() {
 
           <div className="flex items-center justify-end gap-3 sm:gap-4 md:gap-6">
             <div className="hidden items-center gap-6 md:flex">
-              {RIGHT_LINKS.map((link) => (
+              {NAVBAR_RIGHT_LINKS.map((link) => (
                 <Link key={`${link.href}-${link.label}`} href={link.href} className={NAV_LINK_CLASS}>
                   {link.label}
                 </Link>
@@ -269,7 +261,7 @@ export default function Navbar() {
             className="overflow-hidden border-t border-gray-100 bg-white/95 md:hidden"
           >
             <div className="space-y-1 px-4 py-4">
-              {MOBILE_NAV_LINKS.map((link) => (
+              {NAVBAR_MOBILE_LINKS.map((link) => (
                 <Link
                   key={`${link.href}-${link.label}`}
                   href={link.href}

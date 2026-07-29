@@ -3,30 +3,27 @@
 import type { StepProps, TipoInmueble } from '@/types/panel';
 
 import { TIPOS_INMUEBLE } from './constants';
-import { BigChoice, StepHeading } from './step-ui';
+import { ChoiceStep, type ChoiceOption } from './ChoiceStep';
 
 export function StepTipo({ data, update, onNext, isEditMode }: StepProps) {
+  const options: readonly ChoiceOption<TipoInmueble>[] = TIPOS_INMUEBLE.map((tipo) => ({
+    id: tipo,
+    label: tipo,
+  }));
+
   return (
-    <>
-      <StepHeading>
-        {isEditMode
+    <ChoiceStep
+      title={
+        isEditMode
           ? 'Corregí el tipo de operación o inmueble'
-          : '¿Qué tipo de inmueble es?'}
-      </StepHeading>
-      <div className="grid gap-3 sm:grid-cols-3">
-        {TIPOS_INMUEBLE.map((tipo: TipoInmueble) => (
-          <BigChoice
-            key={tipo}
-            active={data.tipo === tipo}
-            label={tipo}
-            onClick={() => {
-              update('tipo', tipo);
-              window.setTimeout(onNext, 220);
-            }}
-            compact
-          />
-        ))}
-      </div>
-    </>
+          : '¿Qué tipo de inmueble es?'
+      }
+      options={options}
+      value={data.tipo}
+      onChange={(value) => update('tipo', value)}
+      onSelectionComplete={onNext}
+      columnsClassName="gap-3 sm:grid-cols-3"
+      compact
+    />
   );
 }

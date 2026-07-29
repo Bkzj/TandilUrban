@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown, Trash2, X } from 'lucide-react';
@@ -11,7 +11,8 @@ import {
   registrarVisitaFisicaManual,
 } from '@/actions/contacto';
 import type { PanelConsultaPreview, PanelPropiedadTableRow, PanelVisitanteFisicoPreview } from '@/types/panel';
-import { formatMoneyAmount } from '@/lib/money-format';
+import { formatMoney } from '@/lib/money-format';
+import { useDialogFocusTrap } from '@/hooks/use-dialog-focus-trap';
 
 import { DeletePropertyButton } from './DeletePropertyButton';
 
@@ -83,6 +84,8 @@ function MetricCard({ label, value }: { label: string; value: string | number })
 }
 
 export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Props) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [visitasFisicas, setVisitasFisicas] = useState(propiedad.visitasFisicas);
   const [visitantes, setVisitantes] = useState(propiedad.visitantesPresenciales);
   const [consultasPropiedad, setConsultasPropiedad] = useState(propiedad.consultasPropiedad);
@@ -102,16 +105,14 @@ export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Pro
   const dias = diasEnMercado(propiedad.createdAt);
   const conv = convRatePct(visitas, consultas);
   const valorM2 = propiedad.valorM2
-    ? `${propiedad.moneda} ${formatMoneyAmount(propiedad.valorM2)}`
+    ? formatMoney(propiedad.valorM2, propiedad.moneda)
     : '—';
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
-    }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  useDialogFocusTrap({
+    containerRef: dialogRef,
+    initialFocusRef: closeButtonRef,
+    onEscape: onClose,
+  });
 
   function publishUpdate(
     nextVisitasFisicas: number,
@@ -263,21 +264,20 @@ export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Pro
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="quick-view-title"
       data-lenis-prevent="true"
       onClick={onClose}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') onClose();
-      }}
     >
       <div
         className="relative flex min-h-0 max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0A2A1A] text-white shadow-2xl shadow-black/40"
         onClick={(e) => e.stopPropagation()}
       >
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={onClose}
           className="absolute right-4 top-4 z-10 rounded-full bg-black/40 p-2 text-white backdrop-blur-md transition-colors hover:bg-black/60"
@@ -304,7 +304,7 @@ export function PropertyQuickView({ propiedad, onClose, onPropiedadUpdate }: Pro
             {propiedad.operacion} · {propiedad.tipo}
           </p>
           <p className="mt-3 text-2xl font-bold tabular-nums text-white">
-            {propiedad.moneda} {formatMoneyAmount(propiedad.precio)}
+            {formatMoney(propiedad.precio, propiedad.moneda)}
           </p>
 
           <div className="mb-6 mt-6 grid grid-cols-2 gap-3 md:grid-cols-3">

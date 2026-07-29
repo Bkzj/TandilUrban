@@ -6,7 +6,8 @@ import { renderMatchNotificationHtml } from '@/lib/match-notification-html';
 import { enviarMatchNotificationEmail } from '@/lib/match-notification-mail';
 import { normalizePropiedadImagenesDb } from '@/lib/normalize-propiedad-imagenes';
 import { prisma } from '@/lib/prisma';
-import { decimalToMoneyText, formatMoneyAmount } from '@/lib/money';
+import { decimalToMoneyText } from '@/lib/money';
+import { formatMoney } from '@/lib/money-format';
 import type { Currency } from '@/types/money';
 
 /** Datos mínimos de una propiedad recién publicada para el motor de match. */
@@ -33,7 +34,7 @@ export function propiedadPublicUrl(propiedadId: string): string {
 }
 
 export function formatPrecioMatch(moneda: Currency, precio: string): string {
-  return `${moneda} ${formatMoneyAmount(precio)}`;
+  return formatMoney(precio, moneda);
 }
 
 export function toPropiedadParaMatch(row: {

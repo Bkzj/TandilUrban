@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
+import { AuthFeedback } from '@/components/auth/AuthFeedback';
+import { AUTH_MESSAGES, authenticationErrorMessage } from '@/lib/auth-error-messages';
 import { safeInternalCallbackUrl } from '@/lib/validation/auth';
 
 function LoginForm() {
@@ -38,11 +40,11 @@ function LoginForm() {
       if (response.status === 429) {
         const seconds = Number(response.headers.get('Retry-After') ?? '60');
         setRetryAfter(Number.isFinite(seconds) ? seconds : 60);
-        setResendMessage('Alcanzaste el límite de reenvíos. Intentá nuevamente más tarde.');
+        setResendMessage(AUTH_MESSAGES.resendRateLimited);
       } else if (response.ok) {
-        setResendMessage(payload.message ?? 'Si corresponde, te enviaremos un nuevo correo de verificación.');
+        setResendMessage(payload.message ?? AUTH_MESSAGES.resendGeneric);
       } else {
-        setResendMessage('No pudimos procesar el reenvío. Intentá nuevamente más tarde.');
+        setResendMessage(AUTH_MESSAGES.resendFailed);
       }
     } finally {
       setResendPending(false);
@@ -64,7 +66,7 @@ function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError('Credenciales invalidas. Verifica tu email y contrasena.');
+      setError(authenticationErrorMessage());
       return;
     }
 
@@ -84,8 +86,14 @@ function LoginForm() {
           <p className="text-sm font-semibold uppercase tracking-wide text-verde">Propea Group</p>
           <h1 className="mt-2 text-3xl font-bold text-text-primary">Iniciar sesion</h1>
           <p className="mt-2 text-sm text-text-secondary">Accede al panel con tus credenciales.</p>
-          {verified ? <p className="mt-3 text-sm font-medium text-verde">Tu correo fue verificado. Ya podés ingresar.</p> : null}
-          {verificationError ? <p className="mt-3 text-sm text-text-secondary">El enlace de verificación no es válido o venció. Podés solicitar uno nuevo.</p> : null}
+          <AuthFeedback
+            message={verified ? AUTH_MESSAGES.verificationSucceeded : null}
+            tone="success"
+          />
+          <AuthFeedback
+            message={verificationError ? AUTH_MESSAGES.verificationLinkInvalid : null}
+            tone="neutral"
+          />
 
           <form className="mt-8 space-y-4" onSubmit={onSubmit}>
             <div>
@@ -118,7 +126,7 @@ function LoginForm() {
               />
             </div>
 
-            {error ? <p className="text-sm font-medium text-naranja-dark">{error}</p> : null}
+            <AuthFeedback message={error} tone="error" className="" />
 
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -141,7 +149,7 @@ function LoginForm() {
             >
               {resendPending ? 'Enviando…' : 'Reenviar correo de verificación'}
             </button>
-            {resendMessage ? <p className="mt-2 text-sm text-text-secondary" role="status">{resendMessage}</p> : null}
+            <AuthFeedback message={resendMessage} tone="neutral" className="mt-2" />
             {retryAfter ? <p className="mt-1 text-xs text-text-secondary">Tiempo sugerido de espera: {retryAfter} segundos.</p> : null}
           </div>
 

@@ -5,8 +5,9 @@ import Image from 'next/image';
 
 import { FavoriteButton } from '@/components/public/FavoriteButton';
 import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaBadge';
+import { resolvePropertyImageSource } from '@/components/public/property-card/PropertyImage';
+import { PropertyPrice } from '@/components/public/property-card/PropertyPrice';
 import type { PublicPropiedadListItem } from '@/types/public-search';
-import { formatMoneyAmount } from '@/lib/money-format';
 
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2070&auto=format&fit=crop';
@@ -16,12 +17,8 @@ type Props = {
   isFavoritoInicial?: boolean;
 };
 
-function formatPrecio(p: PublicPropiedadListItem): string {
-  return `${p.moneda} ${formatMoneyAmount(p.precio)}`;
-}
-
 export function FeaturedPropertyCard({ propiedad, isFavoritoInicial = false }: Props) {
-  const img = propiedad.imagenes[0]?.trim() || PLACEHOLDER;
+  const img = resolvePropertyImageSource(propiedad.imagenes[0], PLACEHOLDER);
   const useNativeImg = img.startsWith('data:');
   const visitasLabel = propiedad.destacada ? 'Propiedad destacada' : 'Selección curada';
 
@@ -59,9 +56,11 @@ export function FeaturedPropertyCard({ propiedad, isFavoritoInicial = false }: P
             </span>
           </div>
 
-          <p className="text-2xl font-extrabold tracking-tight text-naranja sm:text-3xl">
-            {formatPrecio(propiedad)}
-          </p>
+          <PropertyPrice
+            amount={propiedad.precio}
+            currency={propiedad.moneda}
+            className="text-2xl font-extrabold tracking-tight text-naranja sm:text-3xl"
+          />
 
           <p className="text-sm text-gray-500">
             {propiedad.ambientes} amb. · {Math.round(propiedad.m2Total)} m² · {visitasLabel}

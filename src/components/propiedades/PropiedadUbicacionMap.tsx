@@ -2,19 +2,12 @@
 
 import dynamic from 'next/dynamic';
 
+import { LeafletMapLoading } from '@/components/maps/LeafletMapLoading';
 import type { PoisCercanosResult } from '@/types/cercanias';
-
-function MapLoading() {
-  return (
-    <div className="flex h-full w-full animate-pulse items-center justify-center bg-background text-text-secondary">
-      Cargando mapa...
-    </div>
-  );
-}
 
 const PropiedadUbicacionMapInner = dynamic(() => import('./PropiedadUbicacionMapInner'), {
   ssr: false,
-  loading: MapLoading,
+  loading: LeafletMapLoading,
 });
 
 type Props = {

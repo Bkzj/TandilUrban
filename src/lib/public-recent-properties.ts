@@ -2,7 +2,8 @@ import 'server-only';
 
 import type { Prisma } from '@prisma/client';
 
-import { decimalToMoneyText, formatMoneyAmount } from '@/lib/money';
+import { decimalToMoneyText } from '@/lib/money';
+import { formatMoney } from '@/lib/money-format';
 import { prisma } from '@/lib/prisma';
 import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propiedad-imagenes';
 import { PUBLIC_PROPERTY_WHERE } from '@/lib/public-property-policy';
@@ -41,7 +42,7 @@ export async function getPublicRecentProperties(
     return [{
       id: row.id,
       titulo: row.titulo,
-      precio: `${row.moneda} ${formatMoneyAmount(decimalToMoneyText(row.precio))}`,
+      precio: formatMoney(decimalToMoneyText(row.precio), row.moneda),
       tipoOperacion: row.operacion.toUpperCase(),
       imagen: imagenes[0] ?? '',
     }];

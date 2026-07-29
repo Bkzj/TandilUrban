@@ -1,13 +1,6 @@
 import { Resend } from 'resend';
 
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+import { escapePlainTextForHtml } from '@/lib/escape-html';
 
 /** Remitente (dominio verificado en producción). Resend trial: onboarding@resend.dev */
 const defaultFrom = 'Propea Group <onboarding@resend.dev>';
@@ -74,12 +67,12 @@ export async function enviarMailNotificacionLead(
     console.warn('[resend] Sin destinatarios internos; solo se intenta mail al cliente.');
   }
 
-  const titulo = escapeHtml(params.propiedadTitulo);
-  const mensaje = escapeHtml(params.mensaje);
-  const nombre = escapeHtml(params.nombreLead);
+  const titulo = escapePlainTextForHtml(params.propiedadTitulo);
+  const mensaje = escapePlainTextForHtml(params.mensaje);
+  const nombre = escapePlainTextForHtml(params.nombreLead);
   const tel =
     params.telefonoLead && params.telefonoLead.trim() !== ''
-      ? escapeHtml(params.telefonoLead.trim())
+      ? escapePlainTextForHtml(params.telefonoLead.trim())
       : null;
 
   const htmlCliente = `
@@ -94,7 +87,7 @@ export async function enviarMailNotificacionLead(
   const htmlInterno = `
     <p><strong>Nuevo lead</strong> de <strong>${nombre}</strong> para <strong>${titulo}</strong>.</p>
     <ul>
-      <li>Email: ${escapeHtml(params.clienteEmail.trim())}</li>
+      <li>Email: ${escapePlainTextForHtml(params.clienteEmail.trim())}</li>
       ${tel ? `<li>Teléfono: ${tel}</li>` : ''}
     </ul>
     <p>Mensaje:</p>

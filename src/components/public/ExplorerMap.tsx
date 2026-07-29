@@ -1,11 +1,9 @@
 'use client';
 
-import 'leaflet/dist/leaflet.css';
-
 import { useEffect, useMemo, useRef } from 'react';
-import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import { MapContainer, Marker, useMap } from 'react-leaflet';
 
+import { PropeaMapTileLayer } from '@/components/maps/LeafletInfrastructure';
 import { flyMapToPositions, runWhenMapReady } from '@/lib/map-coords-leaflet';
 import {
   isValidMapLatLng,
@@ -13,6 +11,7 @@ import {
   TANDIL_CENTER,
   toValidLatLngPairs,
 } from '@/lib/map-coords';
+import { getPropeaMapIcon } from '@/lib/propea-map-icon';
 
 export type ExplorerMapPoint = {
   id: string;
@@ -20,16 +19,6 @@ export type ExplorerMapPoint = {
   lng: number;
   titulo?: string;
 };
-
-const pinIcon = L.divIcon({
-  className: 'explorer-map-pin',
-  html: `<svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 22C12 22 20 14.4183 20 10C20 5.58172 16.4183 2 12 2C7.58172 2 4 5.58172 4 10C4 14.4183 12 22 12 22Z" fill="#957327" stroke="#12422A" stroke-width="2"/>
-    <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" fill="#F5F6F4"/>
-  </svg>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 36],
-});
 
 function normalizePoints(points: ExplorerMapPoint[]): ExplorerMapPoint[] {
   const out: ExplorerMapPoint[] = [];
@@ -88,8 +77,6 @@ export function ExplorerMap({ visibleProperties }: ExplorerMapProps) {
     return [first.lat, first.lng];
   }, [validProperties]);
 
-  const icon = useMemo(() => pinIcon, []);
-
   return (
     <div className="absolute inset-0 z-0 bg-gray-100">
       <MapContainer
@@ -99,13 +86,10 @@ export function ExplorerMap({ visibleProperties }: ExplorerMapProps) {
         className="h-full w-full"
         style={{ minHeight: '100%' }}
       >
-        <TileLayer
-          attribution="&copy; OpenStreetMap"
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        />
+        <PropeaMapTileLayer />
         <FlyToVisibleBounds points={validProperties} />
         {validProperties.map((p) => (
-          <Marker key={p.id} position={[p.lat, p.lng]} icon={icon} title={p.titulo} />
+          <Marker key={p.id} position={[p.lat, p.lng]} icon={getPropeaMapIcon('compact')} title={p.titulo} />
         ))}
       </MapContainer>
     </div>

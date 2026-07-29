@@ -9,7 +9,8 @@ import { imagenesItemsToUrls, normalizePropiedadImagenesDb } from '@/lib/propied
 import { resolvePanelTenantInmobiliariaId } from '@/lib/panel-tenant';
 import { prisma } from '@/lib/prisma';
 import type { CurrentUser } from '@/types/auth';
-import { decimalToMoneyText, formatMoneyAmount } from '@/lib/money';
+import { decimalToMoneyText } from '@/lib/money';
+import { formatMoney } from '@/lib/money-format';
 
 export const metadata = {
   title: 'Informe de valoración | Propea Group',
@@ -17,8 +18,8 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-function formatPrecio(precio: Prisma.Decimal, moneda: string): string {
-  return `${moneda} ${formatMoneyAmount(decimalToMoneyText(precio))}`;
+function formatPrecio(precio: Prisma.Decimal, moneda: 'ARS' | 'USD'): string {
+  return formatMoney(decimalToMoneyText(precio), moneda);
 }
 
 type PageProps = {

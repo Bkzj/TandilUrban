@@ -9,7 +9,7 @@ import { getFavoritePropiedadIds, isPropiedadFavorita } from '@/lib/favoritos';
 import type { SessionUserAugmented } from '@/types/auth';
 import { buildPropiedadOgImageUrl, getPropiedadOgData } from '@/lib/propiedad-og';
 import { getPropiedadPublicDetail } from '@/lib/propiedad-public-detail';
-import { formatMoneyAmount } from '@/lib/money';
+import { formatMoney } from '@/lib/money-format';
 
 import { PropertyGallery } from '@/components/propiedades/PropertyGallery';
 import PropertyLocationSection from '@/components/public/PropertyLocationSection';
@@ -80,7 +80,7 @@ export default async function PropiedadPage({ params }: PageProps) {
 
   const precioFmt =
     propiedad.precio != null
-      ? `${propiedad.moneda} ${formatMoneyAmount(propiedad.precio)}`
+      ? formatMoney(propiedad.precio, propiedad.moneda)
       : 'Valor a consultar';
 
   const operacionLabel = String(propiedad.operacion).toUpperCase();

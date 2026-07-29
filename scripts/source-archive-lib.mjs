@@ -10,6 +10,7 @@ const REQUIRED = [
   'database/migrations/20260722090000_cloudinary_asset_registry/migration.sql',
   'database/migrations/20260722090000_cloudinary_asset_registry/rollback.sql',
   'database/preflight/phase4-legacy-candidates.sql',
+  'docs/phase-5-component-reuse-and-maintainability.md',
   'docs/security-audit-remediation.md',
   'scripts/check-dead-code.mjs',
   'package.json',

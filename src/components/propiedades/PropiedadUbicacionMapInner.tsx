@@ -3,24 +3,14 @@
 import { useMemo } from 'react';
 
 import { useClientMounted } from '@/hooks/use-client-mounted';
-import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { MapContainer, Marker, Polyline, Popup } from 'react-leaflet';
 
+import { PropeaMapTileLayer } from '@/components/maps/LeafletInfrastructure';
+import { LeafletMapLoading } from '@/components/maps/LeafletMapLoading';
 import { formatDistanciaCercania } from '@/lib/cercanias-format';
 import { getPoiDivIcon } from '@/lib/poi-map-icons';
+import { getPropeaMapIcon } from '@/lib/propea-map-icon';
 import type { CercaniasCategoryKey, PoisCercanosResult } from '@/types/cercanias';
-
-const tandilIcon = L.divIcon({
-  className: 'custom-tandil-pin',
-  html: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 22C12 22 20 14.4183 20 10C20 5.58172 16.4183 2 12 2C7.58172 2 4 5.58172 4 10C4 14.4183 12 22 12 22Z" fill="#957327" stroke="#12422A" stroke-width="2"/>
-    <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" fill="#F5F6F4"/>
-    <path d="M10 10.5L11.5 9L13.5 11" stroke="#957327" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>`,
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-});
 
 type PoiMarker = {
   id: string;
@@ -82,7 +72,6 @@ export default function PropiedadUbicacionMapInner({
   activeCategorias = [],
 }: Props) {
   const isMounted = useClientMounted();
-  const pinFijo = useMemo(() => tandilIcon, []);
   const activeSet = useMemo(() => new Set(activeCategorias), [activeCategorias]);
 
   const centro = useMemo<[number, number]>(() => {
@@ -102,11 +91,7 @@ export default function PropiedadUbicacionMapInner({
   }, [pois, activeSet]);
 
   if (!isMounted) {
-    return (
-      <div className="flex h-full w-full animate-pulse items-center justify-center bg-background text-text-secondary">
-        Cargando mapa...
-      </div>
-    );
+    return <LeafletMapLoading />;
   }
 
   return (
@@ -116,13 +101,10 @@ export default function PropiedadUbicacionMapInner({
       scrollWheelZoom={false}
       className="z-0 h-full w-full"
     >
-      <TileLayer
-        attribution="&copy; OpenStreetMap"
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-      />
+      <PropeaMapTileLayer />
 
       {Number.isFinite(latitud) && Number.isFinite(longitud) ? (
-        <Marker position={[latitud, longitud]} icon={pinFijo} zIndexOffset={1000}>
+        <Marker position={[latitud, longitud]} icon={getPropeaMapIcon()} zIndexOffset={1000}>
           <Popup className="text-center font-sans">
             <strong className="block text-lg text-verde">{titulo}</strong>
             <span className="block text-xs uppercase text-text-secondary">Ubicación exacta</span>

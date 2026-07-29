@@ -4,12 +4,10 @@ import Link from 'next/link';
 
 import { FavoriteButton } from '@/components/public/FavoriteButton';
 import { PropiedadExclusivaBadge } from '@/components/public/PropiedadExclusivaBadge';
+import { PropertyImage } from '@/components/public/property-card/PropertyImage';
+import { PropertyPrice } from '@/components/public/property-card/PropertyPrice';
 import { isPropiedadDestacada } from '@/lib/propiedad-destacada';
 import type { PublicPropiedadListItem } from '@/types/public-search';
-import { formatMoneyAmount } from '@/lib/money-format';
-
-const PLACEHOLDER =
-  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop';
 
 type Props = {
   propiedad: PublicPropiedadListItem;
@@ -23,11 +21,9 @@ export function PropertyCardPublic({
   isFavoritoInicial = false,
   variant = 'default',
 }: Props) {
-  const img = propiedad.imagenes[0]?.trim() || PLACEHOLDER;
   const destacada = variant === 'featured' || isPropiedadDestacada(propiedad);
   const featuredCard = variant === 'featured';
   const direccionLine = [propiedad.direccion, propiedad.barrio].filter(Boolean).join(' · ');
-  const precioFmt = `${propiedad.moneda} ${formatMoneyAmount(propiedad.precio)}`;
 
   return (
     <article className="group relative">
@@ -40,9 +36,8 @@ export function PropertyCardPublic({
                 : 'ring-1 ring-black/5'
             }`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={img}
+            <PropertyImage
+              source={propiedad.imagenes[0]}
               alt=""
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
@@ -61,9 +56,11 @@ export function PropertyCardPublic({
           </div>
 
           <div className="mt-4 space-y-1">
-            <p className="text-xl font-semibold tracking-tight text-text-primary">
-              <span className="text-naranja">{precioFmt}</span>
-            </p>
+            <PropertyPrice
+              amount={propiedad.precio}
+              currency={propiedad.moneda}
+              className="text-xl font-semibold tracking-tight text-naranja"
+            />
             <p className="text-xs font-medium text-text-secondary">
               {propiedad.ambientes} amb. · {propiedad.banos} baños · {Math.round(propiedad.m2Total)} m²
               {propiedad.dormitorios > 0 ? ` · ${propiedad.dormitorios} dorm.` : null}

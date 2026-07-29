@@ -2,9 +2,9 @@
 
 import { KeyboardEvent, ReactNode, useEffect, useRef } from 'react';
 
-export function StepHeading({ children }: { children: ReactNode }) {
+export function StepHeading({ children, id }: { children: ReactNode; id?: string }) {
   return (
-    <h2 className="max-w-2xl text-3xl font-medium leading-[1.15] tracking-wide text-white md:text-5xl">
+    <h2 id={id} className="max-w-2xl text-3xl font-medium leading-[1.15] tracking-wide text-white md:text-5xl">
       {children}
     </h2>
   );
@@ -18,43 +18,6 @@ export function HintEnter({ children = 'Presioná Enter para continuar' }: { chi
         ↵
       </kbd>
     </p>
-  );
-}
-
-export function BigChoice({
-  active,
-  label,
-  sub,
-  onClick,
-  compact,
-}: {
-  active: boolean;
-  label: string;
-  sub?: string;
-  onClick: () => void;
-  compact?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`group relative w-full overflow-hidden rounded-2xl border text-left transition-all ${
-        active
-          ? 'border-naranja bg-naranja/15 shadow-lg shadow-naranja/20'
-          : 'border-white/10 bg-white/5 shadow-lg shadow-black/20 backdrop-blur-md hover:border-white/20 hover:bg-white/10'
-      } ${compact ? 'px-5 py-5' : 'px-6 py-7'}`}
-    >
-      <div className={`font-semibold text-surface ${compact ? 'text-lg' : 'text-2xl'}`}>{label}</div>
-      {sub && <div className="mt-1 text-sm text-surface/60">{sub}</div>}
-      <span
-        aria-hidden
-        className={`absolute right-5 top-1/2 -translate-y-1/2 text-xl transition-opacity ${
-          active ? 'text-naranja opacity-100' : 'opacity-0'
-        }`}
-      >
-        ✓
-      </span>
-    </button>
   );
 }
 

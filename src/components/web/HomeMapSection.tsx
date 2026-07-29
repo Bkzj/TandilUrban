@@ -2,7 +2,7 @@
 
 import MapComponent from '@/components/Map';
 import type { PublicPropiedadListItem } from '@/types/public-search';
-import { formatMoneyAmount } from '@/lib/money-format';
+import { formatMoney } from '@/lib/money-format';
 
 const FILTROS_HOME = [
   { id: 'Casa', nombre: 'Casas', icono: '🏡' },
@@ -28,7 +28,7 @@ export function HomeMapSection({ propiedades }: Props) {
           lng: p.longitud,
           categoriaId: p.tipo,
           titulo: p.titulo,
-          subtitulo: `${p.moneda} ${formatMoneyAmount(p.precio)}`,
+          subtitulo: formatMoney(p.precio, p.moneda),
           icono: p.tipo === 'Casa' ? '🏡' : p.tipo === 'Departamento' ? '🏢' : '🌳',
         }))}
       />

@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { escapePlainTextForHtml } from '@/lib/escape-html';
+
 const VERDE_OSCURO = '#12422A';
 const VERDE = '#1C5E3C';
 const GRIS_TEXTO = '#374151';
@@ -15,24 +17,15 @@ export type MatchNotificationProps = {
   nombreUsuario?: string;
 };
 
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 export function renderMatchNotificationHtml(props: MatchNotificationProps): string {
   const saludo = props.nombreUsuario?.trim()
-    ? `¡Hola ${escapeHtml(props.nombreUsuario.trim())}!`
+    ? `¡Hola ${escapePlainTextForHtml(props.nombreUsuario.trim())}!`
     : '¡Hola!';
 
-  const titulo = escapeHtml(props.titulo);
-  const precio = escapeHtml(props.precioFormatted);
-  const propiedadUrl = escapeHtml(props.propiedadUrl);
-  const imgSrc = escapeHtml(props.imagenUrl?.trim() || PLACEHOLDER_IMG);
+  const titulo = escapePlainTextForHtml(props.titulo);
+  const precio = escapePlainTextForHtml(props.precioFormatted);
+  const propiedadUrl = escapePlainTextForHtml(props.propiedadUrl);
+  const imgSrc = escapePlainTextForHtml(props.imagenUrl?.trim() || PLACEHOLDER_IMG);
 
   return `<!DOCTYPE html>
 <html lang="es">

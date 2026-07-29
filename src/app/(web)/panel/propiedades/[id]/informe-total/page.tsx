@@ -34,7 +34,8 @@ import {
   labelEstadoPropiedad,
 } from '@/lib/panel-propiedad-informe-total';
 import type { CurrentUser } from '@/types/auth';
-import { formatMoneyAmount } from '@/lib/money-format';
+import { formatMoney } from '@/lib/money-format';
+import type { Currency } from '@/types/money';
 
 export const metadata = {
   title: 'Informe integral de propiedad | Propea Group',
@@ -47,8 +48,8 @@ const VERDE_MID = '#0d3d24';
 const DORADO = '#B4853F';
 const DORADO_LIGHT = '#d4a574';
 
-function formatPrecio(precio: string, moneda: string): string {
-  return `${moneda} ${formatMoneyAmount(precio)}`;
+function formatPrecio(precio: string, moneda: Currency): string {
+  return formatMoney(precio, moneda);
 }
 
 function fmtDate(iso: string): string {

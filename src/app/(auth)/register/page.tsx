@@ -3,6 +3,11 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { AuthFeedback } from '@/components/auth/AuthFeedback';
+import {
+  AUTH_MESSAGES,
+  registrationErrorMessage,
+} from '@/lib/auth-error-messages';
 
 export default function RegisterPage() {
   const [nombre, setNombre] = useState('');
@@ -28,12 +33,12 @@ export default function RegisterPage() {
 
     if (!response.ok) {
       setLoading(false);
-      setError(result.error ?? 'No se pudo crear la cuenta.');
+      setError(registrationErrorMessage());
       return;
     }
 
     setLoading(false);
-    setSuccess(result.message ?? 'Cuenta creada. Revisá tu correo para verificarla antes de ingresar.');
+    setSuccess(result.message ?? AUTH_MESSAGES.registrationSucceeded);
   }
 
   return (
@@ -96,8 +101,8 @@ export default function RegisterPage() {
               />
             </div>
 
-            {error ? <p className="text-sm font-medium text-naranja-dark">{error}</p> : null}
-            {success ? <p className="text-sm font-medium text-verde">{success}</p> : null}
+            <AuthFeedback message={error} tone="error" className="" />
+            <AuthFeedback message={success} tone="success" className="" />
 
             <motion.button
               whileHover={{ scale: 1.02 }}

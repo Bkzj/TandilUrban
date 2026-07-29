@@ -14,6 +14,7 @@
     "check:dead-code": "node scripts/check-dead-code.mjs",
     "jobs:cloudinary-cleanup": "tsx scripts/process-cloudinary-cleanup.ts",
     "analytics:reconcile": "tsx scripts/reconcile-analytics-counters.ts",
+    "release:smoke": "node scripts/release-smoke.mjs",
     "archive:source": "node scripts/create-source-archive.mjs",
     "test:archive": "node scripts/validate-source-archive.mjs",
     "postinstall": "prisma generate",

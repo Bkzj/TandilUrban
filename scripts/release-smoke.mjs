@@ -15,6 +15,9 @@ const REQUIRED_ENVIRONMENT = [
   'RATE_LIMIT_TRUSTED_IP_HEADER', 'GEMINI_API_KEY', 'GEMINI_MODEL', 'CLOUDINARY_CLOUD_NAME',
   'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RESEND_API_KEY', 'RESEND_FROM_EMAIL',
   'LEAD_NOTIFICATION_TO_EMAIL', 'MATCH_NOTIFICATION_TO_EMAIL',
+  'AUTH_ENCRYPTION_KEY', 'AUTH_TOTP_ISSUER', 'AUTH_TOTP_CHALLENGE_TTL_SECONDS',
+  'AUTH_PASSWORD_RESET_TTL_MINUTES', 'AUTH_EMAIL_VERIFICATION_TTL_HOURS',
+  'AUTH_RECENT_LOGIN_TTL_MINUTES', 'AUTH_RECOVERY_CODE_COUNT',
 ];
 const EXPECTED_AUDIT = { low: 1, high: 10, critical: 1, total: 12 };
 const externalChecks = new Set(process.argv.slice(2));
@@ -42,6 +45,22 @@ function requiredEnvironmentCheck() {
   if (process.env.NEXTAUTH_SECRET.length < 32 || process.env.VIEW_TRACKING_SECRET.length < 32) {
     throw new Error('los secretos deben tener al menos 32 caracteres');
   }
+  const authKey = Buffer.from(process.env.AUTH_ENCRYPTION_KEY, 'base64');
+  const authKeyIsCanonical = /^[A-Za-z0-9+/]{43}=$/u.test(process.env.AUTH_ENCRYPTION_KEY)
+    && authKey.toString('base64') === process.env.AUTH_ENCRYPTION_KEY;
+  if (!authKeyIsCanonical || authKey.byteLength !== 32 || /replace|example|change|secret/i.test(process.env.AUTH_ENCRYPTION_KEY)) {
+    throw new Error('AUTH_ENCRYPTION_KEY debe ser Base64 de 32 bytes y no un placeholder');
+  }
+  if (!process.env.AUTH_TOTP_ISSUER.trim()) throw new Error('AUTH_TOTP_ISSUER no puede estar vacío');
+  const numericRanges = [
+    ['AUTH_TOTP_CHALLENGE_TTL_SECONDS', 60, 900], ['AUTH_PASSWORD_RESET_TTL_MINUTES', 5, 120],
+    ['AUTH_EMAIL_VERIFICATION_TTL_HOURS', 1, 168], ['AUTH_RECENT_LOGIN_TTL_MINUTES', 1, 60],
+    ['AUTH_RECOVERY_CODE_COUNT', 6, 20],
+  ];
+  for (const [name, minimum, maximum] of numericRanges) {
+    const value = Number(process.env[name]);
+    if (!Number.isInteger(value) || value < minimum || value > maximum) throw new Error(`${name} fuera de rango`);
+  }
   if (process.env.RATE_LIMIT_BACKEND !== 'postgresql') throw new Error('RATE_LIMIT_BACKEND debe ser postgresql');
   if (!['x-vercel-forwarded-for', 'cf-connecting-ip'].includes(process.env.RATE_LIMIT_TRUSTED_IP_HEADER)) {
     throw new Error('RATE_LIMIT_TRUSTED_IP_HEADER no está permitido');
@@ -62,11 +81,17 @@ async function databaseAndSchemaCheck() {
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 1, connectionTimeoutMillis: 5_000 });
   try {
     await pool.query('SELECT 1');
-    const requiredTables = ['User', 'Propiedad', 'CloudinaryAsset', 'CloudinaryDeletionJob', 'PropiedadVista', 'RateLimitBucket'];
+    const requiredTables = ['User', 'Propiedad', 'CloudinaryAsset', 'CloudinaryDeletionJob', 'PropiedadVista', 'RateLimitBucket', 'AuthSessionVersion', 'PasswordResetToken', 'TwoFactorConfiguration', 'TwoFactorChallenge', 'TwoFactorRecoveryCode', 'SecurityEvent'];
     const tables = await pool.query('SELECT tablename FROM pg_tables WHERE schemaname = current_schema() AND tablename = ANY($1)', [requiredTables]);
     if (tables.rowCount !== requiredTables.length) throw new Error('faltan tablas requeridas de release');
     const constraints = await pool.query("SELECT count(*)::int AS count FROM pg_constraint WHERE conname IN ('Propiedad_coordinates_check', 'CloudinaryAsset_status_dates_check', 'VerificationToken_expiry_check')");
     if (constraints.rows[0].count !== 3) throw new Error('faltan constraints requeridos de release');
+    const authConstraints = await pool.query("SELECT count(*)::int AS count FROM pg_constraint WHERE conname IN ('AuthSessionVersion_version_check', 'PasswordResetToken_expiry_check', 'TwoFactorConfiguration_parameters_check', 'TwoFactorChallenge_attempts_check')");
+    if (authConstraints.rows[0].count !== 4) throw new Error('faltan constraints de autenticación Phase 6A');
+    const authIndexes = await pool.query("SELECT count(*)::int AS count FROM pg_indexes WHERE schemaname = current_schema() AND indexname IN ('AuthSessionVersion_userId_key', 'PasswordResetToken_tokenHash_key', 'TwoFactorConfiguration_userId_key', 'TwoFactorChallenge_tokenHash_key', 'TwoFactorRecoveryCode_codeHash_key')");
+    if (authIndexes.rows[0].count !== 5) throw new Error('faltan índices de autenticación Phase 6A');
+    const legacy = await pool.query('SELECT count(*)::int AS count FROM "User" WHERE "twoFactorSecret" IS NOT NULL');
+    if (legacy.rows[0].count !== 0) throw new Error('existen secretos 2FA legacy pendientes');
   } finally {
     await pool.end();
   }
@@ -75,11 +100,15 @@ async function databaseAndSchemaCheck() {
 }
 
 async function applicationHealthCheck() {
-  const url = new URL('/api/health', process.env.APP_INTERNAL_URL).toString();
-  const response = await fetch(url, { signal: AbortSignal.timeout(5_000), redirect: 'error' });
-  const body = await response.json();
-  if (!response.ok || body?.status !== 'ok' || body?.components?.process !== 'ok') throw new Error('health endpoint no está sano');
-  process.stdout.write('ok application health endpoint\n');
+  const healthUrl = new URL('/api/health', process.env.APP_INTERNAL_URL).toString();
+  const healthResponse = await fetch(healthUrl, { signal: AbortSignal.timeout(5_000), redirect: 'error' });
+  const healthBody = await healthResponse.json();
+  if (!healthResponse.ok || healthBody?.status !== 'ok' || healthBody?.components?.process !== 'ok') throw new Error('health endpoint no está sano');
+  const readinessUrl = new URL('/api/readiness', process.env.APP_INTERNAL_URL).toString();
+  const readinessResponse = await fetch(readinessUrl, { signal: AbortSignal.timeout(5_000), redirect: 'error' });
+  const readinessBody = await readinessResponse.json();
+  if (!readinessResponse.ok || readinessBody?.status !== 'ready') throw new Error('readiness endpoint no está listo');
+  process.stdout.write('ok application health and readiness endpoints\n');
 }
 
 function generatedCodeAndAuditCheck() {

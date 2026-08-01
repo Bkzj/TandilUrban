@@ -18,6 +18,7 @@ const result = spawnSync(process.execPath, [nextBinary, 'build'], {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? buildUrl,
     APP_INTERNAL_URL: process.env.APP_INTERNAL_URL ?? buildUrl,
     VIEW_TRACKING_SECRET: 'c'.repeat(64),
+    AUTH_ENCRYPTION_KEY: Buffer.alloc(32, 5).toString('base64'),
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ?? 'build',
     CLOUDINARY_API_KEY: 'build-only-key',
     CLOUDINARY_API_SECRET: 'd'.repeat(32),

@@ -13,6 +13,15 @@ const requiredUrl = z.string().trim().transform((value, context) => {
   return parsed;
 });
 const secret = z.string().min(32, 'Debe tener al menos 32 caracteres.');
+const encryptionKey = z.string().trim().refine((value) => {
+  try {
+    return /^[A-Za-z0-9+/]{43}=$/u.test(value)
+      && Buffer.from(value, 'base64').byteLength === 32
+      && Buffer.from(value, 'base64').toString('base64') === value;
+  } catch {
+    return false;
+  }
+}, 'Debe ser Base64 de 32 bytes.');
 
 export const serverEnvironmentSchema = z
   .object({
@@ -34,6 +43,13 @@ export const serverEnvironmentSchema = z
     NEXT_PUBLIC_APP_URL: requiredUrl,
     APP_INTERNAL_URL: requiredUrl,
     VIEW_TRACKING_SECRET: secret,
+    AUTH_ENCRYPTION_KEY: encryptionKey.optional(),
+    AUTH_TOTP_ISSUER: z.string().trim().min(1).max(80).default('Propea Group'),
+    AUTH_TOTP_CHALLENGE_TTL_SECONDS: z.coerce.number().int().min(60).max(900).default(300),
+    AUTH_PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().min(5).max(120).default(30),
+    AUTH_EMAIL_VERIFICATION_TTL_HOURS: z.coerce.number().int().min(1).max(168).default(24),
+    AUTH_RECENT_LOGIN_TTL_MINUTES: z.coerce.number().int().min(1).max(60).default(15),
+    AUTH_RECOVERY_CODE_COUNT: z.coerce.number().int().min(6).max(20).default(10),
     NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: optionalTrimmed.refine((value) => {
       if (!value) return true;
       try {
@@ -68,6 +84,7 @@ export const serverEnvironmentSchema = z
       'CLOUDINARY_API_SECRET',
       'RESEND_API_KEY',
       'RESEND_FROM_EMAIL',
+      'AUTH_ENCRYPTION_KEY',
     ] as const;
     for (const field of requiredProduction) {
       if (!value[field]) {
@@ -95,6 +112,9 @@ export const serverEnvironmentSchema = z
       if (/replace|example|change|secret/i.test(value[field])) {
         context.addIssue({ code: 'custom', message: 'El valor parece un placeholder.', path: [field] });
       }
+    }
+    if (value.AUTH_ENCRYPTION_KEY && /replace|example|change|secret/i.test(value.AUTH_ENCRYPTION_KEY)) {
+      context.addIssue({ code: 'custom', message: 'El valor parece un placeholder.', path: ['AUTH_ENCRYPTION_KEY'] });
     }
     if (value.PDF_ALLOWED_ORIGINS) {
       for (const rawOrigin of value.PDF_ALLOWED_ORIGINS.split(',')) {
@@ -141,6 +161,7 @@ export function getServerEnvironment(): ServerEnvironment {
             NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
             APP_INTERNAL_URL: 'http://localhost:3000',
             VIEW_TRACKING_SECRET: 'local-only-view-secret-32-bytes-minimum',
+            AUTH_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString('base64'),
             ...process.env,
           };
     const parsed = validateServerEnvironment(runtimeEnvironment);

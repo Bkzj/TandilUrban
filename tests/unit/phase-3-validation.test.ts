@@ -225,6 +225,7 @@ test('environment policy allows safe development defaults but rejects invalid pr
     NEXT_PUBLIC_APP_URL: 'https://app.example.com',
     APP_INTERNAL_URL: 'https://internal.example.com',
     VIEW_TRACKING_SECRET: 'b'.repeat(32),
+    AUTH_ENCRYPTION_KEY: Buffer.alloc(32, 4).toString('base64'),
     CLOUDINARY_CLOUD_NAME: 'cloud',
     CLOUDINARY_API_KEY: 'key',
     CLOUDINARY_API_SECRET: 'c'.repeat(32),
@@ -234,6 +235,8 @@ test('environment policy allows safe development defaults but rejects invalid pr
   } satisfies NodeJS.ProcessEnv;
   assert.equal(validateServerEnvironment(base).ok, true);
   assert.equal(validateServerEnvironment({ ...base, NEXTAUTH_SECRET: 'short' }).ok, false);
+  assert.equal(validateServerEnvironment({ ...base, AUTH_ENCRYPTION_KEY: base.AUTH_ENCRYPTION_KEY.slice(0, -1) }).ok, false);
+  assert.equal(validateServerEnvironment({ ...base, AUTH_ENCRYPTION_KEY: `${'replace'}${'A'.repeat(36)}=` }).ok, false);
   assert.equal(validateServerEnvironment({ ...base, APP_INTERNAL_URL: 'file:///etc/passwd' }).ok, false);
   assert.equal(validateServerEnvironment({ ...base, RATE_LIMIT_BACKEND: 'memory' }).ok, false);
 });

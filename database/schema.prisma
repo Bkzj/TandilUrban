@@ -60,17 +60,19 @@ enum CloudinaryCleanupStatus {
 }
 
 model User {
-  id               String     @id @default(cuid())
-  rol              RolUsuario @default(USUARIO_NORMAL)
-  nombre           String
-  email            String     @unique
-  passwordHash     String
-  telefono         String?
-  avatarUrl        String?
-  twoFactorEnabled Boolean    @default(false)
-  twoFactorSecret  String?
-  emailVerifiedAt  DateTime?
-  activo           Boolean    @default(true)
+  id                    String     @id @default(cuid())
+  rol                   RolUsuario @default(USUARIO_NORMAL)
+  nombre                String
+  email                 String     @unique
+  passwordHash          String
+  telefono              String?
+  avatarUrl             String?
+  twoFactorEnabled      Boolean    @default(false)
+  twoFactorSecret       String?
+  emailVerifiedAt       DateTime?
+  activo                Boolean    @default(true)
+  passwordChangedAt     DateTime?
+  lastSuccessfulLoginAt DateTime?
 
   // 1-1: el MAIN de la inmobiliaria (único dueño)
   inmobiliariaPerfil Inmobiliaria? @relation("PerfilInmobiliaria")
@@ -80,15 +82,125 @@ model User {
   agencia   Inmobiliaria? @relation("AgentesDeInmobiliaria", fields: [agenciaId], references: [id], onDelete: SetNull)
 
   verificationTokens        VerificationToken[]
-  propiedadesComoAgente     Propiedad[]          @relation("PropiedadAgente")
-  favoritos                 Propiedad[]          @relation("UsuarioFavoritos")
-  visitasFisicasRegistradas VisitaFisicaEvento[] @relation("VisitaFisicaRegistradaPor")
+  passwordResetTokens       PasswordResetToken[]
+  twoFactorConfiguration    TwoFactorConfiguration?
+  twoFactorChallenges       TwoFactorChallenge[]
+  authSessionVersion        AuthSessionVersion?
+  securityEvents            SecurityEvent[]
+  propiedadesComoAgente     Propiedad[]             @relation("PropiedadAgente")
+  favoritos                 Propiedad[]             @relation("UsuarioFavoritos")
+  visitasFisicasRegistradas VisitaFisicaEvento[]    @relation("VisitaFisicaRegistradaPor")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([agenciaId])
   @@unique([id, agenciaId])
+  @@index([agenciaId])
+}
+
+model AuthSessionVersion {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  version   Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model TwoFactorConfiguration {
+  id                   String                  @id @default(cuid())
+  userId               String                  @unique
+  user                 User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  secretEncrypted      String
+  algorithm            String                  @default("SHA1")
+  digits               Int                     @default(6)
+  periodSeconds        Int                     @default(30)
+  enabledAt            DateTime?
+  verifiedAt           DateTime?
+  lastAcceptedTimeStep BigInt?
+  recoveryCodes        TwoFactorRecoveryCode[]
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+}
+
+model TwoFactorChallenge {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(5)
+  purpose     String    @default("LOGIN")
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model TwoFactorRecoveryCode {
+  id              String                 @id @default(cuid())
+  configurationId String
+  configuration   TwoFactorConfiguration @relation(fields: [configurationId], references: [id], onDelete: Cascade)
+  codeHash        String                 @unique
+  batchId         String
+  consumedAt      DateTime?
+  createdAt       DateTime               @default(now())
+
+  @@index([configurationId, batchId, consumedAt])
+}
+
+enum SecurityEventType {
+  REGISTRATION
+  VERIFICATION_REQUESTED
+  EMAIL_VERIFIED
+  LOGIN_SUCCEEDED
+  LOGIN_FAILED
+  TWO_FACTOR_CHALLENGE
+  TWO_FACTOR_ENABLED
+  RECOVERY_CODE_USED
+  TWO_FACTOR_DISABLED
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_CHANGED
+  SESSIONS_INVALIDATED
+  ACCOUNT_DISABLED
+  SESSION_VERSION_INITIALIZED
+  SESSION_VERSION_INCREMENTED
+  PASSWORD_RESET_TOKEN_CREATED
+  PASSWORD_RESET_TOKEN_CONSUMED
+  PASSWORD_RESET_TOKENS_INVALIDATED
+  TOTP_CONFIGURATION_CREATED
+  TOTP_STEP_REPLAY_REJECTED
+  TWO_FACTOR_CHALLENGE_CREATED
+  TWO_FACTOR_CHALLENGE_CONSUMED
+  TWO_FACTOR_CHALLENGE_INVALIDATED
+  RECOVERY_CODE_CONSUMED
+  RECOVERY_CODES_REGENERATED
+}
+
+model SecurityEvent {
+  id        String            @id @default(cuid())
+  userId    String?
+  user      User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type      SecurityEventType
+  requestId String?
+  category  String?
+  metadata  Json?
+  createdAt DateTime          @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
 }
 
 model Inmobiliaria {
@@ -129,41 +241,41 @@ model Propiedad {
   agenteId String?
   agente   User?   @relation("PropiedadAgente", fields: [agenteId], references: [id], onDelete: SetNull)
 
-  titulo          String
-  descripcion     String          @db.Text
-  estado          EstadoPropiedad @default(DISPONIBLE)
-  tipo            String
-  operacion       String
-  precio          Decimal         @db.Decimal(18, 2)
-  moneda          Moneda          @default(USD)
-  expensas        Decimal?        @db.Decimal(18, 2)
-  direccion       String
-  barrio          String?
-  latitud         Float
-  longitud        Float
-  m2Total         Float
-  m2Cubiertos     Float
-  ambientes       Int
-  dormitorios     Int             @default(0)
-  banos           Int             @default(0)
-  cocheras        Int             @default(0)
-  caracteristicas String[]
+  titulo                 String
+  descripcion            String          @db.Text
+  estado                 EstadoPropiedad @default(DISPONIBLE)
+  tipo                   String
+  operacion              String
+  precio                 Decimal         @db.Decimal(18, 2)
+  moneda                 Moneda          @default(USD)
+  expensas               Decimal?        @db.Decimal(18, 2)
+  direccion              String
+  barrio                 String?
+  latitud                Float
+  longitud               Float
+  m2Total                Float
+  m2Cubiertos            Float
+  ambientes              Int
+  dormitorios            Int             @default(0)
+  banos                  Int             @default(0)
+  cocheras               Int             @default(0)
+  caracteristicas        String[]
   /**
    * Fotos: `{ url, public_id?, categoria? }[]` persistido como JSONB
    */
-  imagenes        Json            @default("[]")
+  imagenes               Json            @default("[]")
   /**
    * Plano / croquis (URL Cloudinary u otra entrega HTTPS).
    */
-  planoUrl        String?
+  planoUrl               String?
   /**
    * Clasificación automática por umbral de precio (VENTA USD / ALQUILER ARS).
    */
-  esExclusiva     Boolean         @default(false)
+  esExclusiva            Boolean         @default(false)
   /**
    * Hash SHA-256 de la clave y huella normalizada para reintentos de creación.
    */
-  creationIdempotencyKey String? @unique
+  creationIdempotencyKey String?         @unique
   creationFingerprint    String?
 
   /**
@@ -180,13 +292,13 @@ model Propiedad {
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
+  @@unique([id, inmobiliariaId])
   @@index([inmobiliariaId])
   @@index([estado])
   @@index([tipo])
   @@index([operacion])
   @@index([barrio])
   @@index([agenteId])
-  @@unique([id, inmobiliariaId])
 }
 
 /**
@@ -274,49 +386,49 @@ model RateLimitBucket {
 }
 
 model Contacto {
-  id             String         @id @default(cuid())
-  nombre         String
-  email          String
-  telefono       String?
-  mensaje        String         @db.Text
-  propiedadId    String
-  propiedad      Propiedad      @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
-  estado         EstadoContacto @default(NUEVO)
-  origen         OrigenContacto @default(PUBLICO)
+  id                     String         @id @default(cuid())
+  nombre                 String
+  email                  String
+  telefono               String?
+  mensaje                String         @db.Text
+  propiedadId            String
+  propiedad              Propiedad      @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  estado                 EstadoContacto @default(NUEVO)
+  origen                 OrigenContacto @default(PUBLICO)
   /**
    * Visitas presenciales coordinadas para este lead.
    */
-  visitasFisicas Int            @default(0)
-  idempotencyKey String?        @unique
+  visitasFisicas         Int            @default(0)
+  idempotencyKey         String?        @unique
   idempotencyFingerprint String?
-  createdAt      DateTime       @default(now())
+  createdAt              DateTime       @default(now())
 
   visitasFisicasEventos VisitaFisicaEvento[]
 
+  @@unique([id, propiedadId])
   @@index([propiedadId])
   @@index([estado])
   @@index([propiedadId, origen, createdAt])
-  @@unique([id, propiedadId])
 }
 
 /**
  * Registro de cada visita presencial (+1 / -1) para historial y métricas.
  */
 model VisitaFisicaEvento {
-  id              String    @id @default(cuid())
-  contactoId      String
-  contacto        Contacto  @relation(fields: [contactoId, propiedadId], references: [id, propiedadId], onDelete: Cascade)
-  propiedadId     String
-  propiedad       Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
-  registradoPorId String
-  registradoPor   User      @relation("VisitaFisicaRegistradaPor", fields: [registradoPorId], references: [id], onDelete: Cascade)
+  id                     String    @id @default(cuid())
+  contactoId             String
+  contacto               Contacto  @relation(fields: [contactoId, propiedadId], references: [id, propiedadId], onDelete: Cascade)
+  propiedadId            String
+  propiedad              Propiedad @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  registradoPorId        String
+  registradoPor          User      @relation("VisitaFisicaRegistradaPor", fields: [registradoPorId], references: [id], onDelete: Cascade)
   /**
    * +1 al sumar visita, -1 al restar.
    */
-  delta           Int
-  idempotencyKey  String?   @unique
+  delta                  Int
+  idempotencyKey         String?   @unique
   idempotencyFingerprint String?
-  createdAt       DateTime  @default(now())
+  createdAt              DateTime  @default(now())
 
   @@index([contactoId])
   @@index([propiedadId])

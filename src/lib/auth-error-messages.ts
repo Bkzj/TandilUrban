@@ -1,8 +1,8 @@
 export const AUTH_MESSAGES = {
-  credentialsInvalid: 'Credenciales invalidas. Verifica tu email y contrasena.',
+  credentialsInvalid: 'No pudimos iniciar sesión con esos datos.',
   registrationFailed: 'No se pudo crear la cuenta.',
   registrationSucceeded:
-    'Cuenta creada. Revisá tu correo para verificarla antes de ingresar.',
+    'Si los datos son válidos, recibirás un correo para continuar.',
   verificationSucceeded: 'Tu correo fue verificado. Ya podés ingresar.',
   verificationLinkInvalid:
     'El enlace de verificación no es válido o venció. Podés solicitar uno nuevo.',

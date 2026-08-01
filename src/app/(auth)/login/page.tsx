@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { AuthFeedback } from '@/components/auth/AuthFeedback';
+import { PasswordField } from '@/components/auth/PasswordField';
 import { AUTH_MESSAGES, authenticationErrorMessage } from '@/lib/auth-error-messages';
 import { safeInternalCallbackUrl } from '@/lib/validation/auth';
 
@@ -53,25 +54,32 @@ function LoginForm() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (loading) return;
     setError(null);
     setLoading(true);
-
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-      callbackUrl,
-    });
-
-    setLoading(false);
-
-    if (result?.error) {
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+        callbackUrl,
+      });
+      if (result?.error) {
+        setError(authenticationErrorMessage());
+        return;
+      }
+      const safeDestination = safeInternalCallbackUrl(
+        result?.url ?? callbackUrl,
+        window.location.origin,
+      );
+      const parsedDestination = new URL(safeDestination, window.location.origin);
+      router.push(`${parsedDestination.pathname}${parsedDestination.search}${parsedDestination.hash}`);
+      router.refresh();
+    } catch {
       setError(authenticationErrorMessage());
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    router.push(result?.url ?? callbackUrl);
-    router.refresh();
   }
 
   return (
@@ -81,11 +89,11 @@ function LoginForm() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: 'easeOut' }}
-          className="w-full max-w-md rounded-2xl border border-border-light/40 bg-surface/95 p-8 shadow-2xl backdrop-blur"
+          className="w-full max-w-md rounded-2xl border border-border-light/40 bg-surface/95 p-6 shadow-2xl backdrop-blur sm:p-8"
         >
           <p className="text-sm font-semibold uppercase tracking-wide text-verde">Propea Group</p>
-          <h1 className="mt-2 text-3xl font-bold text-text-primary">Iniciar sesion</h1>
-          <p className="mt-2 text-sm text-text-secondary">Accede al panel con tus credenciales.</p>
+          <h1 className="mt-2 text-3xl font-bold text-text-primary">Iniciar sesión</h1>
+          <p className="mt-2 text-sm text-text-secondary">Accedé con tu correo y contraseña.</p>
           <AuthFeedback
             message={verified ? AUTH_MESSAGES.verificationSucceeded : null}
             tone="success"
@@ -103,7 +111,9 @@ function LoginForm() {
               <input
                 id="email"
                 type="email"
+                name="email"
                 required
+                autoComplete="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="w-full rounded-xl border border-border-light bg-background px-4 py-3 text-text-primary outline-none transition focus:border-verde focus:ring-2 focus:ring-verde-light"
@@ -111,31 +121,26 @@ function LoginForm() {
               />
             </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-text-primary" htmlFor="password">
-                Contrasena
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-xl border border-border-light bg-background px-4 py-3 text-text-primary outline-none transition focus:border-verde focus:ring-2 focus:ring-verde-light"
-                placeholder="••••••••"
-              />
-            </div>
+            <PasswordField
+              id="password"
+              label="Contraseña"
+              value={password}
+              onChange={setPassword}
+              autoComplete="current-password"
+              accent="verde"
+            />
 
-            <AuthFeedback message={error} tone="error" className="" />
+            <AuthFeedback message={error} tone="error" className="" focusOnMount />
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
+              aria-disabled={loading}
               className="w-full rounded-xl bg-verde px-4 py-3 font-semibold text-surface shadow-lg shadow-verde/30 transition hover:bg-verde-hover disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? 'Ingresando...' : 'Ingresar'}
+              {loading ? 'Ingresando…' : 'Ingresar'}
             </motion.button>
           </form>
 
@@ -154,7 +159,7 @@ function LoginForm() {
           </div>
 
           <p className="mt-6 text-sm text-text-secondary">
-            No tienes cuenta?{' '}
+            ¿No tenés cuenta?{' '}
             <Link className="font-semibold text-naranja hover:text-naranja-hover" href="/register">
               Registrate
             </Link>
@@ -172,4 +177,3 @@ export default function LoginPage() {
     </Suspense>
   );
 }
-

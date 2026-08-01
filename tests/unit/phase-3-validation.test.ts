@@ -107,11 +107,15 @@ test('contact and auth schemas bound and normalize user-editable input', () => {
     nombre: '  María   Pérez ',
     email: ' MARIA@EXAMPLE.COM ',
     password: 'correct horse battery staple',
+    passwordConfirmation: 'correct horse battery staple',
   });
   assert.equal(registration.nombre, 'María Pérez');
   assert.equal(registration.email, 'maria@example.com');
   assert.equal(registerSchema.safeParse({ ...registration, password: 'x'.repeat(129) }).success, false);
   assert.equal(registerSchema.safeParse({ ...registration, email: 'bad' }).success, false);
+  assert.equal(registerSchema.safeParse({ ...registration, rol: 'ADMIN' }).success, false);
+  assert.equal(registerSchema.safeParse({ ...registration, agenciaId: 'tenant-a' }).success, false);
+  assert.equal(registerSchema.safeParse({ ...registration, passwordConfirmation: 'different-password' }).success, false);
   assert.equal(
     publicContactSchema.safeParse({
       nombre: 'Persona',
@@ -139,6 +143,13 @@ test('callback, URL, pagination and sorting policies reject dangerous inputs', (
   assert.equal(safeInternalCallbackUrl('https://evil.example'), '/');
   assert.equal(safeInternalCallbackUrl('//evil.example'), '/');
   assert.equal(safeInternalCallbackUrl('/panel/propiedades'), '/panel/propiedades');
+  assert.equal(
+    safeInternalCallbackUrl('https://app.example.com/perfil?tab=cuenta', 'https://app.example.com'),
+    'https://app.example.com/perfil?tab=cuenta',
+  );
+  assert.equal(safeInternalCallbackUrl('https://user:pass@app.example.com', 'https://app.example.com'), '/');
+  assert.equal(safeInternalCallbackUrl('javascript:alert(1)', 'https://app.example.com'), '/');
+  assert.equal(safeInternalCallbackUrl('/perfil%0d%0aLocation:evil'), '/');
   assert.equal(parseSafeHttpsUrl('javascript:alert(1)'), null);
   assert.equal(parseSafeHttpsUrl('https://user:pass@example.com/path'), null);
   assert.equal(parseSafeHttpsUrl('https://127.0.0.1/internal'), null);

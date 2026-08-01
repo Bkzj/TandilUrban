@@ -8,10 +8,16 @@ test('the Credentials provider authorization contract rejects unverified users g
   const passwordHash = await hash('correct-password', 4);
   const result = await authorizeCredentials(
     { email: 'USER@EXAMPLE.COM', password: 'correct-password' },
-    async (email) => ({
-      id: 'user-a', nombre: 'Usuario', email, avatarUrl: null, rol: 'USUARIO_NORMAL',
-      passwordHash, emailVerifiedAt: null, activo: true,
-    }),
+    {
+      async findUser(email) {
+        return {
+          id: 'user-a', nombre: 'Usuario', email, avatarUrl: null, rol: 'USUARIO_NORMAL',
+          agenciaId: null, inmobiliariaPerfil: null,
+          passwordHash, emailVerifiedAt: null, activo: true,
+        };
+      },
+      async ensureSessionVersion() { return 0; },
+    },
   );
   assert.equal(result, null);
 });

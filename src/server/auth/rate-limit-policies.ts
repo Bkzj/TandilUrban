@@ -1,0 +1,14 @@
+import { hashAuthSecret } from '@/lib/auth-security';
+
+export const AUTH_RATE_LIMIT_POLICIES = {
+  registrationIp: { limit: 5, windowMs: 60 * 60 * 1000 },
+  registrationIdentity: { limit: 3, windowMs: 60 * 60 * 1000 },
+  verificationResendIp: { limit: 5, windowMs: 60 * 60 * 1000 },
+  verificationResendIdentity: { limit: 3, windowMs: 60 * 60 * 1000 },
+  loginIp: { limit: 30, windowMs: 15 * 60 * 1000 },
+  loginIdentity: { limit: 10, windowMs: 15 * 60 * 1000 },
+} as const;
+
+export function authIdentityRateLimitKey(scope: string, normalizedEmail: string): string {
+  return `${scope}:identity:${hashAuthSecret(normalizedEmail).slice(0, 32)}`;
+}

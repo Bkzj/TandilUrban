@@ -446,14 +446,17 @@ model PuntoInteres {
 }
 
 model VerificationToken {
-  id        String   @id @default(cuid())
-  email     String
-  token     String   @unique
-  expiresAt DateTime
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id            String    @id @default(cuid())
+  email         String
+  token         String    @unique
+  expiresAt     DateTime
+  consumedAt    DateTime?
+  invalidatedAt DateTime?
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
 
   @@index([email])
   @@index([userId])
+  @@index([userId, consumedAt, invalidatedAt, expiresAt])
 }

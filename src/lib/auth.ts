@@ -1,22 +1,31 @@
+import type { JWT } from 'next-auth/jwt';
 import type { NextAuthOptions } from 'next-auth';
 import { getServerSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { RolUsuario } from '@prisma/client';
 
-import { authorizeCredentials } from '@/lib/auth-credentials';
+import { authorizeCredentials, type AuthorizedCredentialsUser } from '@/lib/auth-credentials';
 import { prisma } from '@/lib/prisma';
-import { currentUserInclude, type CurrentUser, type SessionUserAugmented } from '@/types/auth';
+import { configuredRateLimitStore, requestIpFromHeaderRecord } from '@/lib/rate-limit';
+import { safeInternalCallbackUrl } from '@/lib/validation/auth';
 import { getServerEnvironment } from '@/lib/validation/environment';
+import { recordSecurityEvent } from '@/server/auth-security/security-event-repository';
+import { loadCurrentAuthenticationState } from '@/server/auth/current-authentication-state';
+import { AUTH_RATE_LIMIT_POLICIES, authIdentityRateLimitKey } from '@/server/auth/rate-limit-policies';
+import { ensureLoginSessionVersion } from '@/server/auth/session-version-login';
+import { type CurrentUser, type SessionUserAugmented } from '@/types/auth';
 
 export { roleCanAccessPanel } from '@/lib/rbac';
-
 export type { CurrentUser } from '@/types/auth';
 export { currentUserInclude } from '@/types/auth';
 
-// =============================================================================
-// NextAuth options (re-exportable para route handlers / server)
-// =============================================================================
+type AuthenticationJwt = JWT & {
+  authValid?: boolean;
+  role?: string;
+  tenantId?: string | null;
+  sessionVersion?: number;
+};
 
 export const authOptions: NextAuthOptions = {
   secret: getServerEnvironment().NEXTAUTH_SECRET,
@@ -28,58 +37,94 @@ export const authOptions: NextAuthOptions = {
       name: 'Credenciales',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Contrasena', type: 'password' },
+        password: { label: 'Contraseña', type: 'password' },
       },
-      async authorize(credentials) {
-        return authorizeCredentials(credentials, (email) => prisma.user.findUnique({ where: { email } }));
+      async authorize(credentials, request) {
+        const email = typeof credentials?.email === 'string'
+          ? credentials.email.normalize('NFKC').trim().toLowerCase()
+          : 'invalid';
+        const store = configuredRateLimitStore();
+        const ipRate = await store.consume(
+          `login:ip:${requestIpFromHeaderRecord(request.headers ?? {})}`,
+          AUTH_RATE_LIMIT_POLICIES.loginIp,
+        );
+        const identityRate = await store.consume(
+          authIdentityRateLimitKey('login', email),
+          AUTH_RATE_LIMIT_POLICIES.loginIdentity,
+        );
+        if (!ipRate.allowed || !identityRate.allowed) return null;
+        const result = await authorizeCredentials(credentials, {
+          findUser: (normalizedEmail) => prisma.user.findFirst({
+            where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
+            include: {
+              authSessionVersion: true,
+              twoFactorConfiguration: { select: { enabledAt: true, verifiedAt: true } },
+              inmobiliariaPerfil: { select: { id: true } },
+            },
+          }),
+          ensureSessionVersion: (userId) => ensureLoginSessionVersion(userId),
+        });
+        await recordSecurityEvent({
+          userId: result?.id,
+          type: result ? 'LOGIN_SUCCEEDED' : 'LOGIN_FAILED',
+          category: result ? 'credentials' : 'generic_credentials_failure',
+        });
+        return result;
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
+      const authToken = token as AuthenticationJwt;
       if (user) {
-        token.role = (user as { role?: string }).role;
-        token.name = user.name;
+        const authenticated = user as AuthorizedCredentialsUser;
+        authToken.sessionVersion = authenticated.sessionVersion;
       }
-      return token;
+      if (!token.sub || authToken.sessionVersion === undefined) {
+        authToken.authValid = false;
+        return authToken;
+      }
+      const state = await loadCurrentAuthenticationState(token.sub, authToken.sessionVersion);
+      authToken.authValid = state !== null;
+      if (state) {
+        authToken.role = state.user.rol;
+        authToken.tenantId = state.tenantId;
+        authToken.name = state.user.nombre;
+        authToken.picture = state.user.avatarUrl;
+      }
+      return authToken;
     },
     async session({ session, token }) {
-      if (session.user) {
-        const u = session.user as SessionUserAugmented;
-        u.id = token.sub;
-        u.role = token.role as string | undefined;
+      const authToken = token as AuthenticationJwt;
+      if (!session.user || !authToken.authValid || !token.sub || authToken.sessionVersion === undefined) {
+        session.user = undefined;
+        return session;
       }
+      const user = session.user as SessionUserAugmented;
+      user.id = token.sub;
+      user.role = authToken.role;
+      user.tenantId = authToken.tenantId ?? null;
+      user.sessionVersion = authToken.sessionVersion;
       return session;
+    },
+    async redirect({ url }) {
+      const applicationUrl = getServerEnvironment().APP_URL;
+      return new URL(safeInternalCallbackUrl(url, applicationUrl), applicationUrl).toString();
     },
   },
 };
-
-// =============================================================================
-// Helpers de sesión / RBAC
-// =============================================================================
 
 export async function getServerAuthSession() {
   return getServerSession(authOptions);
 }
 
-/** Devuelve el `User` con relaciones de panel si hay sesión, o `null`. */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const session = await getServerSession(authOptions);
-  const userId = (session?.user as SessionUserAugmented | undefined)?.id;
-  if (!userId) return null;
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: currentUserInclude,
-  });
-  return user?.activo ? user : null;
+  const sessionUser = session?.user as SessionUserAugmented | undefined;
+  if (!sessionUser?.id || sessionUser.sessionVersion === undefined) return null;
+  return (await loadCurrentAuthenticationState(sessionUser.id, sessionUser.sessionVersion))?.user ?? null;
 }
 
-/**
- * `true` si el usuario es el administrador principal de una inmobiliaria:
- * - rol === 'INMOBILIARIA'
- * - posee Inmobiliaria 1-1 (`inmobiliariaPerfil`).
- */
 export function isInmobiliariaMain(user: CurrentUser | null): boolean {
   return Boolean(user && user.rol === 'INMOBILIARIA' && user.inmobiliariaPerfil);
 }
@@ -91,7 +136,7 @@ export class AuthError extends Error {
     this.status = status;
   }
 }
-/** 403 HTTP si es cuenta solo de portal público. */
+
 export function assertNotPublicPortalUser(user: CurrentUser): void {
   if (user.rol === RolUsuario.USUARIO_NORMAL) {
     throw new AuthError(403, 'Las cuentas de usuario público no pueden acceder al panel.');

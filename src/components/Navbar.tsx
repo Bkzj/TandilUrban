@@ -76,7 +76,8 @@ export default function Navbar() {
       : null;
 
   const sessionRole = (session?.user as SessionUserAugmented | undefined)?.role;
-  const navigationAccess = buildNavbarAccess(Boolean(session), sessionRole);
+  const authenticated = Boolean((session?.user as SessionUserAugmented | undefined)?.id);
+  const navigationAccess = buildNavbarAccess(authenticated, sessionRole);
   const showPanelLink = navigationAccess.showPanelLink;
 
   const closeMobileNav = () => setMobileNavOpen(false);
@@ -144,7 +145,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2 md:gap-3">
               {status === 'loading' ? (
                 <span className="h-9 w-20 animate-pulse rounded-xl bg-gray-200" aria-hidden />
-              ) : !session ? (
+              ) : !authenticated ? (
                 <>
                   <Link
                     href="/login"
@@ -285,7 +286,7 @@ export default function Navbar() {
 
               {status === 'loading' ? (
                 <span className="mx-3 block h-10 animate-pulse rounded-xl bg-gray-200" aria-hidden />
-              ) : !session ? (
+              ) : !authenticated ? (
                 <div className="flex flex-col gap-2 px-1">
                   <Link
                     href="/login"

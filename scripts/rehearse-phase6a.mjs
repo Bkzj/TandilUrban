@@ -48,7 +48,9 @@ function executeSql(database, sql, options = {}) {
 
 function migrationNames(includePhase6) {
   return readdirSync(migrationRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && (includePhase6 || entry.name !== phase6Migration))
+    .filter((entry) => entry.isDirectory() && (includePhase6
+      ? entry.name <= phase6Migration
+      : entry.name < phase6Migration))
     .map((entry) => entry.name)
     .sort();
 }

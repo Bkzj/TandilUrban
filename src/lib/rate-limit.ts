@@ -69,8 +69,25 @@ export function requestIp(
   request: Request,
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): string {
+  return trustedRequestIp((header) => request.headers.get(header), env);
+}
+
+export function requestIpFromHeaderRecord(
+  headers: Readonly<Record<string, string | readonly string[] | undefined>>,
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string {
+  return trustedRequestIp((header) => {
+    const value = headers[header];
+    return Array.isArray(value) ? value[0] ?? null : value ?? null;
+  }, env);
+}
+
+function trustedRequestIp(
+  readHeader: (header: string) => string | null,
+  env: Readonly<Record<string, string | undefined>>,
+): string {
   const configured = env.RATE_LIMIT_TRUSTED_IP_HEADER?.trim().toLowerCase();
   if (!configured || !TRUSTED_PROXY_HEADERS.has(configured)) return 'unknown';
-  const value = request.headers.get(configured)?.split(',')[0]?.trim();
+  const value = readHeader(configured)?.split(',')[0]?.trim();
   return value && /^[0-9a-f:.]{3,45}$/i.test(value) ? value : 'unknown';
 }

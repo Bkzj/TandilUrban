@@ -10,14 +10,18 @@ La migración `20260729120000_phase6_authentication_security` añade `AuthSessio
 
 El preflight es sólo lectura y aborta si hay `twoFactorSecret` legacy no nulo: no se descarta ni transforma un secreto de formato desconocido. El rollback es sólo estructural; el backup previo sigue siendo la restauración autoritativa de auditoría, códigos y tokens.
 
-## Flujos futuros (6B–6E)
+## Ciclo público completado en 6B
 
-Registro crea usuario normal no verificado y token de verificación hashado; la respuesta es genérica. Verificación consume una vez y conserva compatibilidad con token raw legacy. Login debe validar estado activo, verificación, versión de sesión, rol y tenant actuales; 2FA debe emitir un challenge corto antes de la sesión final. Reset y cambio de contraseña incrementan versión de sesión y revocan challenges/tokens. Habilitar, deshabilitar o regenerar recovery codes también invalida sesiones.
+Registro crea un usuario `USUARIO_NORMAL` no verificado y token hashado con respuesta genérica. Verificación consume una vez, marca `emailVerifiedAt` y conserva compatibilidad controlada con token raw legacy. Login valida bcrypt, estado activo, verificación y versión de sesión, y recarga rol/tenant actuales en cada frontera protegida. Una cuenta con 2FA habilitado falla cerrada hasta que 6D provea el challenge.
 
 ## Operación
 
 `AUTH_ENCRYPTION_KEY` es obligatoria en producción, Base64 de 32 bytes y no puede ser placeholder. No se agregó SMS. No se desplegó producción ni se configuraron proveedores reales. Las alertas deben cubrir fallos de login/2FA/reset, challenges expirados, replay TOTP, rate-limit y cambios de seguridad.
 
-## Estado de la entrega 6A
+## Estado de entregas
 
-La migración, cifrado, primitivas TOTP, repositorios internos, transacciones compuestas, eventos, rehearsals PostgreSQL 17 y smoke read-only están implementados como fundamento interno. Esta entrega no cambia el login/registro público ni ofrece 2FA a usuarios. Activación HTTP/UI, recuperación de contraseña, emails y adopción de sesiones versionadas por el flujo real pertenecen a 6B–6E. Producción permanece NO-GO.
+- **6A completa:** modelos, migración, cifrado, primitivas TOTP, repositorios internos, transacciones, eventos, PostgreSQL 17 y smoke read-only.
+- **6B completa:** registro público, email de verificación, consumo/reenvío de token, login/logout normal y adopción real de sesiones versionadas.
+- **6C–6E pendientes:** recuperación/cambio de contraseña, challenge/gestión TOTP, recovery codes y controles finales de sesiones.
+
+2FA todavía no se ofrece en UI. Producción permanece NO-GO.

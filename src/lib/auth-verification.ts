@@ -6,7 +6,7 @@ export function hashVerificationToken(token: string): string {
   return createHash('sha256').update(token, 'utf8').digest('hex');
 }
 
-export function issueVerificationToken(now = Date.now()): {
+export function issueVerificationToken(now = Date.now(), ttlMs = VERIFICATION_TOKEN_TTL_MS): {
   rawToken: string;
   tokenHash: string;
   expiresAt: Date;
@@ -15,7 +15,7 @@ export function issueVerificationToken(now = Date.now()): {
   return {
     rawToken,
     tokenHash: hashVerificationToken(rawToken),
-    expiresAt: new Date(now + VERIFICATION_TOKEN_TTL_MS),
+    expiresAt: new Date(now + ttlMs),
   };
 }
 

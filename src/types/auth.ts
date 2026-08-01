@@ -16,4 +16,6 @@ export type CurrentUser = Prisma.UserGetPayload<{ include: typeof currentUserInc
 export type SessionUserAugmented = {
   id?: string;
   role?: string;
+  tenantId?: string | null;
+  sessionVersion?: number;
 };

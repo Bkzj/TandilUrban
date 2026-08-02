@@ -24,6 +24,7 @@ function LoginForm() {
   const [retryAfter, setRetryAfter] = useState<number | null>(null);
 
   const verified = searchParams.get('verified') === '1';
+  const passwordChanged = searchParams.get('passwordChanged') === '1';
   const verificationError = searchParams.get('error');
 
   async function resendVerification() {
@@ -99,6 +100,10 @@ function LoginForm() {
             tone="success"
           />
           <AuthFeedback
+            message={passwordChanged ? AUTH_MESSAGES.passwordChanged : null}
+            tone="success"
+          />
+          <AuthFeedback
             message={verificationError ? AUTH_MESSAGES.verificationLinkInvalid : null}
             tone="neutral"
           />
@@ -128,7 +133,17 @@ function LoginForm() {
               onChange={setPassword}
               autoComplete="current-password"
               accent="verde"
+              maxLength={128}
             />
+
+            <div className="text-right">
+              <Link
+                href="/olvide-mi-contrasena"
+                className="text-sm font-semibold text-verde hover:text-verde-hover focus:outline-none focus:ring-2 focus:ring-verde-light"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
 
             <AuthFeedback message={error} tone="error" className="" focusOnMount />
 

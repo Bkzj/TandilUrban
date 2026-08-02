@@ -1,4 +1,5 @@
 import { getCurrentUser } from '@/lib/auth';
+import { PasswordChangeForm } from '@/components/perfil/PasswordChangeForm';
 
 export const metadata = {
   title: 'Mi perfil | Propea Group',
@@ -8,6 +9,7 @@ export default async function PerfilPage() {
   const user = await getCurrentUser();
 
   return (
+    <div className="space-y-6">
     <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
       <h2 className="text-lg font-bold text-gray-900">Datos personales</h2>
       <p className="mt-1 text-sm text-gray-500">
@@ -63,5 +65,13 @@ export default async function PerfilPage() {
         </button>
       </form>
     </section>
+    <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="perfil-seguridad">
+      <h2 id="perfil-seguridad" className="text-lg font-bold text-gray-900">Seguridad</h2>
+      <p className="mt-1 text-sm text-gray-500">
+        Cambiá tu contraseña. Por seguridad, todas tus sesiones se cerrarán al finalizar.
+      </p>
+      <PasswordChangeForm />
+    </section>
+    </div>
   );
 }

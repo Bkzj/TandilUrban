@@ -10,9 +10,11 @@ La migración `20260729120000_phase6_authentication_security` añade `AuthSessio
 
 El preflight es sólo lectura y aborta si hay `twoFactorSecret` legacy no nulo: no se descarta ni transforma un secreto de formato desconocido. El rollback es sólo estructural; el backup previo sigue siendo la restauración autoritativa de auditoría, códigos y tokens.
 
-## Ciclo público completado en 6B
+## Ciclo público completado en 6B–6C
 
 Registro crea un usuario `USUARIO_NORMAL` no verificado y token hashado con respuesta genérica. Verificación consume una vez, marca `emailVerifiedAt` y conserva compatibilidad controlada con token raw legacy. Login valida bcrypt, estado activo, verificación y versión de sesión, y recarga rol/tenant actuales en cada frontera protegida. Una cuenta con 2FA habilitado falla cerrada hasta que 6D provea el challenge.
+
+6C agrega recuperación con respuesta genérica, token hash-only de un solo uso y email construido desde `APP_URL`, además de cambio autenticado desde perfil. Ambas operaciones actualizan bcrypt y `passwordChangedAt`, invalidan tokens/challenges pendientes e incrementan la versión en una transacción. Todas las sesiones, incluida la actual, quedan inválidas y se exige login nuevo; TOTP y recovery codes se preservan.
 
 ## Operación
 
@@ -22,6 +24,7 @@ Registro crea un usuario `USUARIO_NORMAL` no verificado y token hashado con resp
 
 - **6A completa:** modelos, migración, cifrado, primitivas TOTP, repositorios internos, transacciones, eventos, PostgreSQL 17 y smoke read-only.
 - **6B completa:** registro público, email de verificación, consumo/reenvío de token, login/logout normal y adopción real de sesiones versionadas.
-- **6C–6E pendientes:** recuperación/cambio de contraseña, challenge/gestión TOTP, recovery codes y controles finales de sesiones.
+- **6C completa:** recuperación/cambio de contraseña, emails seguros, consumo concurrente único e invalidación inmediata de sesiones.
+- **6D–6E pendientes:** challenge/gestión TOTP, recovery codes y controles finales de sesiones.
 
 2FA todavía no se ofrece en UI. Producción permanece NO-GO.

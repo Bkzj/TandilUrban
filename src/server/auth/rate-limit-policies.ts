@@ -7,6 +7,12 @@ export const AUTH_RATE_LIMIT_POLICIES = {
   verificationResendIdentity: { limit: 3, windowMs: 60 * 60 * 1000 },
   loginIp: { limit: 30, windowMs: 15 * 60 * 1000 },
   loginIdentity: { limit: 10, windowMs: 15 * 60 * 1000 },
+  passwordResetRequestIp: { limit: 5, windowMs: 60 * 60 * 1000 },
+  passwordResetRequestIdentity: { limit: 3, windowMs: 60 * 60 * 1000 },
+  passwordResetConsumeIp: { limit: 10, windowMs: 15 * 60 * 1000 },
+  passwordResetConsumeToken: { limit: 5, windowMs: 15 * 60 * 1000 },
+  passwordChangeIp: { limit: 10, windowMs: 15 * 60 * 1000 },
+  passwordChangeUser: { limit: 5, windowMs: 15 * 60 * 1000 },
 } as const;
 
 export function authIdentityRateLimitKey(scope: string, normalizedEmail: string): string {

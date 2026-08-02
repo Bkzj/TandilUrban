@@ -11,6 +11,10 @@ export const AUTH_MESSAGES = {
   resendFailed: 'No pudimos procesar el reenvío. Intentá nuevamente más tarde.',
   resendRateLimited:
     'Alcanzaste el límite de reenvíos. Intentá nuevamente más tarde.',
+  passwordChanged:
+    'Contraseña actualizada. Volvé a iniciar sesión.',
+  passwordResetRequested:
+    'Si existe una cuenta asociada a ese correo, te enviaremos un enlace para restablecer la contraseña.',
 } as const;
 
 export function authenticationErrorMessage(): string {

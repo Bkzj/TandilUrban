@@ -11,6 +11,7 @@ type PasswordFieldProps = {
   autoComplete: 'current-password' | 'new-password';
   accent: 'verde' | 'naranja';
   minLength?: number;
+  maxLength?: number;
   placeholder?: string;
 };
 
@@ -22,6 +23,7 @@ export function PasswordField({
   autoComplete,
   accent,
   minLength,
+  maxLength,
   placeholder = '••••••••',
 }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
@@ -40,6 +42,7 @@ export function PasswordField({
           type={visible ? 'text' : 'password'}
           required
           minLength={minLength}
+          maxLength={maxLength}
           autoComplete={autoComplete}
           value={value}
           onChange={(event) => onChange(event.target.value)}

@@ -45,6 +45,44 @@ export const credentialsSchema = z
   })
   .strict();
 
+export const forgotPasswordSchema = z
+  .object({ email: normalizedEmailSchema })
+  .strict();
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().trim().regex(/^[A-Za-z0-9_-]{43}$/u, 'El enlace no es válido o venció.'),
+    password: passwordSchema,
+    passwordConfirmation: passwordSchema,
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.password !== value.passwordConfirmation) {
+      context.addIssue({
+        code: 'custom',
+        path: ['passwordConfirmation'],
+        message: 'Las contraseñas no coinciden.',
+      });
+    }
+  });
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: passwordSchema,
+    newPassword: passwordSchema,
+    passwordConfirmation: passwordSchema,
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.newPassword !== value.passwordConfirmation) {
+      context.addIssue({
+        code: 'custom',
+        path: ['passwordConfirmation'],
+        message: 'Las contraseñas no coinciden.',
+      });
+    }
+  });
+
 export const verificationTokenSchema = z
   .string()
   .trim()

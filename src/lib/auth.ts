@@ -9,11 +9,14 @@ import { authorizeCredentials, type AuthorizedCredentialsUser } from '@/lib/auth
 import { prisma } from '@/lib/prisma';
 import { configuredRateLimitStore, requestIpFromHeaderRecord } from '@/lib/rate-limit';
 import { safeInternalCallbackUrl } from '@/lib/validation/auth';
+import { twoFactorLoginCompleteSchema } from '@/lib/validation/auth';
 import { getServerEnvironment } from '@/lib/validation/environment';
 import { recordSecurityEvent } from '@/server/auth-security/security-event-repository';
 import { loadCurrentAuthenticationState } from '@/server/auth/current-authentication-state';
 import { AUTH_RATE_LIMIT_POLICIES, authIdentityRateLimitKey } from '@/server/auth/rate-limit-policies';
 import { ensureLoginSessionVersion } from '@/server/auth/session-version-login';
+import { completeTwoFactorLogin } from '@/server/auth/two-factor-service';
+import { hashAuthSecret } from '@/lib/auth-security';
 import { type CurrentUser, type SessionUserAugmented } from '@/types/auth';
 
 export { roleCanAccessPanel } from '@/lib/rbac';
@@ -70,6 +73,39 @@ export const authOptions: NextAuthOptions = {
           category: result ? 'credentials' : 'generic_credentials_failure',
         });
         return result;
+      },
+    }),
+    Credentials({
+      id: 'two-factor',
+      name: 'Segundo factor',
+      credentials: {
+        challengeToken: { label: 'Challenge', type: 'text' },
+        factor: { label: 'Factor', type: 'text' },
+        code: { label: 'Código', type: 'text' },
+      },
+      async authorize(credentials, request) {
+        const parsed = twoFactorLoginCompleteSchema.safeParse({
+          challengeToken: credentials?.challengeToken,
+          factor: credentials?.factor,
+          code: credentials?.code,
+        });
+        if (!parsed.success) return null;
+        const store = configuredRateLimitStore();
+        const ipRate = await store.consume(
+          `two-factor-login:ip:${requestIpFromHeaderRecord(request.headers ?? {})}`,
+          AUTH_RATE_LIMIT_POLICIES.twoFactorLoginIp,
+        );
+        const challengeRate = await store.consume(
+          `two-factor-login:challenge:${hashAuthSecret(parsed.data.challengeToken).slice(0, 32)}`,
+          AUTH_RATE_LIMIT_POLICIES.twoFactorLoginChallenge,
+        );
+        if (!ipRate.allowed || !challengeRate.allowed) return null;
+        const environment = getServerEnvironment();
+        if (!environment.AUTH_ENCRYPTION_KEY) return null;
+        return completeTwoFactorLogin(parsed.data, {
+          client: prisma,
+          encryptionKey: environment.AUTH_ENCRYPTION_KEY,
+        });
       },
     }),
   ],

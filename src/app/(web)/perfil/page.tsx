@@ -1,5 +1,6 @@
 import { getCurrentUser } from '@/lib/auth';
 import { PasswordChangeForm } from '@/components/perfil/PasswordChangeForm';
+import { TwoFactorSecurityPanel } from '@/components/perfil/TwoFactorSecurityPanel';
 
 export const metadata = {
   title: 'Mi perfil | Propea Group',
@@ -71,6 +72,11 @@ export default async function PerfilPage() {
         Cambiá tu contraseña. Por seguridad, todas tus sesiones se cerrarán al finalizar.
       </p>
       <PasswordChangeForm />
+    </section>
+    <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="perfil-dos-factores">
+      <h2 id="perfil-dos-factores" className="text-lg font-bold text-gray-900">Verificación en dos pasos</h2>
+      <p className="mt-1 text-sm text-gray-500">Protegé tu cuenta con una aplicación autenticadora y códigos de recuperación.</p>
+      <TwoFactorSecurityPanel />
     </section>
     </div>
   );

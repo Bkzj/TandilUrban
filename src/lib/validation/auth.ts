@@ -83,6 +83,24 @@ export const changePasswordSchema = z
     }
   });
 
+const totpCodeSchema = z.string().max(16).transform((value) => value.replace(/\s/gu, '')).pipe(z.string().regex(/^\d{6}$/u));
+const recoveryCodeSchema = z.string().trim().min(8).max(64);
+
+export const twoFactorLoginStartSchema = credentialsSchema;
+export const twoFactorLoginCompleteSchema = z.object({
+  challengeToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/u),
+  factor: z.enum(['totp', 'recovery']),
+  code: z.string().min(1).max(64),
+}).strict();
+export const twoFactorSetupStartSchema = z.object({ password: passwordSchema }).strict();
+export const twoFactorSetupConfirmSchema = z.object({ code: totpCodeSchema }).strict();
+export const twoFactorRegenerateSchema = z.object({ password: passwordSchema, code: totpCodeSchema }).strict();
+export const twoFactorDisableSchema = z.object({
+  password: passwordSchema,
+  factor: z.enum(['totp', 'recovery']),
+  code: z.union([totpCodeSchema, recoveryCodeSchema]),
+}).strict();
+
 export const verificationTokenSchema = z
   .string()
   .trim()

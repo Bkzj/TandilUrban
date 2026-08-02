@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 type Client = Pick<PrismaClient, 'twoFactorChallenge'>;
 
-export function createTwoFactorChallenge(input: { userId: string; tokenHash: string; expiresAt: Date; purpose?: string }, client: Client = prisma) {
+export function createTwoFactorChallenge(input: { userId: string; tokenHash: string; expiresAt: Date; sessionVersion?: number; purpose?: string }, client: Client = prisma) {
   return client.twoFactorChallenge.create({ data: input, select: { id: true, userId: true, expiresAt: true, purpose: true, maxAttempts: true } });
 }
 

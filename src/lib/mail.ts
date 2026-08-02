@@ -149,3 +149,35 @@ export async function sendPasswordChangedEmail(
     `,
   });
 }
+
+async function sendTwoFactorNotification(
+  email: string,
+  subject: string,
+  heading: string,
+  detail: string,
+  adapter: AuthEmailAdapter = configuredAuthEmailAdapter(),
+) {
+  return adapter.send({
+    to: email,
+    subject,
+    html: `
+      <main style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;line-height:1.6">
+        <h1 style="font-size:24px">${heading}</h1>
+        <p>${detail}</p>
+        <p>Si no realizaste esta acción, contactá a soporte cuanto antes.</p>
+      </main>
+    `,
+  });
+}
+
+export function sendTwoFactorEnabledEmail(email: string, adapter?: AuthEmailAdapter) {
+  return sendTwoFactorNotification(email, 'Verificación en dos pasos activada', 'Verificación en dos pasos activada', 'Tu cuenta ahora solicitará un segundo factor al iniciar sesión.', adapter);
+}
+
+export function sendTwoFactorDisabledEmail(email: string, adapter?: AuthEmailAdapter) {
+  return sendTwoFactorNotification(email, 'Verificación en dos pasos desactivada', 'Verificación en dos pasos desactivada', 'Tu cuenta dejó de solicitar el segundo factor.', adapter);
+}
+
+export function sendRecoveryCodesRegeneratedEmail(email: string, adapter?: AuthEmailAdapter) {
+  return sendTwoFactorNotification(email, 'Códigos de recuperación regenerados', 'Códigos de recuperación regenerados', 'Los códigos anteriores dejaron de ser válidos.', adapter);
+}

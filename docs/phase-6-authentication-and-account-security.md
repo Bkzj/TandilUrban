@@ -16,6 +16,8 @@ Registro crea un usuario `USUARIO_NORMAL` no verificado y token hashado con resp
 
 6C agrega recuperación con respuesta genérica, token hash-only de un solo uso y email construido desde `APP_URL`, además de cambio autenticado desde perfil. Ambas operaciones actualizan bcrypt y `passwordChangedAt`, invalidan tokens/challenges pendientes e incrementan la versión en una transacción. Todas las sesiones, incluida la actual, quedan inválidas y se exige login nuevo; TOTP y recovery codes se preservan.
 
+6D activa TOTP RFC 6238 mediante QR local, muestra recovery codes una sola vez y divide el login en password más challenge corto. No existe JWT de aplicación antes de completar TOTP o consumir un recovery code. Activación, regeneración y desactivación incrementan la versión y cierran todas las sesiones.
+
 ## Operación
 
 `AUTH_ENCRYPTION_KEY` es obligatoria en producción, Base64 de 32 bytes y no puede ser placeholder. No se agregó SMS. No se desplegó producción ni se configuraron proveedores reales. Las alertas deben cubrir fallos de login/2FA/reset, challenges expirados, replay TOTP, rate-limit y cambios de seguridad.
@@ -25,6 +27,7 @@ Registro crea un usuario `USUARIO_NORMAL` no verificado y token hashado con resp
 - **6A completa:** modelos, migración, cifrado, primitivas TOTP, repositorios internos, transacciones, eventos, PostgreSQL 17 y smoke read-only.
 - **6B completa:** registro público, email de verificación, consumo/reenvío de token, login/logout normal y adopción real de sesiones versionadas.
 - **6C completa:** recuperación/cambio de contraseña, emails seguros, consumo concurrente único e invalidación inmediata de sesiones.
-- **6D–6E pendientes:** challenge/gestión TOTP, recovery codes y controles finales de sesiones.
+- **6D completa:** setup TOTP, QR/manual, recovery codes, challenge de login, regeneración/desactivación y concurrencia real.
+- **6E pendiente:** controles finales, listado y cierre manual de sesiones/dispositivos.
 
-2FA todavía no se ofrece en UI. Producción permanece NO-GO.
+2FA está implementado para staging; producción permanece NO-GO hasta completar 6E y la validación operativa.

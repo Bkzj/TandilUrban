@@ -143,10 +143,12 @@ model TwoFactorChallenge {
   consumedAt  DateTime?
   attempts    Int       @default(0)
   maxAttempts Int       @default(5)
+  sessionVersion Int      @default(0)
   purpose     String    @default("LOGIN")
   createdAt   DateTime  @default(now())
 
   @@index([userId, expiresAt])
+  @@index([userId, sessionVersion, expiresAt])
 }
 
 model TwoFactorRecoveryCode {
@@ -189,6 +191,11 @@ enum SecurityEventType {
   TWO_FACTOR_CHALLENGE_INVALIDATED
   RECOVERY_CODE_CONSUMED
   RECOVERY_CODES_REGENERATED
+  TWO_FACTOR_SETUP_STARTED
+  TWO_FACTOR_CHALLENGE_FAILED
+  TWO_FACTOR_CHALLENGE_COMPLETED
+  RECOVERY_CODE_LOGIN_SUCCEEDED
+  RECOVERY_CODE_LOGIN_FAILED
 }
 
 model SecurityEvent {

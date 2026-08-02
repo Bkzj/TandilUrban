@@ -19,7 +19,7 @@ const REQUIRED_ENVIRONMENT = [
   'AUTH_PASSWORD_RESET_TTL_MINUTES', 'AUTH_EMAIL_VERIFICATION_TTL_HOURS',
   'AUTH_RECENT_LOGIN_TTL_MINUTES', 'AUTH_RECOVERY_CODE_COUNT',
 ];
-const EXPECTED_AUDIT = { low: 1, high: 10, critical: 1, total: 12 };
+const EXPECTED_AUDIT = { low: 0, high: 1, critical: 0, total: 1 };
 const externalChecks = new Set(process.argv.slice(2));
 const allowedFlags = new Set(['--check-email-provider', '--check-gemini-provider']);
 
@@ -90,6 +90,8 @@ async function databaseAndSchemaCheck() {
     if (authConstraints.rows[0].count !== 4) throw new Error('faltan constraints de autenticación Phase 6A');
     const authIndexes = await pool.query("SELECT count(*)::int AS count FROM pg_indexes WHERE schemaname = current_schema() AND indexname IN ('AuthSessionVersion_userId_key', 'PasswordResetToken_tokenHash_key', 'TwoFactorConfiguration_userId_key', 'TwoFactorChallenge_tokenHash_key', 'TwoFactorRecoveryCode_codeHash_key')");
     if (authIndexes.rows[0].count !== 5) throw new Error('faltan índices de autenticación Phase 6A');
+    const phase6d = await pool.query("SELECT (SELECT count(*)::int FROM information_schema.columns WHERE table_name='TwoFactorChallenge' AND column_name='sessionVersion') AS version_column, (SELECT count(*)::int FROM pg_indexes WHERE indexname='TwoFactorChallenge_userId_sessionVersion_expiresAt_idx') AS version_index, (SELECT count(*)::int FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typname='SecurityEventType' AND e.enumlabel IN ('TWO_FACTOR_SETUP_STARTED','TWO_FACTOR_CHALLENGE_FAILED','TWO_FACTOR_CHALLENGE_COMPLETED','RECOVERY_CODE_LOGIN_SUCCEEDED','RECOVERY_CODE_LOGIN_FAILED')) AS events");
+    if (phase6d.rows[0].version_column !== 1 || phase6d.rows[0].version_index !== 1 || phase6d.rows[0].events !== 5) throw new Error('falta estructura de segundo factor Phase 6D');
     const legacy = await pool.query('SELECT count(*)::int AS count FROM "User" WHERE "twoFactorSecret" IS NOT NULL');
     if (legacy.rows[0].count !== 0) throw new Error('existen secretos 2FA legacy pendientes');
   } finally {

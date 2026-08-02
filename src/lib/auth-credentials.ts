@@ -52,6 +52,14 @@ export async function isCredentialsLoginAllowed(
   );
 }
 
+export async function isPrimaryCredentialValid(
+  account: CredentialsAccount | null,
+  password: string,
+): Promise<boolean> {
+  const passwordValid = await compare(password, account?.passwordHash ?? DUMMY_PASSWORD_HASH);
+  return Boolean(account && account.activo && account.emailVerifiedAt !== null && passwordValid);
+}
+
 export async function authorizeCredentials(
   credentials: Readonly<Record<string, unknown>> | undefined,
   dependencies: {

@@ -22,6 +22,9 @@ function LoginForm() {
   const [resendPending, setResendPending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [retryAfter, setRetryAfter] = useState<number | null>(null);
+  const [challengeToken, setChallengeToken] = useState<string | null>(null);
+  const [secondFactor, setSecondFactor] = useState<'totp' | 'recovery'>('totp');
+  const [secondFactorCode, setSecondFactorCode] = useState('');
 
   const verified = searchParams.get('verified') === '1';
   const passwordChanged = searchParams.get('passwordChanged') === '1';
@@ -59,6 +62,24 @@ function LoginForm() {
     setError(null);
     setLoading(true);
     try {
+      const primaryResponse = await fetch('/api/auth/two-factor/login/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!primaryResponse.ok) {
+        setError(authenticationErrorMessage());
+        return;
+      }
+      const primary = (await primaryResponse.json()) as { requiresTwoFactor: boolean; challengeToken?: string };
+      if (primary.requiresTwoFactor) {
+        if (!primary.challengeToken) throw new Error('missing challenge');
+        setPassword('');
+        setChallengeToken(primary.challengeToken);
+        setSecondFactor('totp');
+        setSecondFactorCode('');
+        return;
+      }
       const result = await signIn('credentials', {
         email,
         password,
@@ -83,6 +104,33 @@ function LoginForm() {
     }
   }
 
+  async function submitSecondFactor(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (loading || !challengeToken) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await signIn('two-factor', {
+        challengeToken,
+        factor: secondFactor,
+        code: secondFactorCode,
+        redirect: false,
+        callbackUrl,
+      });
+      if (result?.error) {
+        setError('No pudimos validar el código. Intentá nuevamente o volvé a iniciar sesión.');
+        return;
+      }
+      const destination = new URL(safeInternalCallbackUrl(result?.url ?? callbackUrl, window.location.origin), window.location.origin);
+      router.push(`${destination.pathname}${destination.search}${destination.hash}`);
+      router.refresh();
+    } catch {
+      setError('No pudimos validar el código. Intentá nuevamente o volvé a iniciar sesión.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-verde-dark via-verde to-text-primary px-4 py-10">
       <div className="mx-auto flex min-h-[85vh] max-w-5xl items-center justify-center">
@@ -93,8 +141,16 @@ function LoginForm() {
           className="w-full max-w-md rounded-2xl border border-border-light/40 bg-surface/95 p-6 shadow-2xl backdrop-blur sm:p-8"
         >
           <p className="text-sm font-semibold uppercase tracking-wide text-verde">Propea Group</p>
-          <h1 className="mt-2 text-3xl font-bold text-text-primary">Iniciar sesión</h1>
-          <p className="mt-2 text-sm text-text-secondary">Accedé con tu correo y contraseña.</p>
+          <h1 className="mt-2 text-3xl font-bold text-text-primary">
+            {challengeToken ? 'Verificación en dos pasos' : 'Iniciar sesión'}
+          </h1>
+          <p className="mt-2 text-sm text-text-secondary">
+            {challengeToken
+              ? secondFactor === 'totp'
+                ? 'Ingresá el código de 6 dígitos de tu aplicación autenticadora.'
+                : 'Ingresá uno de tus códigos de recuperación.'
+              : 'Accedé con tu correo y contraseña.'}
+          </p>
           <AuthFeedback
             message={verified ? AUTH_MESSAGES.verificationSucceeded : null}
             tone="success"
@@ -108,6 +164,41 @@ function LoginForm() {
             tone="neutral"
           />
 
+          {challengeToken ? (
+          <form className="mt-8 space-y-4" onSubmit={submitSecondFactor}>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-text-primary" htmlFor="secondFactorCode">
+                {secondFactor === 'totp' ? 'Código del autenticador' : 'Código de recuperación'}
+              </label>
+              <input
+                id="secondFactorCode"
+                name="secondFactorCode"
+                type="text"
+                required
+                autoComplete="one-time-code"
+                inputMode={secondFactor === 'totp' ? 'numeric' : 'text'}
+                value={secondFactorCode}
+                onChange={(event) => setSecondFactorCode(event.target.value)}
+                maxLength={secondFactor === 'totp' ? 16 : 64}
+                className="w-full rounded-xl border border-border-light bg-background px-4 py-3 font-mono text-lg tracking-widest text-text-primary outline-none transition focus:border-verde focus:ring-2 focus:ring-verde-light"
+              />
+            </div>
+            <AuthFeedback message={error} tone="error" className="" focusOnMount />
+            <button type="submit" disabled={loading} className="w-full rounded-xl bg-verde px-4 py-3 font-semibold text-surface shadow-lg shadow-verde/30 transition hover:bg-verde-hover focus:outline-none focus:ring-2 focus:ring-verde-light disabled:opacity-70">
+              {loading ? 'Verificando…' : 'Verificar'}
+            </button>
+            <button
+              type="button"
+              className="w-full text-sm font-semibold text-naranja hover:text-naranja-hover focus:outline-none focus:ring-2 focus:ring-naranja-light"
+              onClick={() => { setSecondFactor(secondFactor === 'totp' ? 'recovery' : 'totp'); setSecondFactorCode(''); setError(null); }}
+            >
+              {secondFactor === 'totp' ? 'Usar un código de recuperación' : 'Usar código del autenticador'}
+            </button>
+            <button type="button" className="w-full text-sm text-text-secondary underline" onClick={() => { setChallengeToken(null); setSecondFactorCode(''); setError(null); }}>
+              Volver a ingresar email y contraseña
+            </button>
+          </form>
+          ) : (
           <form className="mt-8 space-y-4" onSubmit={onSubmit}>
             <div>
               <label className="mb-1 block text-sm font-medium text-text-primary" htmlFor="email">
@@ -158,8 +249,9 @@ function LoginForm() {
               {loading ? 'Ingresando…' : 'Ingresar'}
             </motion.button>
           </form>
+          )}
 
-          <div className="mt-5 border-t border-border-light pt-4">
+          {!challengeToken ? <div className="mt-5 border-t border-border-light pt-4">
             <p className="text-sm text-text-secondary">¿Todavía no verificaste tu correo?</p>
             <button
               type="button"
@@ -171,14 +263,14 @@ function LoginForm() {
             </button>
             <AuthFeedback message={resendMessage} tone="neutral" className="mt-2" />
             {retryAfter ? <p className="mt-1 text-xs text-text-secondary">Tiempo sugerido de espera: {retryAfter} segundos.</p> : null}
-          </div>
+          </div> : null}
 
-          <p className="mt-6 text-sm text-text-secondary">
+          {!challengeToken ? <p className="mt-6 text-sm text-text-secondary">
             ¿No tenés cuenta?{' '}
             <Link className="font-semibold text-naranja hover:text-naranja-hover" href="/register">
               Registrate
             </Link>
-          </p>
+          </p> : null}
         </motion.div>
       </div>
     </main>

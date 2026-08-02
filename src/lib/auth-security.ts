@@ -30,6 +30,17 @@ export function matchesAuthSecretHash(value: string, expectedHash: string): bool
 }
 export function createTotpSecret(): string { return base32Encode(randomBytes(20)); }
 
+export function buildTotpProvisioningUri(secret: string, accountLabel: string, issuer: string): string {
+  const label = `${issuer}:${accountLabel}`;
+  const url = new URL(`otpauth://totp/${encodeURIComponent(label)}`);
+  url.searchParams.set('secret', secret);
+  url.searchParams.set('issuer', issuer);
+  url.searchParams.set('algorithm', 'SHA1');
+  url.searchParams.set('digits', '6');
+  url.searchParams.set('period', '30');
+  return url.toString();
+}
+
 function parseEncryptionKey(base64Key: string): Buffer {
   if (!/^[A-Za-z0-9+/]{43}=$/u.test(base64Key)) throw new Error('AUTH_ENCRYPTION_KEY inválida.');
   const key = Buffer.from(base64Key, 'base64');
@@ -78,6 +89,10 @@ export function isTotpTimeStepFresh(step: bigint, lastAcceptedTimeStep: bigint |
 
 export function normalizeRecoveryCode(code: string): string {
   return code.normalize('NFKC').replace(/[\s-]/gu, '').toUpperCase();
+}
+
+export function formatTotpSecret(secret: string): string {
+  return secret.match(/.{1,4}/gu)?.join(' ') ?? secret;
 }
 
 export function hashRecoveryCode(code: string): string { return hashAuthSecret(normalizeRecoveryCode(code)); }

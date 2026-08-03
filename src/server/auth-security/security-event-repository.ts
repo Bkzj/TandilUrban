@@ -21,7 +21,28 @@ export function sanitizeSecurityEventMetadata(value: unknown, depth = 0): Prisma
 }
 
 type EventClient = Pick<PrismaClient, 'securityEvent'>;
-export function recordSecurityEvent(input: { userId?: string; type: SecurityEventType; requestId?: string; category?: string; metadata?: unknown }, client: EventClient = prisma) {
+export function recordSecurityEvent(input: {
+  userId?: string;
+  actorUserId?: string;
+  targetUserId?: string;
+  targetInmobiliariaId?: string;
+  type: SecurityEventType;
+  requestId?: string;
+  category?: string;
+  metadata?: unknown;
+}, client: EventClient = prisma) {
   const metadata = sanitizeSecurityEventMetadata(input.metadata);
-  return client.securityEvent.create({ data: { userId: input.userId, type: input.type, requestId: input.requestId?.slice(0, 128), category: input.category?.slice(0, 128), ...(metadata === undefined ? {} : { metadata }) }, select: { id: true, type: true, createdAt: true } });
+  return client.securityEvent.create({
+    data: {
+      userId: input.userId,
+      actorUserId: input.actorUserId,
+      targetUserId: input.targetUserId,
+      targetInmobiliariaId: input.targetInmobiliariaId,
+      type: input.type,
+      requestId: input.requestId?.slice(0, 128),
+      category: input.category?.slice(0, 128),
+      ...(metadata === undefined ? {} : { metadata }),
+    },
+    select: { id: true, type: true, createdAt: true },
+  });
 }

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { RolUsuario } from '@/generated/prisma';
 
 import PanelHeader from '@/components/panel/PanelHeader';
 import { getCurrentUser } from '@/lib/auth';
@@ -11,7 +12,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     redirect('/login?callbackUrl=/panel');
   }
 
-  if (!roleCanAccessPanel(user.rol)) {
+  if (!roleCanAccessPanel(user.rol) && user.rol !== RolUsuario.ADMIN) {
     redirect('/?error=unauthorized');
   }
 

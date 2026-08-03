@@ -20,6 +20,8 @@ export const AUTH_RATE_LIMIT_POLICIES = {
   sessionListUser: { limit: 60, windowMs: 15 * 60 * 1000 },
   sessionRevokeUser: { limit: 20, windowMs: 15 * 60 * 1000 },
   sessionBulkRevokeUser: { limit: 5, windowMs: 15 * 60 * 1000 },
+  adminMutationUser: { limit: 10, windowMs: 15 * 60 * 1000 },
+  tenantMutationUser: { limit: 10, windowMs: 15 * 60 * 1000 },
 } as const;
 
 export function authIdentityRateLimitKey(scope: string, normalizedEmail: string): string {

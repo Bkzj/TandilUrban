@@ -77,6 +77,8 @@ export type Agente = {
   nombre: string;
   email: string;
   rol: string;
+  activo: boolean;
+  emailVerifiedAt?: string | null;
   createdAt: string;
 };
 

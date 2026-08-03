@@ -69,10 +69,12 @@ test('navbar model keeps role visibility exact without treating ADMIN as a tenan
     authenticated: true,
     favoritesHref: FAVORITES_HREF,
     showPanelLink: true,
+    showAdminLink: false,
   });
   assert.equal(buildNavbarAccess(true, 'AGENTE').showPanelLink, true);
   assert.equal(buildNavbarAccess(true, 'USUARIO_NORMAL').showPanelLink, false);
   assert.equal(buildNavbarAccess(true, 'ADMIN').showPanelLink, false);
+  assert.equal(buildNavbarAccess(true, 'ADMIN').showAdminLink, true);
   assert.deepEqual(
     NAVBAR_MOBILE_LINKS.map((link) => link.label),
     ['Propiedades', 'Emprendimientos', 'Inmobiliarias', 'Mapa'],

@@ -4,6 +4,8 @@ import { ApiError } from '@/lib/api-error';
 import { configureCloudinary, cloudinary, isCloudinaryServerConfigured } from '@/lib/cloudinary';
 import { uploadManagedImage } from '@/lib/managed-upload-service';
 import { requireAgencyPublishingContext } from '@/lib/panel-agency-publish';
+import { requireAuthenticatedUser } from '@/lib/panel-authorization';
+import { RolUsuario } from '@/generated/prisma';
 import { userCanModifyPropiedad } from '@/lib/panel-propiedad-access';
 import { prisma } from '@/lib/prisma';
 import { configuredRateLimitStore, requestIp } from '@/lib/rate-limit';
@@ -24,7 +26,20 @@ const MIME_FORMATS = {
 
 export async function POST(request: Request) {
   return runRouteHandler(request, 'managed_upload.failed', async () => {
-    const { inmobiliariaId, user } = await requireAgencyPublishingContext();
+    const body = await parseJsonBody(
+      request,
+      uploadBodySchema,
+      REQUEST_LIMITS.uploadRequestBytes,
+    );
+    const authenticated = await requireAuthenticatedUser();
+    const publishing = authenticated.user.rol === RolUsuario.ADMIN
+      ? body.propertyId
+        ? await prisma.propiedad.findUnique({ where: { id: body.propertyId }, select: { inmobiliariaId: true } })
+        : null
+      : await requireAgencyPublishingContext();
+    if (!publishing) throw new ApiError('FORBIDDEN', { message: 'No se pudo autorizar la subida.' });
+    const inmobiliariaId = publishing.inmobiliariaId;
+    const user = authenticated.user;
     const rates = configuredRateLimitStore();
     const [ipRate, userRate, tenantRate] = await Promise.all([
       rates.consume(`upload:ip:${requestIp(request)}`, { limit: 80, windowMs: 60 * 60 * 1000 }),
@@ -47,11 +62,6 @@ export async function POST(request: Request) {
       });
     }
 
-    const body = await parseJsonBody(
-      request,
-      uploadBodySchema,
-      REQUEST_LIMITS.uploadRequestBytes,
-    );
     const image = parseImageDataUrl(body.file, REQUEST_LIMITS.uploadImageBytes);
     if (!image) {
       throw new ApiError('VALIDATION_ERROR', {

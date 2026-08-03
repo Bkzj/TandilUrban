@@ -15,7 +15,8 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingStatusId, setPendingStatusId] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const closeForm = useCallback(() => {
     setShowForm(false);
@@ -31,11 +32,11 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
     const payload = {
       nombre: String(formData.get('nombre') ?? '').trim(),
       email: String(formData.get('email') ?? '').trim(),
-      password: String(formData.get('password') ?? ''),
     };
 
     setSubmitting(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const res = await fetch('/api/panel/equipo', {
@@ -52,6 +53,7 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
 
       // Actualización optimista: el agente nuevo entra al tope de la lista.
       setAgentes((prev) => [json.agente as Agente, ...prev]);
+      setSuccess('Invitación creada. El agente deberá elegir su contraseña antes de ingresar.');
       form.reset();
       closeForm();
     } catch (err) {
@@ -62,25 +64,29 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
     }
   }
 
-  async function onDelete(id: string) {
-    if (pendingDeleteId) return;
-    setPendingDeleteId(id);
+  async function onStatus(agent: Agente) {
+    if (pendingStatusId) return;
+    setPendingStatusId(agent.id);
     setError(null);
+    setSuccess(null);
     try {
-      const res = await fetch(`/api/panel/equipo?id=${encodeURIComponent(id)}`, {
-        method: 'DELETE',
+      const res = await fetch('/api/panel/equipo', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: agent.id, activo: !agent.activo }),
       });
       if (!res.ok) {
         const json = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(json.error ?? 'No se pudo eliminar al agente.');
+        setError(json.error ?? 'No se pudo actualizar al agente.');
         return;
       }
-      setAgentes((prev) => prev.filter((a) => a.id !== id));
+      setAgentes((prev) => prev.map((item) => item.id === agent.id ? { ...item, activo: !agent.activo } : item));
+      setSuccess(agent.activo ? 'La cuenta quedó desactivada y sus sesiones fueron revocadas.' : 'La cuenta quedó activada.');
     } catch (err) {
       console.error('[EquipoManager.onDelete]', err);
       setError('No se pudo conectar con el servidor.');
     } finally {
-      setPendingDeleteId(null);
+      setPendingStatusId(null);
     }
   }
 
@@ -114,26 +120,16 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="grid gap-6 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg shadow-lg shadow-black/20 sm:grid-cols-3 md:p-8"
+            className="grid gap-6 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-lg shadow-lg shadow-black/20 sm:grid-cols-2 md:p-8"
             noValidate
           >
             <SubtleField label="Nombre" name="nombre" autoFocus required minLength={2} placeholder="María López" />
             <SubtleField label="Email" name="email" type="email" required placeholder="agente@tandilprop.com" />
-            <SubtleField
-              label="Contraseña temporal"
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              placeholder="Mínimo 8 caracteres"
-              hint="El agente la podrá cambiar al ingresar."
-            />
-
             {error ? (
-              <p className="text-sm font-medium text-naranja-light sm:col-span-3">{error}</p>
+              <p className="text-sm font-medium text-naranja-light sm:col-span-2" role="alert">{error}</p>
             ) : null}
 
-            <div className="flex flex-wrap items-center justify-end gap-2 sm:col-span-3">
+            <div className="flex flex-wrap items-center justify-end gap-2 sm:col-span-2">
               <button
                 type="button"
                 onClick={closeForm}
@@ -146,7 +142,7 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
                 disabled={submitting}
                 className="rounded-xl bg-naranja px-5 py-2.5 text-sm font-semibold text-surface shadow-lg shadow-naranja/30 transition hover:bg-naranja-hover disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {submitting ? 'Creando…' : 'Crear agente'}
+                {submitting ? 'Enviando…' : 'Invitar agente'}
               </button>
             </div>
           </motion.form>
@@ -157,6 +153,11 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
       {!showForm && error ? (
         <p className="rounded-xl border border-naranja/40 bg-naranja/10 px-4 py-2 text-sm font-medium text-naranja-light">
           {error}
+        </p>
+      ) : null}
+      {success ? (
+        <p role="status" className="rounded-xl border border-emerald-300/30 bg-emerald-400/10 px-4 py-3 text-sm font-medium text-emerald-100">
+          {success}
         </p>
       ) : null}
 
@@ -173,6 +174,7 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
                 <th className="px-6 py-4 font-medium">Agente</th>
                 <th className="px-6 py-4 font-medium">Email</th>
                 <th className="px-6 py-4 font-medium">Alta</th>
+                <th className="px-6 py-4 font-medium">Estado</th>
                 <th className="px-6 py-4 text-right font-medium">Acciones</th>
               </tr>
             </thead>
@@ -191,16 +193,18 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
                       year: 'numeric',
                     })}
                   </td>
+                  <td className="px-6 py-4 text-surface/75">
+                    {a.activo ? 'Activa' : a.emailVerifiedAt ? 'Inactiva' : 'Invitación pendiente'}
+                  </td>
                   <td className="px-6 py-4 text-right">
                     <button
                       type="button"
-                      onClick={() => onDelete(a.id)}
-                      disabled={pendingDeleteId === a.id}
-                      title="Eliminar agente"
-                      aria-label={`Eliminar a ${a.nombre}`}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-surface/70 transition hover:border-naranja hover:bg-naranja/15 hover:text-surface disabled:opacity-50"
+                      onClick={() => onStatus(a)}
+                      disabled={pendingStatusId === a.id || (!a.activo && !a.emailVerifiedAt)}
+                      aria-label={`${a.activo ? 'Desactivar' : 'Activar'} a ${a.nombre}`}
+                      className="min-h-10 rounded-xl border border-white/10 px-3 text-sm font-semibold text-surface/80 transition hover:border-naranja hover:bg-naranja/15 hover:text-surface disabled:opacity-50"
                     >
-                      <span aria-hidden>{pendingDeleteId === a.id ? '…' : '🗑️'}</span>
+                      {pendingStatusId === a.id ? 'Actualizando…' : a.activo ? 'Desactivar' : 'Activar'}
                     </button>
                   </td>
                 </tr>
@@ -220,7 +224,7 @@ export default function EquipoManager({ agentes: agentesIniciales }: Props) {
 type FieldProps = {
   label: string;
   name: string;
-  type?: 'text' | 'email' | 'password';
+  type?: 'text' | 'email';
   required?: boolean;
   minLength?: number;
   autoFocus?: boolean;

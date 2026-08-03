@@ -87,10 +87,10 @@ export default async function EditarPropiedadPage({ params }: { params: Promise<
   const { id } = await params;
   const user: CurrentUser | null = await getCurrentUser();
   if (!user) redirect(`/login?callbackUrl=/panel/propiedades/editar/${id}`);
-  if (!roleCanAccessPanel(user.rol)) redirect('/?error=unauthorized');
+  if (!roleCanAccessPanel(user.rol) && user.rol !== RolUsuario.ADMIN) redirect('/?error=unauthorized');
 
-  const tenantInmobiliariaId = resolvePanelTenantInmobiliariaId(user);
-  if (!tenantInmobiliariaId) {
+  const tenantInmobiliariaId = user.rol === RolUsuario.ADMIN ? null : resolvePanelTenantInmobiliariaId(user);
+  if (!tenantInmobiliariaId && user.rol !== RolUsuario.ADMIN) {
     return (
       <main className="min-h-screen bg-gradient-to-br from-text-primary via-naranja-dark/80 to-verde-dark/50 px-6 py-10 text-white md:px-8">
         <div className="mx-auto max-w-2xl rounded-xl border border-naranja/30 bg-white/5 p-8">
@@ -106,10 +106,8 @@ export default async function EditarPropiedadPage({ params }: { params: Promise<
     );
   }
 
-  const where: { id: string; inmobiliariaId: string; agenteId?: string } = {
-    id,
-    inmobiliariaId: tenantInmobiliariaId,
-  };
+  const where: { id: string; inmobiliariaId?: string; agenteId?: string } = { id };
+  if (tenantInmobiliariaId) where.inmobiliariaId = tenantInmobiliariaId;
   if (user.rol === RolUsuario.AGENTE) {
     where.agenteId = user.id;
   }
@@ -127,10 +125,10 @@ export default async function EditarPropiedadPage({ params }: { params: Promise<
       <div className="border-b border-white/10 bg-white/5 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 py-4">
           <Link
-            href="/panel"
+            href={user.rol === RolUsuario.ADMIN ? '/admin/publicaciones' : '/panel'}
             className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-naranja transition-colors hover:bg-white/10"
           >
-            ← Volver al panel
+            ← {user.rol === RolUsuario.ADMIN ? 'Volver a publicaciones' : 'Volver al panel'}
           </Link>
           <span className="rounded-xl bg-naranja px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-surface">
             Modo Edición
@@ -150,7 +148,7 @@ export default async function EditarPropiedadPage({ params }: { params: Promise<
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <LinearPropertyForm initialData={initialData} />
+        <LinearPropertyForm initialData={initialData} successHref={user.rol === RolUsuario.ADMIN ? '/admin/publicaciones' : '/panel/propiedades'} />
       </div>
     </main>
   );

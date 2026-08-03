@@ -73,7 +73,7 @@ test('public detail DTO returns only approved fields and a narrow inmobiliaria s
   assert.equal('consultas' in dto, false);
 });
 
-test('tenant property policy enforces agent assignment and gives ADMIN no implicit tenant', () => {
+test('tenant property policy enforces assignment while explicit ADMIN authority is global', () => {
   const property = { inmobiliariaId: 'tenant-a', agenteId: 'agent-a' };
   assert.equal(userCanModifyPropiedad({
     id: 'owner-a',
@@ -92,7 +92,7 @@ test('tenant property policy enforces agent assignment and gives ADMIN no implic
     rol: RolUsuario.ADMIN,
     agenciaId: null,
     inmobiliariaPerfil: { id: 'tenant-a' },
-  }, property), false);
+  }, property), true);
   assert.equal(userCanModifyPropiedad({
     id: 'normal',
     rol: RolUsuario.USUARIO_NORMAL,

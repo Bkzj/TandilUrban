@@ -1,15 +1,18 @@
-import { hash } from 'bcryptjs';
-import { Prisma, RolUsuario } from '@prisma/client';
+import { RolUsuario } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 import { ApiError } from '@/lib/api-error';
+import { hashAuthSecret } from '@/lib/auth-security';
 import { requireTenantAdministrator } from '@/lib/panel-authorization';
 import { prisma } from '@/lib/prisma';
+import { configuredRateLimitStore } from '@/lib/rate-limit';
+import { assertTrustedMutationRequest } from '@/lib/request-security';
 import { runRouteHandler } from '@/lib/route-handler';
-import { createAgentSchema } from '@/lib/validation/auth';
-import { identifierSchema } from '@/lib/validation/common';
+import { accountStatusSchema, inviteAgentSchema } from '@/lib/validation/admin';
 import { REQUEST_LIMITS } from '@/lib/validation/limits';
 import { parseJsonBody } from '@/lib/validation/request';
+import { AdministrativePolicyError, inviteAgent, setManagedAccountActive } from '@/server/admin/admin-management-service';
+import { AUTH_RATE_LIMIT_POLICIES } from '@/server/auth/rate-limit-policies';
 
 export async function GET(request: Request) {
   return runRouteHandler(request, 'panel.team_list.failed', async () => {
@@ -23,6 +26,7 @@ export async function GET(request: Request) {
         rol: true,
         createdAt: true,
         emailVerifiedAt: true,
+        activo: true,
       },
       orderBy: { createdAt: 'desc' },
       take: 200,
@@ -32,54 +36,34 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   return runRouteHandler(request, 'panel.team_create.failed', async () => {
-    const { inmobiliariaId } = await requireTenantAdministrator();
-    const payload = await parseJsonBody(request, createAgentSchema, REQUEST_LIMITS.authJsonBytes);
-    const exists = await prisma.user.findUnique({
-      where: { email: payload.email },
-      select: { id: true },
-    });
-    if (exists) throw new ApiError('CONFLICT', { message: 'Ya existe una cuenta con ese email.' });
-
+    assertTrustedMutationRequest(request);
+    const { inmobiliariaId, user } = await requireTenantAdministrator();
+    const rate = await configuredRateLimitStore().consume(`tenant-mutation:user:${hashAuthSecret(user.id).slice(0, 32)}`, AUTH_RATE_LIMIT_POLICIES.tenantMutationUser);
+    if (!rate.allowed) throw new ApiError('RATE_LIMITED', { retryAfterSeconds: rate.retryAfterSeconds });
+    const payload = await parseJsonBody(request, inviteAgentSchema, REQUEST_LIMITS.authJsonBytes);
     try {
-      const agente = await prisma.user.create({
-        data: {
-          nombre: payload.nombre,
-          email: payload.email,
-          passwordHash: await hash(payload.password, 12),
-          rol: RolUsuario.AGENTE,
-          agenciaId: inmobiliariaId,
-          emailVerifiedAt: new Date(),
-        },
-        select: {
-          id: true,
-          nombre: true,
-          email: true,
-          rol: true,
-          createdAt: true,
-          emailVerifiedAt: true,
-        },
-      });
-      return NextResponse.json({ agente }, { status: 201 });
+      const result = await inviteAgent({ actorUserId: user.id, inmobiliariaId, nombre: payload.nombre, email: payload.email }, { client: prisma });
+      return NextResponse.json({ agente: result.value, invitationDeliverySucceeded: result.invitationDeliverySucceeded }, { status: 201 });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ApiError('CONFLICT', { message: 'Ya existe una cuenta con ese email.' });
-      }
+      if (error instanceof AdministrativePolicyError) throw new ApiError(error.code, { message: error.message });
       throw error;
     }
   });
 }
 
-export async function DELETE(request: Request) {
-  return runRouteHandler(request, 'panel.team_delete.failed', async () => {
-    const { inmobiliariaId } = await requireTenantAdministrator();
-    const parsedId = identifierSchema.safeParse(new URL(request.url).searchParams.get('id'));
-    if (!parsedId.success) throw new ApiError('VALIDATION_ERROR', { message: 'El agente es inválido.' });
-    const agent = await prisma.user.findFirst({
-      where: { id: parsedId.data, agenciaId: inmobiliariaId, rol: RolUsuario.AGENTE },
-      select: { id: true },
-    });
-    if (!agent) throw new ApiError('NOT_FOUND', { message: 'Agente no encontrado.' });
-    await prisma.user.delete({ where: { id: agent.id } });
-    return NextResponse.json({ ok: true });
+export async function PATCH(request: Request) {
+  return runRouteHandler(request, 'panel.team_status.failed', async (requestId) => {
+    assertTrustedMutationRequest(request);
+    const { user } = await requireTenantAdministrator();
+    const payload = await parseJsonBody(request, accountStatusSchema, REQUEST_LIMITS.authJsonBytes);
+    const rate = await configuredRateLimitStore().consume(`tenant-mutation:user:${hashAuthSecret(user.id).slice(0, 32)}`, AUTH_RATE_LIMIT_POLICIES.tenantMutationUser);
+    if (!rate.allowed) throw new ApiError('RATE_LIMITED', { retryAfterSeconds: rate.retryAfterSeconds });
+    try {
+      const result = await setManagedAccountActive({ actorUserId: user.id, targetUserId: payload.userId, activo: payload.activo }, { client: prisma, requestId });
+      return NextResponse.json({ ok: true, changed: result.changed });
+    } catch (error) {
+      if (error instanceof AdministrativePolicyError) throw new ApiError(error.code, { message: error.message });
+      throw error;
+    }
   });
 }

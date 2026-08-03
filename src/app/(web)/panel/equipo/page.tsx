@@ -48,6 +48,8 @@ export default async function EquipoPage() {
       nombre: true,
       email: true,
       rol: true,
+      activo: true,
+      emailVerifiedAt: true,
       createdAt: true,
     },
     orderBy: { createdAt: 'desc' },
@@ -58,6 +60,8 @@ export default async function EquipoPage() {
     nombre: a.nombre,
     email: a.email,
     rol: a.rol,
+    activo: a.activo,
+    emailVerifiedAt: a.emailVerifiedAt?.toISOString() ?? null,
     createdAt: a.createdAt.toISOString(),
   }));
 

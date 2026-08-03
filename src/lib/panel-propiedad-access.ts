@@ -17,6 +17,7 @@ export function userCanModifyPropiedad(
   user: PropertyAuthorizationUser,
   propiedad: PropiedadAccessRow,
 ): boolean {
+  if (user.rol === RolUsuario.ADMIN) return true;
   if (user.rol === RolUsuario.AGENTE && user.agenciaId) {
     return propiedad.agenteId === user.id && propiedad.inmobiliariaId === user.agenciaId;
   }

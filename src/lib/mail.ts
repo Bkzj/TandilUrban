@@ -88,6 +88,35 @@ export function buildPasswordResetLink(token: string): string {
   return url.toString();
 }
 
+export function buildAccountInvitationLink(token: string): string {
+  const url = new URL('/activar-cuenta', getServerEnvironment().APP_URL);
+  url.searchParams.set('token', token);
+  return url.toString();
+}
+
+export async function sendAccountInvitationEmail(
+  email: string,
+  rawToken: string,
+  roleLabel: 'administrador de inmobiliaria' | 'agente',
+  adapter: AuthEmailAdapter = configuredAuthEmailAdapter(),
+) {
+  const safeLink = escapePlainTextForHtml(buildAccountInvitationLink(rawToken));
+  const safeRole = escapePlainTextForHtml(roleLabel);
+  return adapter.send({
+    to: email,
+    subject: 'Completá tu acceso a Propea Group',
+    html: `
+      <main style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;line-height:1.6">
+        <h1 style="font-size:24px">Completá tu acceso</h1>
+        <p>Te invitaron a Propea Group como ${safeRole}.</p>
+        <p><a href="${safeLink}" style="display:inline-block;border-radius:12px;background:#1c5e3c;color:#fff;padding:12px 18px;text-decoration:none">Elegir contraseña y activar cuenta</a></p>
+        <p>El enlace es de un solo uso y vence en 24 horas.</p>
+        <p>Si no esperabas esta invitación, ignorá este mensaje.</p>
+      </main>
+    `,
+  });
+}
+
 export async function sendVerificationEmail(
   email: string,
   rawToken: string,

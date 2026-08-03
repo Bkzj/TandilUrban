@@ -73,7 +73,11 @@ export async function requirePanelTenant(): Promise<PanelTenantAuthorizationCont
 
 export async function requirePropertyAccess(
   propertyId: string,
-): Promise<PanelTenantAuthorizationContext & { propertyWhere: Prisma.PropiedadWhereInput }> {
+): Promise<AuthenticatedAuthorizationContext & { role: RolUsuario; tenantId: string | null; propertyWhere: Prisma.PropiedadWhereInput }> {
+  const authenticated = await requireAuthenticatedUser();
+  if (authenticated.user.rol === RolUsuario.ADMIN) {
+    return { ...authenticated, role: RolUsuario.ADMIN, tenantId: null, propertyWhere: { id: propertyId } };
+  }
   const context = await requirePanelTenant();
   return {
     ...context,

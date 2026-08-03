@@ -79,6 +79,7 @@ export default function Navbar() {
   const authenticated = Boolean((session?.user as SessionUserAugmented | undefined)?.id);
   const navigationAccess = buildNavbarAccess(authenticated, sessionRole);
   const showPanelLink = navigationAccess.showPanelLink;
+  const showAdminLink = navigationAccess.showAdminLink;
 
   const closeMobileNav = () => setMobileNavOpen(false);
   const favoritesHref = navigationAccess.favoritesHref;
@@ -213,6 +214,11 @@ export default function Navbar() {
                             Panel
                           </Link>
                         ) : null}
+                        {showAdminLink ? (
+                          <Link role="menuitem" href="/admin" onClick={() => setUserMenuOpen(false)} className={menuItemClass}>
+                            Panel de administración
+                          </Link>
+                        ) : null}
                         <Link
                           role="menuitem"
                           href="/perfil"
@@ -313,6 +319,11 @@ export default function Navbar() {
                       className={`block rounded-xl px-3 py-3 ${NAV_LINK_CLASS} hover:bg-gray-50`}
                     >
                       Panel
+                    </Link>
+                  ) : null}
+                  {showAdminLink ? (
+                    <Link href="/admin" onClick={closeMobileNav} className="rounded-xl px-3 py-3 text-base font-semibold text-gray-800 transition hover:bg-gray-50 hover:text-emerald-800">
+                      Panel de administración
                     </Link>
                   ) : null}
                   <Link

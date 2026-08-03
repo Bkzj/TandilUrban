@@ -28,6 +28,7 @@ export type NavbarAccess = {
   authenticated: boolean;
   favoritesHref: string;
   showPanelLink: boolean;
+  showAdminLink: boolean;
 };
 
 export function buildNavbarAccess(
@@ -38,5 +39,6 @@ export function buildNavbarAccess(
     authenticated,
     favoritesHref: authenticated ? FAVORITES_HREF : FAVORITES_LOGIN_HREF,
     showPanelLink: authenticated && roleCanAccessPanel(role),
+    showAdminLink: authenticated && role === 'ADMIN',
   };
 }

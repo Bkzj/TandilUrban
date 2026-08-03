@@ -23,6 +23,7 @@ import { isStepValid } from './property-steps/validation';
 
 export type LinearPropertyFormProps = {
   initialData?: Partial<PropertyFormData> & { id?: string };
+  successHref?: string;
 };
 
 /**
@@ -40,7 +41,7 @@ export default function LinearPropertyForm(props: LinearPropertyFormProps = {}) 
   );
 }
 
-function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) {
+function LinearPropertyFormInner({ initialData, successHref }: LinearPropertyFormProps = {}) {
   const creationIdempotencyKey = useRef<string | null>(null);
   const router = useRouter();
   const blobFiles = useBlobImageFilesContext();
@@ -252,7 +253,7 @@ function LinearPropertyFormInner({ initialData }: LinearPropertyFormProps = {}) 
       setSubmitting(false);
 
       if (editId) {
-        router.push('/panel/propiedades');
+        router.push(successHref ?? '/panel/propiedades');
       } else {
         router.push('/panel?published=1');
       }

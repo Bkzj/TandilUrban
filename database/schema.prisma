@@ -88,6 +88,8 @@ model User {
   authSessionVersion        AuthSessionVersion?
   authSessions              AuthSession[]
   securityEvents            SecurityEvent[]
+  accountInvitations        AccountInvitation[] @relation("AccountInvitationTarget")
+  createdAccountInvitations AccountInvitation[] @relation("AccountInvitationCreator")
   propiedadesComoAgente     Propiedad[]             @relation("PropiedadAgente")
   favoritos                 Propiedad[]             @relation("UsuarioFavoritos")
   visitasFisicasRegistradas VisitaFisicaEvento[]    @relation("VisitaFisicaRegistradaPor")
@@ -137,6 +139,25 @@ model PasswordResetToken {
   createdAt  DateTime  @default(now())
 
   @@index([userId, expiresAt])
+}
+
+model AccountInvitation {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation("AccountInvitationTarget", fields: [userId], references: [id], onDelete: Cascade)
+  createdById     String
+  createdBy       User         @relation("AccountInvitationCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  inmobiliariaId String
+  inmobiliaria   Inmobiliaria @relation(fields: [inmobiliariaId], references: [id], onDelete: Cascade)
+  intendedRole   RolUsuario
+  tokenHash      String       @unique @db.Char(64)
+  expiresAt      DateTime
+  consumedAt     DateTime?
+  invalidatedAt  DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([userId, consumedAt, invalidatedAt, expiresAt])
+  @@index([inmobiliariaId, intendedRole, createdAt])
 }
 
 model TwoFactorConfiguration {
@@ -222,6 +243,15 @@ enum SecurityEventType {
   OTHER_SESSIONS_REVOKED
   ALL_SESSIONS_REVOKED
   SESSION_EXPIRED
+  GLOBAL_ADMIN_PROMOTED
+  INMOBILIARIA_CREATED
+  INMOBILIARIA_ADMIN_CREATED
+  AGENT_CREATED
+  ACCOUNT_ACTIVATED
+  ACCOUNT_DEACTIVATED
+  ROLE_CHANGED
+  TENANT_ASSIGNMENT_CHANGED
+  ACCOUNT_INVITATION_ACCEPTED
 }
 
 model SecurityEvent {
@@ -232,10 +262,16 @@ model SecurityEvent {
   requestId String?
   category  String?
   metadata  Json?
+  actorUserId          String?
+  targetUserId         String?
+  targetInmobiliariaId String?
   createdAt DateTime          @default(now())
 
   @@index([userId, createdAt])
   @@index([type, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([targetInmobiliariaId, createdAt])
 }
 
 model Inmobiliaria {
@@ -264,6 +300,7 @@ model Inmobiliaria {
   cloudinaryAssets       CloudinaryAsset[]
   cloudinaryDeletionJobs CloudinaryDeletionJob[]
   propiedadVistas        PropiedadVista[]
+  accountInvitations     AccountInvitation[]
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
 }

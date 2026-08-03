@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { createConfiguredAuthEmailAdapter, type AuthResendClient } from '@/lib/mail';
+import { clearDevelopmentMailbox, listDevelopmentEmails } from '@/server/development-mailbox';
 import { validateServerEnvironment } from '@/lib/validation/environment';
 
 const message = {
@@ -16,8 +17,18 @@ function fakeResend(result: Awaited<ReturnType<AuthResendClient['emails']['send'
 }
 
 test('email adapter defaults to a non-network sink and tests block real Resend', async () => {
+  clearDevelopmentMailbox();
   const sink = createConfiguredAuthEmailAdapter({ nodeEnv: 'development', provider: 'sink' });
   assert.deepEqual(await sink.send(message), {
+    ok: true,
+    delivered: true,
+    provider: 'sink',
+    category: 'captured',
+  });
+  assert.equal(listDevelopmentEmails().length, 1);
+
+  const testSink = createConfiguredAuthEmailAdapter({ nodeEnv: 'test', provider: 'sink' });
+  assert.deepEqual(await testSink.send(message), {
     ok: true,
     delivered: false,
     provider: 'sink',
@@ -51,6 +62,7 @@ test('explicit Resend mode fails closed without complete authorized-sender confi
 });
 
 test('explicit Resend mode uses only the injected client during tests and requires provider acceptance', async () => {
+  clearDevelopmentMailbox();
   let factoryCalls = 0;
   let submittedFrom = '';
   const adapter = createConfiguredAuthEmailAdapter({
@@ -72,6 +84,7 @@ test('explicit Resend mode uses only the injected client during tests and requir
   }
   assert.equal(factoryCalls, 1);
   assert.equal(submittedFrom, 'Propea Group <invitaciones@mail.propea.group>');
+  assert.equal(listDevelopmentEmails().length, 0);
 
   const unconfirmed = createConfiguredAuthEmailAdapter({
     nodeEnv: 'test', provider: 'resend', resendApiKey: 're_fictitious_test_key', resendFromEmail: 'Propea Group <invitaciones@mail.propea.group>',

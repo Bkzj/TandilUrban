@@ -32,7 +32,7 @@ El correo explica la administración de publicaciones y agentes, la expiración 
 
 El transporte nunca se infiere por la mera presencia de una clave:
 
-- `EMAIL_PROVIDER=sink` es el default seguro de desarrollo y CI. Con `AUTH_EMAIL_TEST_SINK_URL` envía el mensaje a un receptor HTTP de loopback; sin URL no contacta ninguna red externa y reporta entrega pendiente. **No envía a Gmail.**
+- `EMAIL_PROVIDER=sink` es el default seguro de desarrollo y CI. En `NODE_ENV=development`, sin `AUTH_EMAIL_TEST_SINK_URL`, captura hasta 100 mensajes en el buzón efímero `/dev/mailbox`; con URL envía el mensaje al receptor HTTP de loopback configurado. En tests no abre el buzón ni contacta una red externa. **No envía a Gmail.**
 - `EMAIL_PROVIDER=resend` es el único modo que puede contactar Resend. Exige `RESEND_API_KEY` y `RESEND_FROM_EMAIL`; el remitente debe pertenecer a un dominio autorizado en la cuenta de Resend. `example.com`, `resend.dev` y otros placeholders se rechazan.
 - `NODE_ENV=test` bloquea el cliente Resend real incluso si el entorno se configuró incorrectamente. Las pruebas sólo pueden usar un cliente fake inyectado.
 - Producción y el smoke de staging exigen explícitamente `EMAIL_PROVIDER=resend`.
@@ -40,6 +40,24 @@ El transporte nunca se infiere por la mera presencia de una clave:
 Los resultados se reducen a categorías seguras (`invalid_api_key`, `unauthorized_sender`, `invalid_recipient`, `rate_limited`, `provider_unavailable` o rechazo genérico). No se persiste la respuesta raw. El log sólo incluye provider, template, resultado, categoría segura y request ID; nunca destinatario, body, token, URL ni clave.
 
 En desarrollo, la UI distingue **Invitación capturada por el buzón local de desarrollo** de una entrega aceptada por Resend. Esta indicación no se incluye en las respuestas de producción.
+
+### Buzón local para QA manual
+
+`/dev/mailbox` y cada detalle `/dev/mailbox/[id]` existen sólo cuando el proceso corre con `NODE_ENV=development`; fuera de ese entorno responden como recurso inexistente. El buzón vive únicamente en memoria, conserva como máximo 100 mensajes y se vacía al reiniciar el proceso o mediante **Vaciar buzón**. No se versiona ni forma parte del ZIP fuente.
+
+El detalle muestra destinatario, asunto, fecha, categoría, HTML saneado dentro de un `iframe` aislado sin scripts y la alternativa de texto plano. Para invitaciones, **Abrir invitación** usa la URL local real creada por el backend: el token conserva su aleatoriedad, expiración, uso único y persistencia hash-only. Por ese motivo el buzón es información sensible aun siendo local.
+
+Flujo manual sin proveedores externos:
+
+1. Levantar PostgreSQL local con todas las migraciones y mantener `EMAIL_PROVIDER="sink"` sin `AUTH_EMAIL_TEST_SINK_URL`.
+2. Iniciar `npm run dev` y autenticar al ADMIN global.
+3. Abrir `/admin/inmobiliarias`, crear una inmobiliaria y administrador ficticios.
+4. Abrir `/dev/mailbox`, revisar la invitación de marca y su alternativa de texto.
+5. Pulsar **Abrir invitación**, definir la contraseña e iniciar sesión como `INMOBILIARIA`.
+6. Confirmar acceso al tenant propio, rechazo de `/admin` e invitar un `AGENTE` si se desea.
+7. Vaciar el buzón antes del siguiente escenario.
+
+Si `EMAIL_PROVIDER=resend` está seleccionado explícitamente, el adaptador no duplica ni desvía el mensaje al buzón local.
 
 ## Asistencia editorial de Gemini
 

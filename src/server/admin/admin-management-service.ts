@@ -111,6 +111,7 @@ async function deliverInvitation(
     role: invitation.role,
     expirationHours: invitation.expirationHours,
     copy: resolved.copy,
+    correlationId: options.requestId,
   } as const;
   let delivery: Awaited<ReturnType<typeof sendAccountInvitationEmail>>;
   try {

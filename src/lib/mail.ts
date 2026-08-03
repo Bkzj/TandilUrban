@@ -4,12 +4,16 @@ import { escapePlainTextForHtml } from '@/lib/escape-html';
 import { renderInvitationEmail } from '@/lib/invitation-email';
 import { getServerEnvironment } from '@/lib/validation/environment';
 import type { InvitationCopy } from '@/server/admin/invitation-copy';
+import { captureDevelopmentEmail, type DevelopmentMailboxTemplate } from '@/server/development-mailbox';
 
 export type AuthEmailMessage = {
   to: string;
   subject: string;
   html: string;
   text?: string;
+  template?: DevelopmentMailboxTemplate;
+  actionUrl?: string;
+  correlationId?: string;
 };
 
 export type AuthEmailProvider = 'sink' | 'resend' | 'injected';
@@ -26,7 +30,7 @@ export type AuthEmailFailureCategory =
   | 'provider_unavailable';
 
 export type AuthEmailDeliveryResult =
-  | { ok: true; delivered: boolean; provider?: AuthEmailProvider; category?: 'accepted' | 'sink_not_configured' }
+  | { ok: true; delivered: boolean; provider?: AuthEmailProvider; category?: 'accepted' | 'captured' | 'sink_not_configured' }
   | { ok: false; error: Error; provider?: AuthEmailProvider; category?: AuthEmailFailureCategory };
 
 export type AuthEmailAdapter = {
@@ -107,6 +111,14 @@ export function createConfiguredAuthEmailAdapter(
 ): AuthEmailAdapter {
   if (configuration.provider === 'sink') {
     const adapter = configuration.sinkUrl ? localTestSinkAdapter(configuration.sinkUrl, configuration.nodeEnv) : null;
+    if (!adapter && configuration.nodeEnv === 'development') {
+      return {
+        async send(message) {
+          captureDevelopmentEmail(message);
+          return { ok: true, delivered: true, provider: 'sink', category: 'captured' };
+        },
+      };
+    }
     return adapter ?? {
       async send() {
         return { ok: true, delivered: false, provider: 'sink', category: 'sink_not_configured' };
@@ -185,18 +197,23 @@ export async function sendAccountInvitationEmail(
     role: 'INMOBILIARIA' | 'AGENTE';
     expirationHours: number;
     copy: InvitationCopy;
+    correlationId?: string;
   },
   adapter: AuthEmailAdapter = configuredAuthEmailAdapter(),
 ) {
+  const actionUrl = buildAccountInvitationLink(input.rawToken);
   const rendered = renderInvitationEmail({
     copy: input.copy,
     inmobiliariaName: input.inmobiliariaName,
     role: input.role,
-    ctaUrl: buildAccountInvitationLink(input.rawToken),
+    ctaUrl: actionUrl,
     expirationHours: input.expirationHours,
   });
   return adapter.send({
     to: input.email,
+    template: 'account_invitation',
+    actionUrl,
+    correlationId: input.correlationId,
     ...rendered,
   });
 }
@@ -211,6 +228,8 @@ export async function sendVerificationEmail(
   const safeLink = escapePlainTextForHtml(link);
   return adapter.send({
     to: email,
+    template: 'email_verification',
+    actionUrl: link,
     subject: 'Verificá tu cuenta de Propea Group',
     html: `
       <main style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;line-height:1.6">
@@ -230,9 +249,12 @@ export async function sendAccountPasswordResetEmail(
   expirationMinutes: number,
   adapter: AuthEmailAdapter = configuredAuthEmailAdapter(),
 ) {
-  const safeLink = escapePlainTextForHtml(buildPasswordResetLink(rawToken));
+  const actionUrl = buildPasswordResetLink(rawToken);
+  const safeLink = escapePlainTextForHtml(actionUrl);
   return adapter.send({
     to: email,
+    template: 'password_reset',
+    actionUrl,
     subject: 'Restablecé tu contraseña de Propea Group',
     html: `
       <main style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;line-height:1.6">
@@ -252,6 +274,7 @@ export async function sendPasswordChangedEmail(
 ) {
   return adapter.send({
     to: email,
+    template: 'password_changed',
     subject: 'Tu contraseña fue modificada',
     html: `
       <main style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;line-height:1.6">
@@ -272,6 +295,7 @@ async function sendTwoFactorNotification(
 ) {
   return adapter.send({
     to: email,
+    template: 'two_factor_notification',
     subject,
     html: `
       <main style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;line-height:1.6">

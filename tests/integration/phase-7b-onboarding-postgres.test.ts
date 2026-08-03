@@ -27,6 +27,51 @@ function validCopyProvider(calls: InvitationCopyContext[]): InvitationCopyProvid
   return { async generate(context) { calls.push(context); return { subject: 'Invitación de Propea Group', greeting: `Hola, ${context.administratorDisplayName.split(' ')[0]}.`, intro: `Te invitamos a administrar ${context.inmobiliariaName}.`, roleSummary: 'Podrás gestionar publicaciones y agentes.', closing: 'Configurá tu cuenta para comenzar.' }; } };
 }
 
+test('Phase 7B runtime schema contains migration 24 delivery fields and security events', { skip: !enabled, timeout: 120_000 }, async () => {
+  const columns = await prisma.$queryRaw<Array<{ column_name: string }>>`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'AccountInvitation'
+      AND column_name IN ('deliveryStatus', 'lastDeliveryAttemptAt', 'sentAt', 'consumedAt', 'invalidatedAt')
+  `;
+  assert.deepEqual(columns.map(({ column_name }) => column_name).sort(), [
+    'consumedAt',
+    'deliveryStatus',
+    'invalidatedAt',
+    'lastDeliveryAttemptAt',
+    'sentAt',
+  ]);
+
+  const events = await prisma.$queryRaw<Array<{ enumlabel: string }>>`
+    SELECT enumlabel
+    FROM pg_enum
+    JOIN pg_type ON pg_type.oid = pg_enum.enumtypid
+    WHERE pg_type.typname = 'SecurityEventType'
+      AND enumlabel IN (
+        'ACCOUNT_INVITATION_CREATED',
+        'ACCOUNT_INVITATION_SENT',
+        'ACCOUNT_INVITATION_RESENT',
+        'ACCOUNT_INVITATION_SEND_FAILED'
+      )
+  `;
+  assert.deepEqual(events.map(({ enumlabel }) => enumlabel).sort(), [
+    'ACCOUNT_INVITATION_CREATED',
+    'ACCOUNT_INVITATION_RESENT',
+    'ACCOUNT_INVITATION_SEND_FAILED',
+    'ACCOUNT_INVITATION_SENT',
+  ]);
+
+  const migration = await prisma.$queryRaw<Array<{ migration_name: string }>>`
+    SELECT migration_name
+    FROM _prisma_migrations
+    WHERE migration_name = '20260806120000_phase7b_inmobiliaria_onboarding'
+      AND finished_at IS NOT NULL
+      AND rolled_back_at IS NULL
+  `;
+  assert.equal(migration.length, 1);
+});
+
 async function createUser(role: 'ADMIN' | 'USUARIO_NORMAL' | 'AGENTE', label: string, tenantId?: string) {
   return prisma.user.create({ data: { nombre: `Persona ${label}`, email: `${label}-${suffix}@example.invalid`, passwordHash: await hash('Synthetic Phase7B password', 4), rol: role, activo: true, emailVerifiedAt: new Date(), agenciaId: tenantId, authSessionVersion: { create: { version: 0 } } } });
 }

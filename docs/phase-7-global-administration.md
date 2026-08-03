@@ -1,5 +1,7 @@
 # Fase 7: administración global y gestión de tenants
 
+> Estado: Fase 7 completa. La [Fase 7B](./phase-7b-inmobiliaria-onboarding.md) completa el onboarding de inmobiliarias con invitaciones de marca, reenvío y asistencia editorial opcional de Gemini sin exponer secretos.
+
 ## Jerarquía y autoridad
 
 La fase reutiliza el enum existente; no crea un segundo rol global.

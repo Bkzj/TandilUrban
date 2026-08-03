@@ -18,6 +18,7 @@ const REQUIRED_ENVIRONMENT = [
   'AUTH_ENCRYPTION_KEY', 'AUTH_TOTP_ISSUER', 'AUTH_TOTP_CHALLENGE_TTL_SECONDS',
   'AUTH_PASSWORD_RESET_TTL_MINUTES', 'AUTH_EMAIL_VERIFICATION_TTL_HOURS',
   'AUTH_RECENT_LOGIN_TTL_MINUTES', 'AUTH_RECOVERY_CODE_COUNT',
+  'ACCOUNT_INVITATION_TTL_HOURS',
 ];
 const EXPECTED_AUDIT = { low: 0, high: 1, critical: 0, total: 1 };
 const externalChecks = new Set(process.argv.slice(2));
@@ -55,7 +56,7 @@ function requiredEnvironmentCheck() {
   const numericRanges = [
     ['AUTH_TOTP_CHALLENGE_TTL_SECONDS', 60, 900], ['AUTH_PASSWORD_RESET_TTL_MINUTES', 5, 120],
     ['AUTH_EMAIL_VERIFICATION_TTL_HOURS', 1, 168], ['AUTH_RECENT_LOGIN_TTL_MINUTES', 1, 60],
-    ['AUTH_RECOVERY_CODE_COUNT', 6, 20],
+    ['AUTH_RECOVERY_CODE_COUNT', 6, 20], ['ACCOUNT_INVITATION_TTL_HOURS', 1, 168],
   ];
   for (const [name, minimum, maximum] of numericRanges) {
     const value = Number(process.env[name]);
@@ -94,8 +95,8 @@ async function databaseAndSchemaCheck() {
     if (phase6d.rows[0].version_column !== 1 || phase6d.rows[0].version_index !== 1 || phase6d.rows[0].events !== 5) throw new Error('falta estructura de segundo factor Phase 6D');
     const phase6e = await pool.query("SELECT (SELECT count(*)::int FROM pg_constraint WHERE conname IN ('AuthSession_session_version_check','AuthSession_expiry_check','AuthSession_seen_check','AuthSession_revocation_check','AuthSession_userId_fkey')) AS constraints, (SELECT count(*)::int FROM pg_indexes WHERE indexname IN ('AuthSession_sessionHash_key','AuthSession_userId_revokedAt_expiresAt_lastSeenAt_idx','AuthSession_expiresAt_idx')) AS indexes, (SELECT count(*)::int FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typname='SecurityEventType' AND e.enumlabel IN ('SESSION_CREATED','SESSION_REVOKED','OTHER_SESSIONS_REVOKED','ALL_SESSIONS_REVOKED','SESSION_EXPIRED')) AS events, (SELECT count(*)::int FROM \"AuthSession\" WHERE (\"revokedAt\" IS NULL) <> (\"revokedReason\" IS NULL)) AS invalid_state");
     if (phase6e.rows[0].constraints !== 5 || phase6e.rows[0].indexes !== 3 || phase6e.rows[0].events !== 5 || phase6e.rows[0].invalid_state !== 0) throw new Error('falta estructura o hay estado inválido de sesiones Phase 6E');
-    const phase7 = await pool.query("SELECT (SELECT count(*)::int FROM pg_constraint WHERE conname IN ('AccountInvitation_userId_fkey','AccountInvitation_createdById_fkey','AccountInvitation_inmobiliariaId_fkey','AccountInvitation_expiry_check','AccountInvitation_state_check','AccountInvitation_role_check')) AS constraints, (SELECT count(*)::int FROM pg_indexes WHERE indexname IN ('AccountInvitation_tokenHash_key','AccountInvitation_userId_consumedAt_invalidatedAt_expiresAt_idx','AccountInvitation_inmobiliariaId_intendedRole_createdAt_idx')) AS indexes, (SELECT count(*)::int FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typname='SecurityEventType' AND e.enumlabel IN ('GLOBAL_ADMIN_PROMOTED','INMOBILIARIA_CREATED','INMOBILIARIA_ADMIN_CREATED','AGENT_CREATED','ACCOUNT_ACTIVATED','ACCOUNT_DEACTIVATED','ROLE_CHANGED','TENANT_ASSIGNMENT_CHANGED','ACCOUNT_INVITATION_ACCEPTED')) AS events, (SELECT count(*)::int FROM \"AccountInvitation\" WHERE (\"consumedAt\" IS NOT NULL AND \"invalidatedAt\" IS NOT NULL) OR \"expiresAt\" <= \"createdAt\") AS invalid_state");
-    if (phase7.rows[0].constraints !== 6 || phase7.rows[0].indexes !== 3 || phase7.rows[0].events !== 9 || phase7.rows[0].invalid_state !== 0) throw new Error('falta estructura o hay estado inválido de administración Phase 7');
+    const phase7 = await pool.query("SELECT (SELECT count(*)::int FROM pg_constraint WHERE conname IN ('AccountInvitation_userId_fkey','AccountInvitation_createdById_fkey','AccountInvitation_inmobiliariaId_fkey','AccountInvitation_expiry_check','AccountInvitation_state_check','AccountInvitation_role_check','AccountInvitation_delivery_check')) AS constraints, (SELECT count(*)::int FROM pg_indexes WHERE indexname IN ('AccountInvitation_tokenHash_key','AccountInvitation_userId_consumedAt_invalidatedAt_expiresAt_idx','AccountInvitation_inmobiliariaId_intendedRole_createdAt_idx')) AS indexes, (SELECT count(*)::int FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typname='SecurityEventType' AND e.enumlabel IN ('GLOBAL_ADMIN_PROMOTED','INMOBILIARIA_CREATED','INMOBILIARIA_ADMIN_CREATED','AGENT_CREATED','ACCOUNT_ACTIVATED','ACCOUNT_DEACTIVATED','ROLE_CHANGED','TENANT_ASSIGNMENT_CHANGED','ACCOUNT_INVITATION_ACCEPTED','ACCOUNT_INVITATION_CREATED','ACCOUNT_INVITATION_SENT','ACCOUNT_INVITATION_RESENT','ACCOUNT_INVITATION_SEND_FAILED')) AS events, (SELECT count(*)::int FROM \"AccountInvitation\" WHERE (\"consumedAt\" IS NOT NULL AND \"invalidatedAt\" IS NOT NULL) OR \"expiresAt\" <= \"createdAt\" OR (\"deliveryStatus\" = 'SENT' AND \"sentAt\" IS NULL)) AS invalid_state");
+    if (phase7.rows[0].constraints !== 7 || phase7.rows[0].indexes !== 3 || phase7.rows[0].events !== 13 || phase7.rows[0].invalid_state !== 0) throw new Error('falta estructura o hay estado inválido de administración Phase 7/7B');
     const legacy = await pool.query('SELECT count(*)::int AS count FROM "User" WHERE "twoFactorSecret" IS NOT NULL');
     if (legacy.rows[0].count !== 0) throw new Error('existen secretos 2FA legacy pendientes');
   } finally {

@@ -1,7 +1,9 @@
 import { Resend } from 'resend';
 
 import { escapePlainTextForHtml } from '@/lib/escape-html';
+import { renderInvitationEmail } from '@/lib/invitation-email';
 import { getServerEnvironment } from '@/lib/validation/environment';
+import type { InvitationCopy } from '@/server/admin/invitation-copy';
 
 export const AUTH_FROM_EMAIL =
   process.env.RESEND_FROM_EMAIL || 'Propea Group <onboarding@resend.dev>';
@@ -10,6 +12,7 @@ export type AuthEmailMessage = {
   to: string;
   subject: string;
   html: string;
+  text?: string;
 };
 
 export type AuthEmailAdapter = {
@@ -71,6 +74,7 @@ function configuredAuthEmailAdapter(): AuthEmailAdapter {
           to: message.to,
           subject: message.subject,
           html: message.html,
+          ...(message.text ? { text: message.text } : {}),
         });
         return result.error
           ? { ok: false, error: new Error('El proveedor rechazó el correo.') }
@@ -95,25 +99,26 @@ export function buildAccountInvitationLink(token: string): string {
 }
 
 export async function sendAccountInvitationEmail(
-  email: string,
-  rawToken: string,
-  roleLabel: 'administrador de inmobiliaria' | 'agente',
+  input: {
+    email: string;
+    rawToken: string;
+    inmobiliariaName: string;
+    role: 'INMOBILIARIA' | 'AGENTE';
+    expirationHours: number;
+    copy: InvitationCopy;
+  },
   adapter: AuthEmailAdapter = configuredAuthEmailAdapter(),
 ) {
-  const safeLink = escapePlainTextForHtml(buildAccountInvitationLink(rawToken));
-  const safeRole = escapePlainTextForHtml(roleLabel);
+  const rendered = renderInvitationEmail({
+    copy: input.copy,
+    inmobiliariaName: input.inmobiliariaName,
+    role: input.role,
+    ctaUrl: buildAccountInvitationLink(input.rawToken),
+    expirationHours: input.expirationHours,
+  });
   return adapter.send({
-    to: email,
-    subject: 'Completá tu acceso a Propea Group',
-    html: `
-      <main style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;line-height:1.6">
-        <h1 style="font-size:24px">Completá tu acceso</h1>
-        <p>Te invitaron a Propea Group como ${safeRole}.</p>
-        <p><a href="${safeLink}" style="display:inline-block;border-radius:12px;background:#1c5e3c;color:#fff;padding:12px 18px;text-decoration:none">Elegir contraseña y activar cuenta</a></p>
-        <p>El enlace es de un solo uso y vence en 24 horas.</p>
-        <p>Si no esperabas esta invitación, ignorá este mensaje.</p>
-      </main>
-    `,
+    to: input.email,
+    ...rendered,
   });
 }
 

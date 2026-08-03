@@ -50,6 +50,7 @@ export const serverEnvironmentSchema = z
     AUTH_EMAIL_VERIFICATION_TTL_HOURS: z.coerce.number().int().min(1).max(168).default(24),
     AUTH_RECENT_LOGIN_TTL_MINUTES: z.coerce.number().int().min(1).max(60).default(15),
     AUTH_RECOVERY_CODE_COUNT: z.coerce.number().int().min(6).max(20).default(10),
+    ACCOUNT_INVITATION_TTL_HOURS: z.coerce.number().int().min(1).max(168).default(48),
     NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: optionalTrimmed.refine((value) => {
       if (!value) return true;
       try {
@@ -63,6 +64,7 @@ export const serverEnvironmentSchema = z
     CLOUDINARY_API_SECRET: z.string().trim().min(16).max(512).optional(),
     GEMINI_API_KEY: z.string().trim().min(8).max(512).optional(),
     GEMINI_MODEL: z.string().trim().regex(/^[A-Za-z0-9._-]{1,128}$/u).optional(),
+    INVITATION_GEMINI_ENABLED: z.enum(['true', 'false']).default('false'),
     RESEND_API_KEY: z.string().trim().min(5).max(512).optional(),
     RESEND_FROM_EMAIL: optionalBounded,
     LEAD_NOTIFICATION_TO_EMAIL: optionalBounded,

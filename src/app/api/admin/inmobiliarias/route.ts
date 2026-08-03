@@ -31,9 +31,21 @@ export async function POST(request: Request) {
       const result = await createInmobiliariaWithAdministrator({ actorUserId: user.id, ...payload }, { client: prisma, requestId });
       return NextResponse.json({
         inmobiliariaId: result.value.inmobiliariaId,
+        administratorId: result.value.administratorId,
+        invitationId: result.value.invitationId,
+        expiresAt: result.value.expiresAt.toISOString(),
         invitationDeliverySucceeded: result.invitationDeliverySucceeded,
+        invitationCopySource: result.invitationCopySource,
       }, { status: 201 });
     } catch (error) {
+      if (error instanceof AdministrativePolicyError && error.reason === 'CONFIRM_EXISTING_ACCOUNT') {
+        return NextResponse.json({
+          error: error.message,
+          code: 'CONFLICT',
+          requiresExistingAccountConfirmation: true,
+          requestId,
+        }, { status: 409 });
+      }
       if (error instanceof AdministrativePolicyError) throw mapPolicyError(error);
       throw error;
     }

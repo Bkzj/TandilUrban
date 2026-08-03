@@ -13,6 +13,11 @@ export const createInmobiliariaSchema = z.object({
     nombre: normalizedNameSchema,
     email: normalizedEmailSchema,
   }).strict(),
+  confirmExistingAccount: z.boolean().optional().default(false),
+}).strict();
+
+export const resendAccountInvitationSchema = z.object({
+  inmobiliariaId: identifierSchema,
 }).strict();
 
 export const inviteAgentSchema = z.object({

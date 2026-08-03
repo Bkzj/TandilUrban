@@ -12,8 +12,9 @@ export default async function AdminPropertiesPage({ searchParams }: { searchPara
   await requireGlobalAdmin().catch(() => redirect('/?error=unauthorized'));
   const params = await searchParams;
   const q = typeof params.q === 'string' ? params.q.trim().slice(0, 120) : '';
+  const inmobiliariaId = typeof params.inmobiliariaId === 'string' && /^[A-Za-z0-9_-]{1,128}$/u.test(params.inmobiliariaId) ? params.inmobiliariaId : undefined;
   const page = typeof params.page === 'string' && /^\d+$/u.test(params.page) ? Math.max(1, Number(params.page)) : 1;
-  const where: Prisma.PropiedadWhereInput = q ? { OR: [{ titulo: { contains: q, mode: 'insensitive' } }, { inmobiliaria: { nombreAgencia: { contains: q, mode: 'insensitive' } } }] } : {};
+  const where: Prisma.PropiedadWhereInput = { ...(inmobiliariaId ? { inmobiliariaId } : {}), ...(q ? { OR: [{ titulo: { contains: q, mode: 'insensitive' } }, { inmobiliaria: { nombreAgencia: { contains: q, mode: 'insensitive' } } }] } : {}) };
   const [properties, total] = await Promise.all([
     prisma.propiedad.findMany({ where, orderBy: { updatedAt: 'desc' }, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE, select: { id: true, titulo: true, estado: true, operacion: true, precio: true, moneda: true, createdAt: true, updatedAt: true, inmobiliaria: { select: { nombreAgencia: true } }, agente: { select: { nombre: true } } } }),
     prisma.propiedad.count({ where }),

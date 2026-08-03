@@ -25,7 +25,7 @@ export default async function AdminOverviewPage() {
   ];
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header><p className="text-xs font-bold uppercase tracking-[0.2em] text-naranja-light">Panel general</p><h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">Administración de Propea Group</h1><p className="mt-3 max-w-2xl text-white/70">Vista global de cuentas, inmobiliarias, agentes y publicaciones.</p></header>
+      <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.2em] text-naranja-light">Panel general</p><h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">Administración de Propea Group</h1><p className="mt-3 max-w-2xl text-white/70">Vista global de cuentas, inmobiliarias, agentes y publicaciones.</p></div><Link href="/admin/inmobiliarias/nueva" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-naranja px-5 py-3 font-semibold text-white shadow-lg shadow-naranja/25">+ Nueva inmobiliaria</Link></header>
       <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Resumen global">
         {cards.map((card) => <Link key={card.label} href={card.href} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20 backdrop-blur-lg transition hover:border-naranja/40 hover:bg-white/10"><span className="text-sm font-semibold text-white/65">{card.label}</span><strong className="mt-3 block text-4xl text-white">{card.value}</strong><span className="mt-4 block text-sm font-semibold text-emerald-300">Ver detalle →</span></Link>)}
       </section>

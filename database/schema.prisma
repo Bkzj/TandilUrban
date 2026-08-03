@@ -154,10 +154,19 @@ model AccountInvitation {
   expiresAt      DateTime
   consumedAt     DateTime?
   invalidatedAt  DateTime?
+  deliveryStatus AccountInvitationDeliveryStatus @default(PENDING)
+  lastDeliveryAttemptAt DateTime?
+  sentAt          DateTime?
   createdAt      DateTime     @default(now())
 
   @@index([userId, consumedAt, invalidatedAt, expiresAt])
   @@index([inmobiliariaId, intendedRole, createdAt])
+}
+
+enum AccountInvitationDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
 }
 
 model TwoFactorConfiguration {
@@ -252,6 +261,10 @@ enum SecurityEventType {
   ROLE_CHANGED
   TENANT_ASSIGNMENT_CHANGED
   ACCOUNT_INVITATION_ACCEPTED
+  ACCOUNT_INVITATION_CREATED
+  ACCOUNT_INVITATION_SENT
+  ACCOUNT_INVITATION_RESENT
+  ACCOUNT_INVITATION_SEND_FAILED
 }
 
 model SecurityEvent {

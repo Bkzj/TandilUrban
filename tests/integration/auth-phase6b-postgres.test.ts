@@ -48,6 +48,52 @@ function findCredentialsUser(email: string) {
   });
 }
 
+test('Phase 6B registration runtime schema is fully migrated in PostgreSQL', { skip: !enabled }, async () => {
+  const requiredTables = await prisma.$queryRaw<Array<{ table_name: string }>>`
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = current_schema()
+      AND table_name IN (
+        'AuthSessionVersion',
+        'PasswordResetToken',
+        'TwoFactorConfiguration',
+        'TwoFactorChallenge',
+        'TwoFactorRecoveryCode',
+        'SecurityEvent',
+        'AuthSession'
+      )
+    ORDER BY table_name
+  `;
+  assert.deepEqual(
+    requiredTables.map(({ table_name }) => table_name),
+    [
+      'AuthSession',
+      'AuthSessionVersion',
+      'PasswordResetToken',
+      'SecurityEvent',
+      'TwoFactorChallenge',
+      'TwoFactorConfiguration',
+      'TwoFactorRecoveryCode',
+    ],
+  );
+
+  const requiredColumns = await prisma.$queryRaw<Array<{ table_name: string; column_name: string }>>`
+    SELECT table_name, column_name
+    FROM information_schema.columns
+    WHERE table_schema = current_schema()
+      AND (
+        (table_name = 'User' AND column_name = 'activo')
+        OR (table_name = 'VerificationToken' AND column_name IN ('consumedAt', 'invalidatedAt'))
+      )
+    ORDER BY table_name, column_name
+  `;
+  assert.deepEqual(requiredColumns, [
+    { table_name: 'User', column_name: 'activo' },
+    { table_name: 'VerificationToken', column_name: 'consumedAt' },
+    { table_name: 'VerificationToken', column_name: 'invalidatedAt' },
+  ]);
+});
+
 test('Phase 6B completa registro, verificación, login y frescura de sesión en PostgreSQL', { skip: !enabled, timeout: 90_000 }, async () => {
   const messages: AuthEmailMessage[] = [];
   const email = `person-${suffix}@example.invalid`;

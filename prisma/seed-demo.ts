@@ -27,7 +27,7 @@ const DEMO_IMAGES = [
   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&q=85&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=85&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&q=85&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1605276374104-de6862b9b638?w=1200&q=85&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=85&auto=format&fit=crop',
 ] as const;
 
 function imgs(...urls: string[]) {

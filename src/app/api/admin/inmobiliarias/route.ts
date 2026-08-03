@@ -36,6 +36,7 @@ export async function POST(request: Request) {
         expiresAt: result.value.expiresAt.toISOString(),
         invitationDeliverySucceeded: result.invitationDeliverySucceeded,
         invitationCopySource: result.invitationCopySource,
+        ...(process.env.NODE_ENV !== 'production' ? { invitationDeliveryProvider: result.invitationDeliveryProvider } : {}),
       }, { status: 201 });
     } catch (error) {
       if (error instanceof AdministrativePolicyError && error.reason === 'CONFIRM_EXISTING_ACCOUNT') {

@@ -11,7 +11,7 @@ type Draft = {
   administradorEmail: string;
 };
 
-type CreationResult = { inmobiliariaId: string; invitationDeliverySucceeded: boolean };
+type CreationResult = { inmobiliariaId: string; invitationDeliverySucceeded: boolean; invitationDeliveryProvider?: string };
 
 const inputClass = 'min-h-11 w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-white placeholder:text-white/35 focus:border-naranja focus:outline-none focus:ring-2 focus:ring-naranja/30';
 
@@ -56,6 +56,7 @@ export function CreateInmobiliariaForm() {
         error?: string;
         inmobiliariaId?: string;
         invitationDeliverySucceeded?: boolean;
+        invitationDeliveryProvider?: string;
         requiresExistingAccountConfirmation?: boolean;
       };
       if (!response.ok || !body.inmobiliariaId) {
@@ -66,7 +67,7 @@ export function CreateInmobiliariaForm() {
         setFeedback(body.error ?? 'No se pudo crear la inmobiliaria.');
         return;
       }
-      setResult({ inmobiliariaId: body.inmobiliariaId, invitationDeliverySucceeded: body.invitationDeliverySucceeded === true });
+      setResult({ inmobiliariaId: body.inmobiliariaId, invitationDeliverySucceeded: body.invitationDeliverySucceeded === true, invitationDeliveryProvider: body.invitationDeliveryProvider });
     } catch {
       setFeedback('No se pudo conectar con el servidor.');
     } finally {
@@ -78,8 +79,9 @@ export function CreateInmobiliariaForm() {
     return <section className="rounded-2xl border border-emerald-300/25 bg-emerald-400/10 p-6 shadow-lg shadow-black/20" aria-labelledby="created-title">
       <p className="text-sm font-bold uppercase tracking-[0.18em] text-emerald-200">Proceso completado</p>
       <h2 id="created-title" className="mt-2 text-3xl font-semibold">Inmobiliaria creada</h2>
-      <ul className="mt-5 space-y-3 text-white/80"><li>✓ Inmobiliaria creada</li><li>✓ Administrador creado</li><li>{result.invitationDeliverySucceeded ? '✓ Invitación enviada' : '• Invitación pendiente de reenvío'}</li></ul>
-      {!result.invitationDeliverySucceeded ? <p role="status" className="mt-4 rounded-xl border border-naranja/35 bg-naranja/10 px-4 py-3 text-sm text-naranja-light">El proveedor de correo no confirmó la entrega. La inmobiliaria y su administrador están guardados; podés reenviar la invitación desde el detalle.</p> : null}
+      <ul className="mt-5 space-y-3 text-white/80"><li>✓ Inmobiliaria creada</li><li>✓ Administrador creado</li><li>{result.invitationDeliverySucceeded ? result.invitationDeliveryProvider === 'sink' ? '✓ Invitación capturada por el buzón local' : '✓ Invitación enviada' : '• Invitación pendiente de reenvío'}</li></ul>
+      {result.invitationDeliverySucceeded && result.invitationDeliveryProvider === 'sink' ? <p role="status" className="mt-4 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white/75">Modo desarrollo: el mensaje fue capturado por el sink local y no se envió a un buzón externo.</p> : null}
+      {!result.invitationDeliverySucceeded ? <p role="status" className="mt-4 rounded-xl border border-naranja/35 bg-naranja/10 px-4 py-3 text-sm text-naranja-light">Inmobiliaria creada correctamente. No pudimos enviar la invitación al administrador. Podés reenviarla desde el detalle de la inmobiliaria.</p> : null}
       <div className="mt-6 flex flex-wrap gap-3"><Link href={`/admin/inmobiliarias/${result.inmobiliariaId}`} className="rounded-xl bg-naranja px-5 py-3 font-semibold text-white">Ver inmobiliaria</Link><Link href="/admin/inmobiliarias" className="rounded-xl border border-white/20 px-5 py-3 font-semibold text-white">Volver al listado</Link></div>
     </section>;
   }

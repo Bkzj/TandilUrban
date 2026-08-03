@@ -5,9 +5,6 @@ import { renderInvitationEmail } from '@/lib/invitation-email';
 import { getServerEnvironment } from '@/lib/validation/environment';
 import type { InvitationCopy } from '@/server/admin/invitation-copy';
 
-export const AUTH_FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || 'Propea Group <onboarding@resend.dev>';
-
 export type AuthEmailMessage = {
   to: string;
   subject: string;
@@ -15,15 +12,43 @@ export type AuthEmailMessage = {
   text?: string;
 };
 
+export type AuthEmailProvider = 'sink' | 'resend' | 'injected';
+export type AuthEmailFailureCategory =
+  | 'sink_not_configured'
+  | 'sink_unavailable'
+  | 'configuration_missing'
+  | 'test_network_blocked'
+  | 'invalid_api_key'
+  | 'unauthorized_sender'
+  | 'invalid_recipient'
+  | 'rate_limited'
+  | 'provider_rejected'
+  | 'provider_unavailable';
+
+export type AuthEmailDeliveryResult =
+  | { ok: true; delivered: boolean; provider?: AuthEmailProvider; category?: 'accepted' | 'sink_not_configured' }
+  | { ok: false; error: Error; provider?: AuthEmailProvider; category?: AuthEmailFailureCategory };
+
 export type AuthEmailAdapter = {
-  send(message: AuthEmailMessage): Promise<
-    | { ok: true; delivered: boolean }
-    | { ok: false; error: Error }
-  >;
+  send(message: AuthEmailMessage): Promise<AuthEmailDeliveryResult>;
 };
 
-function localTestSinkAdapter(url: string): AuthEmailAdapter | null {
-  if (process.env.NODE_ENV === 'production') return null;
+type AuthEmailAdapterConfiguration = {
+  nodeEnv: 'development' | 'test' | 'production';
+  provider: 'sink' | 'resend';
+  sinkUrl?: string;
+  resendApiKey?: string;
+  resendFromEmail?: string;
+};
+
+type ResendEmailInput = { from: string; to: string; subject: string; html: string; text?: string };
+export type AuthResendClient = {
+  emails: { send(message: ResendEmailInput): Promise<{ data?: { id?: string } | null; error?: unknown }> };
+};
+type AuthEmailAdapterDependencies = { resendClientFactory?: (apiKey: string) => AuthResendClient };
+
+function localTestSinkAdapter(url: string, nodeEnv: AuthEmailAdapterConfiguration['nodeEnv']): AuthEmailAdapter | null {
+  if (nodeEnv === 'production') return null;
   try {
     const sink = new URL(url);
     if (sink.protocol !== 'http:' || !['127.0.0.1', 'localhost', '::1'].includes(sink.hostname)) {
@@ -38,16 +63,89 @@ function localTestSinkAdapter(url: string): AuthEmailAdapter | null {
             body: JSON.stringify(message),
           });
           return response.ok
-            ? { ok: true, delivered: true }
-            : { ok: false, error: new Error('El sink local rechazó el correo.') };
+            ? { ok: true, delivered: true, provider: 'sink', category: 'accepted' }
+            : { ok: false, error: new Error('El sink local rechazó el correo.'), provider: 'sink', category: 'sink_unavailable' };
         } catch {
-          return { ok: false, error: new Error('El sink local no está disponible.') };
+          return { ok: false, error: new Error('El sink local no está disponible.'), provider: 'sink', category: 'sink_unavailable' };
         }
       },
     };
   } catch {
     return null;
   }
+}
+
+function failedAdapter(provider: 'sink' | 'resend', category: AuthEmailFailureCategory, message: string): AuthEmailAdapter {
+  return { async send() { return { ok: false, error: new Error(message), provider, category }; } };
+}
+
+function resendFailureCategory(error: unknown): AuthEmailFailureCategory {
+  if (!error || typeof error !== 'object') return 'provider_rejected';
+  const record = error as Record<string, unknown>;
+  const status = typeof record.statusCode === 'number' ? record.statusCode : undefined;
+  const name = typeof record.name === 'string' ? record.name.toLowerCase() : '';
+  const message = typeof record.message === 'string' ? record.message.toLowerCase() : '';
+  if (status === 401 || name.includes('validation_error') && message.includes('api key')) return 'invalid_api_key';
+  if (status === 403 || message.includes('domain') || message.includes('sender')) return 'unauthorized_sender';
+  if (status === 422 && (message.includes('recipient') || message.includes('email'))) return 'invalid_recipient';
+  if (status === 429) return 'rate_limited';
+  if (status !== undefined && status >= 500) return 'provider_unavailable';
+  return 'provider_rejected';
+}
+
+function validResendSender(value: string): boolean {
+  const address = value.match(/<([^<>]+)>$/u)?.[1] ?? value;
+  const domain = address.split('@')[1]?.toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(address)
+    && Boolean(domain)
+    && !['example.com', 'example.invalid', 'resend.dev'].some((item) => domain === item || domain?.endsWith(`.${item}`));
+}
+
+export function createConfiguredAuthEmailAdapter(
+  configuration: AuthEmailAdapterConfiguration,
+  dependencies: AuthEmailAdapterDependencies = {},
+): AuthEmailAdapter {
+  if (configuration.provider === 'sink') {
+    const adapter = configuration.sinkUrl ? localTestSinkAdapter(configuration.sinkUrl, configuration.nodeEnv) : null;
+    return adapter ?? {
+      async send() {
+        return { ok: true, delivered: false, provider: 'sink', category: 'sink_not_configured' };
+      },
+    };
+  }
+
+  if (!configuration.resendApiKey?.trim()
+    || !/^re_[A-Za-z0-9_-]{8,}$/u.test(configuration.resendApiKey.trim())
+    || !configuration.resendFromEmail?.trim()
+    || !validResendSender(configuration.resendFromEmail.trim())) {
+    return failedAdapter('resend', 'configuration_missing', 'Resend requiere una clave y un remitente autorizado.');
+  }
+  if (configuration.nodeEnv === 'test' && !dependencies.resendClientFactory) {
+    return failedAdapter('resend', 'test_network_blocked', 'Los tests no pueden usar el proveedor de correo real.');
+  }
+
+  const createClient = dependencies.resendClientFactory ?? ((apiKey: string): AuthResendClient => {
+    const client = new Resend(apiKey);
+    return { emails: { send: (message) => client.emails.send(message) } };
+  });
+  const apiKey = configuration.resendApiKey.trim();
+  const from = configuration.resendFromEmail.trim();
+  return {
+    async send(message) {
+      try {
+        const result = await createClient(apiKey).emails.send({ from, to: message.to, subject: message.subject, html: message.html, ...(message.text ? { text: message.text } : {}) });
+        if (result.error) {
+          return { ok: false, error: new Error('El proveedor rechazó el correo.'), provider: 'resend', category: resendFailureCategory(result.error) };
+        }
+        if (!result.data?.id) {
+          return { ok: false, error: new Error('El proveedor no confirmó la aceptación.'), provider: 'resend', category: 'provider_rejected' };
+        }
+        return { ok: true, delivered: true, provider: 'resend', category: 'accepted' };
+      } catch {
+        return { ok: false, error: new Error('El proveedor de correo no está disponible.'), provider: 'resend', category: 'provider_unavailable' };
+      }
+    },
+  };
 }
 
 export function buildAuthVerificationLink(token: string): string {
@@ -57,33 +155,14 @@ export function buildAuthVerificationLink(token: string): string {
 }
 
 function configuredAuthEmailAdapter(): AuthEmailAdapter {
-  const localSink = process.env.AUTH_EMAIL_TEST_SINK_URL?.trim();
-  const testAdapter = localSink ? localTestSinkAdapter(localSink) : null;
-  if (testAdapter) return testAdapter;
-  return {
-    async send(message) {
-      const apiKey = process.env.RESEND_API_KEY?.trim();
-      if (!apiKey) {
-        if (process.env.NODE_ENV !== 'production') return { ok: true, delivered: false };
-        return { ok: false, error: new Error('Proveedor de correo no configurado.') };
-      }
-      try {
-        const resend = new Resend(apiKey);
-        const result = await resend.emails.send({
-          from: AUTH_FROM_EMAIL,
-          to: message.to,
-          subject: message.subject,
-          html: message.html,
-          ...(message.text ? { text: message.text } : {}),
-        });
-        return result.error
-          ? { ok: false, error: new Error('El proveedor rechazó el correo.') }
-          : { ok: true, delivered: true };
-      } catch {
-        return { ok: false, error: new Error('El proveedor de correo no está disponible.') };
-      }
-    },
-  };
+  const environment = getServerEnvironment();
+  return createConfiguredAuthEmailAdapter({
+    nodeEnv: environment.NODE_ENV,
+    provider: environment.EMAIL_PROVIDER,
+    sinkUrl: environment.AUTH_EMAIL_TEST_SINK_URL,
+    resendApiKey: environment.RESEND_API_KEY,
+    resendFromEmail: environment.RESEND_FROM_EMAIL,
+  });
 }
 
 export function buildPasswordResetLink(token: string): string {

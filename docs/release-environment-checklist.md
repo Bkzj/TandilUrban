@@ -16,7 +16,7 @@ No registrar valores de esta lista en tickets, logs ni documentación. Usar un g
 | `RATE_LIMIT_TRUSTED_IP_HEADER` | sólo `x-vercel-forwarded-for` o `cf-connecting-ip`, según el proxy realmente desplegado. |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | proyecto de staging con presupuesto/cuotas mínimos; ninguna credencial productiva. |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | cuenta o carpeta de staging aislada de producción. |
-| `RESEND_API_KEY`, `RESEND_FROM_EMAIL` | sandbox/sink o destinatarios aprobados. |
+| `EMAIL_PROVIDER`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL` | `sink` es el default local/CI y no llega a Gmail. Staging/producción deben usar `resend`, clave aislada y remitente de dominio verificado. |
 | `LEAD_NOTIFICATION_TO_EMAIL`, `MATCH_NOTIFICATION_TO_EMAIL` | buzones de prueba aprobados, nunca clientes. |
 
 La validación de runtime falla cerrada en producción si faltan base de datos, URLs, secretos de autenticación/visualización, Cloudinary, Resend o el backend PostgreSQL de rate limit. Antes de promover, ejecutar `npm run release:smoke` con secretos inyectados por el gestor: no imprime valores y no envía correo ni invoca Gemini. Los flags `--check-email-provider` y `--check-gemini-provider` requieren una aprobación explícita del operador y una cuenta de staging.

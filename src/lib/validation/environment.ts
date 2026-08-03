@@ -4,6 +4,11 @@ import { parseSafeHttpsUrl } from '@/lib/validation/url';
 
 const optionalTrimmed = z.string().trim().min(1).optional();
 const optionalBounded = z.string().trim().min(1).max(2_048).optional();
+const optionalLocalSinkUrl = z.string().trim().url().max(2_048).optional().refine((value) => {
+  if (!value) return true;
+  const parsed = new URL(value);
+  return parsed.protocol === 'http:' && ['127.0.0.1', 'localhost', '::1'].includes(parsed.hostname);
+}, 'Debe ser una URL HTTP local de loopback.');
 const requiredUrl = z.string().trim().transform((value, context) => {
   const parsed = parseSafeHttpsUrl(value, { allowLocalDevelopment: true });
   if (!parsed) {
@@ -51,6 +56,8 @@ export const serverEnvironmentSchema = z
     AUTH_RECENT_LOGIN_TTL_MINUTES: z.coerce.number().int().min(1).max(60).default(15),
     AUTH_RECOVERY_CODE_COUNT: z.coerce.number().int().min(6).max(20).default(10),
     ACCOUNT_INVITATION_TTL_HOURS: z.coerce.number().int().min(1).max(168).default(48),
+    EMAIL_PROVIDER: z.enum(['sink', 'resend']).default('sink'),
+    AUTH_EMAIL_TEST_SINK_URL: optionalLocalSinkUrl,
     NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: optionalTrimmed.refine((value) => {
       if (!value) return true;
       try {
@@ -79,6 +86,23 @@ export const serverEnvironmentSchema = z
   })
   .passthrough()
   .superRefine((value, context) => {
+    if (value.EMAIL_PROVIDER === 'resend') {
+      if (!value.RESEND_API_KEY) {
+        context.addIssue({ code: 'custom', message: 'Requerida cuando EMAIL_PROVIDER=resend.', path: ['RESEND_API_KEY'] });
+      } else if (!/^re_[A-Za-z0-9_-]{8,}$/u.test(value.RESEND_API_KEY) || /replace|example|change|secret/i.test(value.RESEND_API_KEY)) {
+        context.addIssue({ code: 'custom', message: 'No tiene el formato de una clave Resend válida o parece un placeholder.', path: ['RESEND_API_KEY'] });
+      }
+      if (!value.RESEND_FROM_EMAIL) {
+        context.addIssue({ code: 'custom', message: 'Requerida cuando EMAIL_PROVIDER=resend.', path: ['RESEND_FROM_EMAIL'] });
+      } else {
+        const address = value.RESEND_FROM_EMAIL.match(/<([^<>]+)>$/u)?.[1] ?? value.RESEND_FROM_EMAIL;
+        const domain = address.split('@')[1]?.toLowerCase();
+        const placeholderDomain = domain && ['example.com', 'example.invalid', 'resend.dev'].some((item) => domain === item || domain.endsWith(`.${item}`));
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(address) || !domain || placeholderDomain) {
+          context.addIssue({ code: 'custom', message: 'Debe usar un remitente de un dominio autorizado, no un placeholder.', path: ['RESEND_FROM_EMAIL'] });
+        }
+      }
+    }
     if (value.NODE_ENV !== 'production') return;
     const requiredProduction = [
       'CLOUDINARY_CLOUD_NAME',
@@ -92,6 +116,9 @@ export const serverEnvironmentSchema = z
       if (!value[field]) {
         context.addIssue({ code: 'custom', message: 'Variable requerida en producción.', path: [field] });
       }
+    }
+    if (value.EMAIL_PROVIDER !== 'resend') {
+      context.addIssue({ code: 'custom', message: 'En producción debe seleccionarse Resend explícitamente.', path: ['EMAIL_PROVIDER'] });
     }
     if (value.RATE_LIMIT_BACKEND !== 'postgresql') {
       context.addIssue({

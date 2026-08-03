@@ -240,8 +240,9 @@ test('environment policy allows safe development defaults but rejects invalid pr
     CLOUDINARY_CLOUD_NAME: 'cloud',
     CLOUDINARY_API_KEY: 'key',
     CLOUDINARY_API_SECRET: 'c'.repeat(32),
-    RESEND_API_KEY: 're_key',
-    RESEND_FROM_EMAIL: 'Propea <noreply@example.com>',
+    EMAIL_PROVIDER: 'resend',
+    RESEND_API_KEY: 're_fictitious',
+    RESEND_FROM_EMAIL: 'Propea <noreply@mail.propea.group>',
     RATE_LIMIT_BACKEND: 'postgresql',
   } satisfies NodeJS.ProcessEnv;
   assert.equal(validateServerEnvironment(base).ok, true);

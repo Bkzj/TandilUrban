@@ -13,7 +13,7 @@ const REQUIRED_ENVIRONMENT = [
   'APP_INTERNAL_URL', 'VIEW_TRACKING_SECRET', 'PDF_ALLOWED_ORIGINS',
   'PUPPETEER_DISABLE_SANDBOX', 'PUPPETEER_EXECUTABLE_PATH', 'RATE_LIMIT_BACKEND',
   'RATE_LIMIT_TRUSTED_IP_HEADER', 'GEMINI_API_KEY', 'GEMINI_MODEL', 'CLOUDINARY_CLOUD_NAME',
-  'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'RESEND_API_KEY', 'RESEND_FROM_EMAIL',
+  'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 'EMAIL_PROVIDER', 'RESEND_API_KEY', 'RESEND_FROM_EMAIL',
   'LEAD_NOTIFICATION_TO_EMAIL', 'MATCH_NOTIFICATION_TO_EMAIL',
   'AUTH_ENCRYPTION_KEY', 'AUTH_TOTP_ISSUER', 'AUTH_TOTP_CHALLENGE_TTL_SECONDS',
   'AUTH_PASSWORD_RESET_TTL_MINUTES', 'AUTH_EMAIL_VERIFICATION_TTL_HOURS',
@@ -63,6 +63,15 @@ function requiredEnvironmentCheck() {
     if (!Number.isInteger(value) || value < minimum || value > maximum) throw new Error(`${name} fuera de rango`);
   }
   if (process.env.RATE_LIMIT_BACKEND !== 'postgresql') throw new Error('RATE_LIMIT_BACKEND debe ser postgresql');
+  if (process.env.EMAIL_PROVIDER !== 'resend') throw new Error('EMAIL_PROVIDER debe ser resend en staging/producción');
+  if (!/^re_[A-Za-z0-9_-]{8,}$/u.test(process.env.RESEND_API_KEY) || /replace|example|change|secret/i.test(process.env.RESEND_API_KEY)) {
+    throw new Error('RESEND_API_KEY no tiene formato válido o parece un placeholder');
+  }
+  const resendAddress = process.env.RESEND_FROM_EMAIL.match(/<([^<>]+)>$/u)?.[1] ?? process.env.RESEND_FROM_EMAIL;
+  const resendDomain = resendAddress.split('@')[1]?.toLowerCase();
+  if (!resendDomain || ['example.com', 'example.invalid', 'resend.dev'].some((item) => resendDomain === item || resendDomain.endsWith(`.${item}`))) {
+    throw new Error('RESEND_FROM_EMAIL debe usar un dominio remitente autorizado');
+  }
   if (!['x-vercel-forwarded-for', 'cf-connecting-ip'].includes(process.env.RATE_LIMIT_TRUSTED_IP_HEADER)) {
     throw new Error('RATE_LIMIT_TRUSTED_IP_HEADER no está permitido');
   }

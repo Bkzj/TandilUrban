@@ -2,7 +2,8 @@ import { hash } from 'bcryptjs';
 import { Prisma, RolUsuario, type PrismaClient } from '@/generated/prisma';
 
 import { createOpaqueToken, hashAuthSecret } from '@/lib/auth-security';
-import { type AuthEmailAdapter, sendAccountInvitationEmail } from '@/lib/mail';
+import { type AuthEmailAdapter, type AuthEmailProvider, sendAccountInvitationEmail } from '@/lib/mail';
+import { serverLogger } from '@/lib/server-logger';
 import { getServerEnvironment } from '@/lib/validation/environment';
 import { recordSecurityEvent } from '@/server/auth-security/security-event-repository';
 import { canInviteAgent, canManageAccountStatus } from '@/server/admin/admin-policy';
@@ -16,6 +17,7 @@ function invitationExpiration(now: Date): { expiresAt: Date; expirationHours: nu
 export type AdministrativeMutationResult<T> = {
   value: T;
   invitationDeliverySucceeded: boolean;
+  invitationDeliveryProvider: AuthEmailProvider | 'unresolved';
   invitationCopySource: 'provider' | 'fallback';
 };
 
@@ -95,7 +97,7 @@ type PendingInvitationDelivery = {
 async function deliverInvitation(
   invitation: PendingInvitationDelivery,
   options: { client: PrismaClient; emailAdapter?: AuthEmailAdapter; copyProvider?: InvitationCopyProvider; requestId?: string; now?: Date },
-): Promise<{ delivered: boolean; copySource: 'provider' | 'fallback' }> {
+): Promise<{ delivered: boolean; provider: AuthEmailProvider | 'unresolved'; copySource: 'provider' | 'fallback' }> {
   const now = options.now ?? new Date();
   const resolved = await resolveInvitationCopy({
     administratorDisplayName: invitation.administratorName,
@@ -116,9 +118,19 @@ async function deliverInvitation(
       ? await sendAccountInvitationEmail(input, options.emailAdapter)
       : await sendAccountInvitationEmail(input);
   } catch {
-    delivery = { ok: false, error: new Error('El proveedor de correo no está disponible.') };
+    delivery = { ok: false, error: new Error('El proveedor de correo no está disponible.'), category: 'provider_unavailable' };
   }
   const delivered = delivery.ok && delivery.delivered;
+  const provider = delivery.provider ?? (options.emailAdapter ? 'injected' : 'unresolved');
+  const logContext = {
+    requestId: options.requestId,
+    provider,
+    template: 'account_invitation',
+    deliveryResult: delivered ? 'success' : 'failed',
+    ...(!delivered && delivery.category ? { failureCategory: delivery.category } : {}),
+  };
+  if (delivered) serverLogger.info('auth.email.delivery', logContext);
+  else serverLogger.warn('auth.email.delivery', logContext);
   await options.client.$transaction(async (tx) => {
     await tx.accountInvitation.update({
       where: { id: invitation.invitationId },
@@ -136,7 +148,7 @@ async function deliverInvitation(
       requestId: options.requestId,
     }, tx);
   });
-  return { delivered, copySource: resolved.source };
+  return { delivered, provider, copySource: resolved.source };
 }
 
 export async function createInmobiliariaWithAdministrator(
@@ -221,6 +233,7 @@ export async function createInmobiliariaWithAdministrator(
   return {
     value: { inmobiliariaId: invitation.inmobiliariaId, administratorId: invitation.administratorId, invitationId: invitation.invitationId, expiresAt: invitation.expiresAt },
     invitationDeliverySucceeded: delivery.delivered,
+    invitationDeliveryProvider: delivery.provider,
     invitationCopySource: delivery.copySource,
   };
 }
@@ -248,7 +261,7 @@ export async function inviteAgent(
   }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   const delivery = await deliverInvitation({ invitationId: created.invitationId, actorUserId: input.actorUserId, administratorId: created.id, email: created.email, administratorName: created.nombre, inmobiliariaId: input.inmobiliariaId, inmobiliariaName: created.inmobiliariaName, role: 'AGENTE', rawToken: created.rawToken, expirationHours, eventOnSuccess: 'ACCOUNT_INVITATION_SENT' }, options);
   const value = { id: created.id, nombre: created.nombre, email: created.email, rol: created.rol, activo: created.activo, createdAt: created.createdAt };
-  return { value, invitationDeliverySucceeded: delivery.delivered, invitationCopySource: delivery.copySource };
+  return { value, invitationDeliverySucceeded: delivery.delivered, invitationDeliveryProvider: delivery.provider, invitationCopySource: delivery.copySource };
 }
 
 export async function resendAccountInvitation(
@@ -270,7 +283,7 @@ export async function resendAccountInvitation(
     return { invitationId: invitation.id, actorUserId: actor.id, administratorId: tenant.user.id, email: tenant.user.email, administratorName: tenant.user.nombre, inmobiliariaId: tenant.id, inmobiliariaName: tenant.nombreAgencia, role: 'INMOBILIARIA' as const, rawToken, expirationHours, eventOnSuccess: 'ACCOUNT_INVITATION_SENT' as const };
   }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   const delivery = await deliverInvitation(pending, options);
-  return { value: { invitationId: pending.invitationId, expiresAt }, invitationDeliverySucceeded: delivery.delivered, invitationCopySource: delivery.copySource };
+  return { value: { invitationId: pending.invitationId, expiresAt }, invitationDeliverySucceeded: delivery.delivered, invitationDeliveryProvider: delivery.provider, invitationCopySource: delivery.copySource };
 }
 
 export async function getAccountInvitationPublicContext(

@@ -28,6 +28,19 @@ El renderer determinista produce HTML conservador y alternativa de texto plano. 
 
 El correo explica la administración de publicaciones y agentes, la expiración y el uso único. El token no aparece en asunto, preview, logs, analítica ni texto visible; sólo en el enlace HTTPS confiable construido desde `APP_URL`.
 
+### Selección explícita del transporte
+
+El transporte nunca se infiere por la mera presencia de una clave:
+
+- `EMAIL_PROVIDER=sink` es el default seguro de desarrollo y CI. Con `AUTH_EMAIL_TEST_SINK_URL` envía el mensaje a un receptor HTTP de loopback; sin URL no contacta ninguna red externa y reporta entrega pendiente. **No envía a Gmail.**
+- `EMAIL_PROVIDER=resend` es el único modo que puede contactar Resend. Exige `RESEND_API_KEY` y `RESEND_FROM_EMAIL`; el remitente debe pertenecer a un dominio autorizado en la cuenta de Resend. `example.com`, `resend.dev` y otros placeholders se rechazan.
+- `NODE_ENV=test` bloquea el cliente Resend real incluso si el entorno se configuró incorrectamente. Las pruebas sólo pueden usar un cliente fake inyectado.
+- Producción y el smoke de staging exigen explícitamente `EMAIL_PROVIDER=resend`.
+
+Los resultados se reducen a categorías seguras (`invalid_api_key`, `unauthorized_sender`, `invalid_recipient`, `rate_limited`, `provider_unavailable` o rechazo genérico). No se persiste la respuesta raw. El log sólo incluye provider, template, resultado, categoría segura y request ID; nunca destinatario, body, token, URL ni clave.
+
+En desarrollo, la UI distingue **Invitación capturada por el buzón local de desarrollo** de una entrega aceptada por Resend. Esta indicación no se incluye en las respuestas de producción.
+
 ## Asistencia editorial de Gemini
 
 `InvitationCopyProvider` desacopla negocio y proveedor. `GeminiInvitationCopyProvider` sólo está habilitado explícitamente con `INVITATION_GEMINI_ENABLED=true`; en desarrollo, pruebas y por defecto se usa la copia determinista.
@@ -72,3 +85,19 @@ La migración `20260806120000_phase7b_inmobiliaria_onboarding` agrega estado/fec
 Las pruebas unitarias cubren contrato editorial, fallback, escape, HTML/texto y estados. PostgreSQL 17 cubre transacción, rollback por conflicto, confirmación de cuenta existente, reenvío y aceptación concurrente. El E2E usa ADMIN y cuentas ficticias, buzón HTTP local y Gemini deshabilitado: alta, correo, invalidación del primer enlace, aceptación, login `INMOBILIARIA`, invitación de agente y aislamiento tenant.
 
 Antes de producción resta validar manualmente en staging: HTTPS/`APP_URL`, proveedor de correo y dominio remitente, render en Gmail/Outlook/Apple Mail, backend durable de rate limit, migración/backup, observabilidad de fallos y —si se habilita— cuota y credencial Gemini aisladas. Producción continúa **NO-GO** hasta completar ese gate.
+
+## QA manual con un buzón externo
+
+Esta prueba es deliberadamente manual y nunca forma parte de `npm test` ni CI:
+
+1. Crear o seleccionar una API key de Resend destinada al entorno local de QA.
+2. Verificar el dominio remitente en Resend y configurar, sin commitear, `RESEND_FROM_EMAIL="Propea Group <invitaciones@dominio-verificado>"`.
+3. Configurar `EMAIL_PROVIDER="resend"` y `RESEND_API_KEY` en `.env`; eliminar o ignorar `AUTH_EMAIL_TEST_SINK_URL`.
+4. Mantener `INVITATION_GEMINI_ENABLED="false"` si sólo se quiere validar correo.
+5. Reiniciar completamente `npm run dev` para recargar el entorno y ejecutar el predev de migraciones.
+6. Crear una inmobiliaria o usar **Reenviar invitación** con el Gmail elegido manualmente.
+7. Confirmar en logs sólo `provider=resend`, `template=account_invitation` y `deliveryResult=success`; revisar también el panel de Resend.
+8. Revisar entrada y spam del destinatario, abrir el enlace, elegir contraseña y comprobar el login `INMOBILIARIA`.
+9. Restaurar `EMAIL_PROVIDER="sink"` al terminar el QA local.
+
+Nunca commitear `.env`, la API key, el destinatario real ni el contenido del mensaje.

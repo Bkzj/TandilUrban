@@ -22,9 +22,17 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { id } = await context.params;
     try {
       const result = await resendAccountInvitation({ actorUserId: user.id, inmobiliariaId: id }, { client: prisma, requestId });
+      const sinkDelivery = process.env.NODE_ENV !== 'production'
+        && result.invitationDeliverySucceeded
+        && result.invitationDeliveryProvider === 'sink';
       return NextResponse.json({
-        message: result.invitationDeliverySucceeded ? 'Invitación reenviada.' : 'La invitación quedó pendiente de envío.',
+        message: sinkDelivery
+          ? 'Invitación capturada por el buzón local de desarrollo.'
+          : result.invitationDeliverySucceeded
+            ? 'Invitación reenviada.'
+            : 'No pudimos enviar la invitación. Podés volver a intentarlo desde este detalle.',
         invitationDeliverySucceeded: result.invitationDeliverySucceeded,
+        ...(process.env.NODE_ENV !== 'production' ? { invitationDeliveryProvider: result.invitationDeliveryProvider } : {}),
         expiresAt: result.value.expiresAt.toISOString(),
       });
     } catch (error) {

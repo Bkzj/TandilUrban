@@ -1,6 +1,7 @@
 import { getCurrentUser } from '@/lib/auth';
 import { PasswordChangeForm } from '@/components/perfil/PasswordChangeForm';
 import { TwoFactorSecurityPanel } from '@/components/perfil/TwoFactorSecurityPanel';
+import { SessionManagementPanel } from '@/components/perfil/SessionManagementPanel';
 
 export const metadata = {
   title: 'Mi perfil | Propea Group',
@@ -77,6 +78,11 @@ export default async function PerfilPage() {
       <h2 id="perfil-dos-factores" className="text-lg font-bold text-gray-900">Verificación en dos pasos</h2>
       <p className="mt-1 text-sm text-gray-500">Protegé tu cuenta con una aplicación autenticadora y códigos de recuperación.</p>
       <TwoFactorSecurityPanel />
+    </section>
+    <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="perfil-sesiones">
+      <h2 id="perfil-sesiones" className="text-lg font-bold text-gray-900">Sesiones activas</h2>
+      <p className="mt-1 text-sm text-gray-500">Administrá los dispositivos donde tu cuenta tiene una sesión iniciada.</p>
+      <SessionManagementPanel />
     </section>
     </div>
   );

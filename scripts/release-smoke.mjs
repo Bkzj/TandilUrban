@@ -81,7 +81,7 @@ async function databaseAndSchemaCheck() {
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 1, connectionTimeoutMillis: 5_000 });
   try {
     await pool.query('SELECT 1');
-    const requiredTables = ['User', 'Propiedad', 'CloudinaryAsset', 'CloudinaryDeletionJob', 'PropiedadVista', 'RateLimitBucket', 'AuthSessionVersion', 'PasswordResetToken', 'TwoFactorConfiguration', 'TwoFactorChallenge', 'TwoFactorRecoveryCode', 'SecurityEvent'];
+    const requiredTables = ['User', 'Propiedad', 'CloudinaryAsset', 'CloudinaryDeletionJob', 'PropiedadVista', 'RateLimitBucket', 'AuthSessionVersion', 'AuthSession', 'PasswordResetToken', 'TwoFactorConfiguration', 'TwoFactorChallenge', 'TwoFactorRecoveryCode', 'SecurityEvent'];
     const tables = await pool.query('SELECT tablename FROM pg_tables WHERE schemaname = current_schema() AND tablename = ANY($1)', [requiredTables]);
     if (tables.rowCount !== requiredTables.length) throw new Error('faltan tablas requeridas de release');
     const constraints = await pool.query("SELECT count(*)::int AS count FROM pg_constraint WHERE conname IN ('Propiedad_coordinates_check', 'CloudinaryAsset_status_dates_check', 'VerificationToken_expiry_check')");
@@ -92,6 +92,8 @@ async function databaseAndSchemaCheck() {
     if (authIndexes.rows[0].count !== 5) throw new Error('faltan índices de autenticación Phase 6A');
     const phase6d = await pool.query("SELECT (SELECT count(*)::int FROM information_schema.columns WHERE table_name='TwoFactorChallenge' AND column_name='sessionVersion') AS version_column, (SELECT count(*)::int FROM pg_indexes WHERE indexname='TwoFactorChallenge_userId_sessionVersion_expiresAt_idx') AS version_index, (SELECT count(*)::int FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typname='SecurityEventType' AND e.enumlabel IN ('TWO_FACTOR_SETUP_STARTED','TWO_FACTOR_CHALLENGE_FAILED','TWO_FACTOR_CHALLENGE_COMPLETED','RECOVERY_CODE_LOGIN_SUCCEEDED','RECOVERY_CODE_LOGIN_FAILED')) AS events");
     if (phase6d.rows[0].version_column !== 1 || phase6d.rows[0].version_index !== 1 || phase6d.rows[0].events !== 5) throw new Error('falta estructura de segundo factor Phase 6D');
+    const phase6e = await pool.query("SELECT (SELECT count(*)::int FROM pg_constraint WHERE conname IN ('AuthSession_session_version_check','AuthSession_expiry_check','AuthSession_seen_check','AuthSession_revocation_check','AuthSession_userId_fkey')) AS constraints, (SELECT count(*)::int FROM pg_indexes WHERE indexname IN ('AuthSession_sessionHash_key','AuthSession_userId_revokedAt_expiresAt_lastSeenAt_idx','AuthSession_expiresAt_idx')) AS indexes, (SELECT count(*)::int FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typname='SecurityEventType' AND e.enumlabel IN ('SESSION_CREATED','SESSION_REVOKED','OTHER_SESSIONS_REVOKED','ALL_SESSIONS_REVOKED','SESSION_EXPIRED')) AS events, (SELECT count(*)::int FROM \"AuthSession\" WHERE (\"revokedAt\" IS NULL) <> (\"revokedReason\" IS NULL)) AS invalid_state");
+    if (phase6e.rows[0].constraints !== 5 || phase6e.rows[0].indexes !== 3 || phase6e.rows[0].events !== 5 || phase6e.rows[0].invalid_state !== 0) throw new Error('falta estructura o hay estado inválido de sesiones Phase 6E');
     const legacy = await pool.query('SELECT count(*)::int AS count FROM "User" WHERE "twoFactorSecret" IS NOT NULL');
     if (legacy.rows[0].count !== 0) throw new Error('existen secretos 2FA legacy pendientes');
   } finally {

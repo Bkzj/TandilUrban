@@ -101,6 +101,20 @@ export const twoFactorDisableSchema = z.object({
   code: z.union([totpCodeSchema, recoveryCodeSchema]),
 }).strict();
 
+export const revokeSessionSchema = z.object({
+  sessionId: z.string().uuid(),
+}).strict();
+
+export const revokeSessionsBulkSchema = z.object({
+  password: passwordSchema,
+  factor: z.enum(['totp', 'recovery']).optional(),
+  code: z.string().min(1).max(64).optional(),
+}).strict().superRefine((value, context) => {
+  if ((value.factor === undefined) !== (value.code === undefined)) {
+    context.addIssue({ code: 'custom', message: 'El segundo factor está incompleto.' });
+  }
+});
+
 export const verificationTokenSchema = z
   .string()
   .trim()

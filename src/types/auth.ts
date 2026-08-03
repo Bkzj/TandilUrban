@@ -18,4 +18,5 @@ export type SessionUserAugmented = {
   role?: string;
   tenantId?: string | null;
   sessionVersion?: number;
+  authSessionId?: string;
 };

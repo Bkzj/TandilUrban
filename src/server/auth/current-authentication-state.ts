@@ -1,10 +1,16 @@
 import { prisma } from '@/lib/prisma';
+import { hashAuthSecret } from '@/lib/auth-security';
+import { findActiveAuthSessionByHash, touchAuthSession } from '@/server/auth-security/auth-session-repository';
 import { currentUserInclude, type CurrentUser } from '@/types/auth';
 
 export type CurrentAuthenticationState = {
   user: CurrentUser;
   sessionVersion: number;
   tenantId: string | null;
+};
+
+export type CurrentSessionAuthenticationState = CurrentAuthenticationState & {
+  authSessionId: string;
 };
 
 export async function loadCurrentAuthenticationState(
@@ -30,4 +36,23 @@ export async function loadCurrentAuthenticationState(
       ? user.agenciaId
       : null;
   return { user, sessionVersion: authSessionVersion.version, tenantId };
+}
+
+export async function loadCurrentSessionAuthenticationState(
+  userId: string,
+  expectedSessionVersion: number,
+  rawSessionIdentifier: string,
+  now = new Date(),
+): Promise<CurrentSessionAuthenticationState | null> {
+  const state = await loadCurrentAuthenticationState(userId, expectedSessionVersion);
+  if (!state || rawSessionIdentifier.length < 32 || rawSessionIdentifier.length > 256) return null;
+  const session = await findActiveAuthSessionByHash(
+    userId,
+    hashAuthSecret(rawSessionIdentifier),
+    expectedSessionVersion,
+    now,
+  );
+  if (!session) return null;
+  await touchAuthSession(session.id, session.lastSeenAt, now);
+  return { ...state, authSessionId: session.id };
 }

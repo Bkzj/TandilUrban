@@ -23,6 +23,7 @@ import {
   sendTwoFactorEnabledEmail,
 } from '@/lib/mail';
 import { recordSecurityEvent } from '@/server/auth-security/security-event-repository';
+import { revokeAllUserAuthSessions } from '@/server/auth-security/auth-session-repository';
 
 type Options = {
   client: PrismaClient;
@@ -120,6 +121,7 @@ export async function confirmTwoFactorSetup(
       });
       if (version.count !== 1) throw new TwoFactorConflict();
       await tx.twoFactorChallenge.updateMany({ where: { userId: input.userId, consumedAt: null }, data: { consumedAt: now } });
+      await revokeAllUserAuthSessions(input.userId, 'TWO_FACTOR_ENABLED', now, tx);
       await recordSecurityEvent({ userId: input.userId, type: 'TWO_FACTOR_ENABLED', requestId: settings.requestId }, tx);
       await recordSecurityEvent({ userId: input.userId, type: 'SESSION_VERSION_INCREMENTED', requestId: settings.requestId }, tx);
       return input.expectedSessionVersion + 1;
@@ -281,6 +283,7 @@ export async function regenerateTwoFactorRecoveryCodes(
       const version = await tx.authSessionVersion.updateMany({ where: { userId: account.id, version: input.expectedSessionVersion }, data: { version: { increment: 1 } } });
       if (version.count !== 1) throw new TwoFactorConflict();
       await tx.twoFactorChallenge.updateMany({ where: { userId: account.id, consumedAt: null }, data: { consumedAt: now } });
+      await revokeAllUserAuthSessions(account.id, 'RECOVERY_REGENERATED', now, tx);
       await recordSecurityEvent({ userId: account.id, type: 'RECOVERY_CODES_REGENERATED', requestId: settings.requestId }, tx);
       await recordSecurityEvent({ userId: account.id, type: 'SESSION_VERSION_INCREMENTED', requestId: settings.requestId }, tx);
       return input.expectedSessionVersion + 1;
@@ -317,6 +320,7 @@ export async function disableTwoFactor(
         if (accepted.count !== 1) throw new TwoFactorConflict();
       }
       await tx.twoFactorChallenge.updateMany({ where: { userId: account.id, consumedAt: null }, data: { consumedAt: now } });
+      await revokeAllUserAuthSessions(account.id, 'TWO_FACTOR_DISABLED', now, tx);
       const removed = await tx.twoFactorConfiguration.deleteMany({ where: { id: configuration.id, userId: account.id } });
       if (removed.count !== 1) throw new TwoFactorConflict();
       const version = await tx.authSessionVersion.updateMany({ where: { userId: account.id, version: input.expectedSessionVersion }, data: { version: { increment: 1 } } });

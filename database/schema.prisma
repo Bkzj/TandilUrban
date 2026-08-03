@@ -86,6 +86,7 @@ model User {
   twoFactorConfiguration    TwoFactorConfiguration?
   twoFactorChallenges       TwoFactorChallenge[]
   authSessionVersion        AuthSessionVersion?
+  authSessions              AuthSession[]
   securityEvents            SecurityEvent[]
   propiedadesComoAgente     Propiedad[]             @relation("PropiedadAgente")
   favoritos                 Propiedad[]             @relation("UsuarioFavoritos")
@@ -104,6 +105,26 @@ model AuthSessionVersion {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   version   Int      @default(0)
   updatedAt DateTime @updatedAt
+}
+
+model AuthSession {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionHash     String   @unique @db.Char(64)
+  sessionVersion  Int
+  browser         String   @db.VarChar(32)
+  operatingSystem String   @db.VarChar(32)
+  issuedAt        DateTime @default(now())
+  lastSeenAt      DateTime @default(now())
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  revokedReason   String?  @db.VarChar(32)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, revokedAt, expiresAt, lastSeenAt])
+  @@index([expiresAt])
 }
 
 model PasswordResetToken {
@@ -196,6 +217,11 @@ enum SecurityEventType {
   TWO_FACTOR_CHALLENGE_COMPLETED
   RECOVERY_CODE_LOGIN_SUCCEEDED
   RECOVERY_CODE_LOGIN_FAILED
+  SESSION_CREATED
+  SESSION_REVOKED
+  OTHER_SESSIONS_REVOKED
+  ALL_SESSIONS_REVOKED
+  SESSION_EXPIRED
 }
 
 model SecurityEvent {

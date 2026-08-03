@@ -17,6 +17,14 @@ import { AUTH_RATE_LIMIT_POLICIES, authIdentityRateLimitKey } from '@/server/aut
 import { ensureLoginSessionVersion } from '@/server/auth/session-version-login';
 import { completeTwoFactorLogin } from '@/server/auth/two-factor-service';
 import { hashAuthSecret } from '@/lib/auth-security';
+import { createOpaqueToken } from '@/lib/auth-security';
+import {
+  AUTH_SESSION_MAX_AGE_SECONDS,
+  createAuthSession,
+  revokeCurrentAuthSessionByHash,
+} from '@/server/auth-security/auth-session-repository';
+import { sessionMetadataFromHeaders } from '@/server/auth/session-metadata';
+import { loadCurrentSessionAuthenticationState } from '@/server/auth/current-authentication-state';
 import { type CurrentUser, type SessionUserAugmented } from '@/types/auth';
 
 export { roleCanAccessPanel } from '@/lib/rbac';
@@ -28,12 +36,33 @@ type AuthenticationJwt = JWT & {
   role?: string;
   tenantId?: string | null;
   sessionVersion?: number;
+  authSessionIdentifier?: string;
+  authSessionId?: string;
 };
+
+type AuthorizedUserWithSessionSeed = AuthorizedCredentialsUser & {
+  authSessionIdentifier: string;
+  sessionBrowser: string;
+  sessionOperatingSystem: string;
+};
+
+function attachSessionSeed(
+  user: AuthorizedCredentialsUser,
+  headers: Record<string, string | string[] | undefined> | undefined,
+): AuthorizedUserWithSessionSeed {
+  const metadata = sessionMetadataFromHeaders(headers);
+  return {
+    ...user,
+    authSessionIdentifier: createOpaqueToken(),
+    sessionBrowser: metadata.browser,
+    sessionOperatingSystem: metadata.operatingSystem,
+  };
+}
 
 export const authOptions: NextAuthOptions = {
   secret: getServerEnvironment().NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: 'jwt' },
+  session: { strategy: 'jwt', maxAge: AUTH_SESSION_MAX_AGE_SECONDS },
   pages: { signIn: '/login' },
   providers: [
     Credentials({
@@ -72,7 +101,7 @@ export const authOptions: NextAuthOptions = {
           type: result ? 'LOGIN_SUCCEEDED' : 'LOGIN_FAILED',
           category: result ? 'credentials' : 'generic_credentials_failure',
         });
-        return result;
+        return result ? attachSessionSeed(result, request.headers) : null;
       },
     }),
     Credentials({
@@ -102,10 +131,11 @@ export const authOptions: NextAuthOptions = {
         if (!ipRate.allowed || !challengeRate.allowed) return null;
         const environment = getServerEnvironment();
         if (!environment.AUTH_ENCRYPTION_KEY) return null;
-        return completeTwoFactorLogin(parsed.data, {
+        const result = await completeTwoFactorLogin(parsed.data, {
           client: prisma,
           encryptionKey: environment.AUTH_ENCRYPTION_KEY,
         });
+        return result ? attachSessionSeed(result, request.headers) : null;
       },
     }),
   ],
@@ -113,16 +143,41 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       const authToken = token as AuthenticationJwt;
       if (user) {
-        const authenticated = user as AuthorizedCredentialsUser;
+        const authenticated = user as AuthorizedUserWithSessionSeed;
         authToken.sessionVersion = authenticated.sessionVersion;
+        if (!authenticated.authSessionIdentifier) {
+          authToken.authValid = false;
+          return authToken;
+        }
+        const issuedAt = new Date();
+        const record = await prisma.$transaction(async (tx) => {
+          const created = await createAuthSession({
+            userId: authenticated.id,
+            sessionHash: hashAuthSecret(authenticated.authSessionIdentifier),
+            sessionVersion: authenticated.sessionVersion,
+            browser: authenticated.sessionBrowser,
+            operatingSystem: authenticated.sessionOperatingSystem,
+            issuedAt,
+            expiresAt: new Date(issuedAt.getTime() + AUTH_SESSION_MAX_AGE_SECONDS * 1_000),
+          }, tx);
+          await recordSecurityEvent({ userId: authenticated.id, type: 'SESSION_CREATED', category: 'authentication' }, tx);
+          return created;
+        });
+        authToken.authSessionIdentifier = authenticated.authSessionIdentifier;
+        authToken.authSessionId = record.id;
       }
-      if (!token.sub || authToken.sessionVersion === undefined) {
+      if (!token.sub || authToken.sessionVersion === undefined || !authToken.authSessionIdentifier) {
         authToken.authValid = false;
         return authToken;
       }
-      const state = await loadCurrentAuthenticationState(token.sub, authToken.sessionVersion);
+      const state = await loadCurrentSessionAuthenticationState(
+        token.sub,
+        authToken.sessionVersion,
+        authToken.authSessionIdentifier,
+      );
       authToken.authValid = state !== null;
       if (state) {
+        authToken.authSessionId = state.authSessionId;
         authToken.role = state.user.rol;
         authToken.tenantId = state.tenantId;
         authToken.name = state.user.nombre;
@@ -132,7 +187,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       const authToken = token as AuthenticationJwt;
-      if (!session.user || !authToken.authValid || !token.sub || authToken.sessionVersion === undefined) {
+      if (!session.user || !authToken.authValid || !token.sub || authToken.sessionVersion === undefined || !authToken.authSessionId) {
         session.user = undefined;
         return session;
       }
@@ -141,11 +196,23 @@ export const authOptions: NextAuthOptions = {
       user.role = authToken.role;
       user.tenantId = authToken.tenantId ?? null;
       user.sessionVersion = authToken.sessionVersion;
+      user.authSessionId = authToken.authSessionId;
       return session;
     },
     async redirect({ url }) {
       const applicationUrl = getServerEnvironment().APP_URL;
       return new URL(safeInternalCallbackUrl(url, applicationUrl), applicationUrl).toString();
+    },
+  },
+  events: {
+    async signOut({ token }) {
+      const authToken = token as AuthenticationJwt;
+      if (!token.sub || !authToken.authSessionIdentifier) return;
+      const revoked = await revokeCurrentAuthSessionByHash(
+        token.sub,
+        hashAuthSecret(authToken.authSessionIdentifier),
+      );
+      if (revoked) await recordSecurityEvent({ userId: token.sub, type: 'SESSION_REVOKED', category: 'logout' });
     },
   },
 };

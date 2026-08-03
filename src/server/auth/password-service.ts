@@ -14,6 +14,7 @@ import {
 } from '@/server/auth-security/password-reset-token-repository';
 import { recordSecurityEvent } from '@/server/auth-security/security-event-repository';
 import { invalidatePendingChallenges } from '@/server/auth-security/two-factor-challenge-repository';
+import { revokeAllUserAuthSessions } from '@/server/auth-security/auth-session-repository';
 
 export const GENERIC_PASSWORD_RESET_REQUEST_MESSAGE =
   'Si existe una cuenta asociada a ese correo, te enviaremos un enlace para restablecer la contraseña.';
@@ -110,6 +111,7 @@ export async function resetPasswordWithToken(
 
       const invalidatedTokens = await invalidateOutstandingPasswordResetTokens(account.id, now, tx);
       const invalidatedChallenges = await invalidatePendingChallenges(account.id, now, tx);
+      await revokeAllUserAuthSessions(account.id, 'PASSWORD_RESET', now, tx);
       const version = await tx.authSessionVersion.upsert({
         where: { userId: account.id },
         create: { userId: account.id, version: 1 },
@@ -222,6 +224,7 @@ export async function changeAuthenticatedPassword(
       if (version.count !== 1) throw new PasswordChangeStateConflict();
       const invalidatedTokens = await invalidateOutstandingPasswordResetTokens(account.id, now, tx);
       const invalidatedChallenges = await invalidatePendingChallenges(account.id, now, tx);
+      await revokeAllUserAuthSessions(account.id, 'PASSWORD_CHANGED', now, tx);
       await recordSecurityEvent(
         { userId: account.id, type: 'PASSWORD_CHANGED', requestId: options.requestId, category: 'authenticated' },
         tx,

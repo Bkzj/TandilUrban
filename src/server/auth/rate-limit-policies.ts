@@ -17,6 +17,9 @@ export const AUTH_RATE_LIMIT_POLICIES = {
   twoFactorLoginChallenge: { limit: 5, windowMs: 15 * 60 * 1000 },
   twoFactorSetupUser: { limit: 5, windowMs: 15 * 60 * 1000 },
   twoFactorManagementUser: { limit: 5, windowMs: 15 * 60 * 1000 },
+  sessionListUser: { limit: 60, windowMs: 15 * 60 * 1000 },
+  sessionRevokeUser: { limit: 20, windowMs: 15 * 60 * 1000 },
+  sessionBulkRevokeUser: { limit: 5, windowMs: 15 * 60 * 1000 },
 } as const;
 
 export function authIdentityRateLimitKey(scope: string, normalizedEmail: string): string {

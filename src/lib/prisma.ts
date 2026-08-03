@@ -17,7 +17,7 @@ type PrismaGlobal = {
 const globalForPrisma: typeof globalThis & PrismaGlobal = globalThis;
 
 /** Delegates que deben existir; si faltan, el singleton quedó de antes de `prisma generate`. */
-const REQUIRED_DELEGATES = ['visitaFisicaEvento'] as const;
+const REQUIRED_DELEGATES = ['visitaFisicaEvento', 'authSession'] as const;
 
 /** Campos escalares requeridos en Propiedad; si faltan en el client generado, regenerar. */
 const REQUIRED_PROPIEDAD_FIELDS = ['esExclusiva'] as const;
